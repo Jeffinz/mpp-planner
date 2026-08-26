@@ -93,9 +93,8 @@ window.addEventListener("load", () => {
     tasks = [];
     snapshot.forEach((docSnap) => tasks.push(docSnap.data()));
     renderCalendar();
-    if (
-      !document.getElementById("tab-readiness").classList.contains("hidden")
-    ) {
+    const readinessTab = document.getElementById("tab-readiness");
+    if (readinessTab && !readinessTab.classList.contains("hidden")) {
       renderReadinessList();
     }
   });
@@ -274,18 +273,23 @@ function changeMonth(delta) {
 }
 
 function switchTab(tab) {
-  document
-    .querySelectorAll(".nav-btn")
-    .forEach((btn) => btn.classList.remove("bg-slate-700", "text-white"));
+  const btnDashboard = document.getElementById("btn-dashboard");
+  const btnReadiness = document.getElementById("btn-readiness");
+  const tabDashboard = document.getElementById("tab-dashboard");
+  const tabReadiness = document.getElementById("tab-readiness");
+
+  if (btnDashboard) btnDashboard.classList.remove("bg-slate-700", "text-white");
+  if (btnReadiness) btnReadiness.classList.remove("bg-slate-700", "text-white");
+
   if (tab === "dashboard") {
-    document.getElementById("tab-dashboard").classList.remove("hidden");
-    document.getElementById("tab-readiness").classList.add("hidden");
-    document.getElementById("btn-dashboard").classList.add("bg-slate-700");
+    if (tabDashboard) tabDashboard.classList.remove("hidden");
+    if (tabReadiness) tabReadiness.classList.add("hidden");
+    if (btnDashboard) btnDashboard.classList.add("bg-slate-700");
     renderCalendar();
   } else {
-    document.getElementById("tab-dashboard").classList.add("hidden");
-    document.getElementById("tab-readiness").classList.remove("hidden");
-    document.getElementById("btn-readiness").classList.add("bg-slate-700");
+    if (tabDashboard) tabDashboard.classList.add("hidden");
+    if (tabReadiness) tabReadiness.classList.remove("hidden");
+    if (btnReadiness) btnReadiness.classList.add("bg-slate-700");
     renderReadinessList();
   }
 }
