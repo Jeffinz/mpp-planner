@@ -4,16 +4,38 @@
   font-family: "Sarabun", sans-serif;
 }
 
+/* Active Nav Tab Styling */
+.nav-tab.active-tab {
+  color: #2563eb;
+  border-bottom-color: #2563eb;
+}
+
+/* Calendar Badge Custom Styling */
+.task-badge-pill {
+  transition:
+    transform 0.15s ease,
+    shadow 0.15s ease;
+}
+
+.task-badge-pill:hover {
+  transform: translateY(-1px);
+}
+
+/* Scrollbar Customization */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
