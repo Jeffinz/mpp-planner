@@ -95,24 +95,30 @@
           </div>
         </div>
         <div class="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
+          <!-- ปุ่ม 1: ปฏิทิน -->
           <button
             onclick="switchTab('dashboard')"
-            class="nav-btn flex-1 sm:flex-none bg-slate-800 hover:bg-slate-700 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center justify-center gap-1.5 border border-slate-700 active-tab"
+            class="nav-btn flex-1 sm:flex-initial w-1/2 sm:w-auto bg-slate-800 hover:bg-slate-700 px-2.5 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center justify-center gap-1 sm:gap-1.5 border border-slate-700 active-tab shrink-0"
             id="btn-dashboard"
           >
-            <i data-lucide="layout-dashboard" class="w-4 h-4"></i> ปฏิทิน
+            <i data-lucide="layout-dashboard" class="w-4 h-4 shrink-0"></i>
+            <span class="truncate">ปฏิทิน</span>
           </button>
+
+          <!-- ปุ่ม 2: ตรวจความพร้อม (ปรับขนาดให้เท่ากันเป๊ะ) -->
           <button
             onclick="switchTab('readiness')"
-            class="nav-btn flex-1 sm:flex-none bg-slate-800 hover:bg-slate-700 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center justify-center gap-1.5 border border-slate-700"
+            class="nav-btn flex-1 sm:flex-initial w-1/2 sm:w-auto bg-slate-800 hover:bg-slate-700 px-2.5 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center justify-center gap-1 sm:gap-1.5 border border-slate-700 shrink-0"
             id="btn-readiness"
           >
-            <i data-lucide="shield-check" class="w-4 h-4"></i> ตรวจความพร้อม
-            (Web App)
+            <i data-lucide="shield-check" class="w-4 h-4 shrink-0"></i>
+            <span class="truncate">ตรวจความพร้อม</span>
           </button>
+
+          <!-- ปุ่ม 3: ตั้งค่า -->
           <button
             onclick="openSettingsModal()"
-            class="bg-slate-800 hover:bg-slate-700 p-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center justify-center border border-slate-700 text-slate-300 hover:text-white"
+            class="bg-slate-800 hover:bg-slate-700 p-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center justify-center border border-slate-700 text-slate-300 hover:text-white shrink-0"
             title="จัดการข้อมูลปีเก่า / ล้างข้อมูล"
           >
             <i data-lucide="settings" class="w-4 h-4"></i>
