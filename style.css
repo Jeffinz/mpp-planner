@@ -1,283 +1,41 @@
-/* ==========================================================================
-   Modern Slate & Emerald Theme - Personal Work Planner
-   ========================================================================== */
-
-:root {
-  /* Color Palette */
-  --bg-base: #0f172a; /* Slate 900 */
-  --bg-surface: #1e293b; /* Slate 800 */
-  --bg-surface-hover: #334155; /* Slate 700 */
-  --bg-element: #0f172a; /* Darker inset */
-
-  --text-main: #f8fafc; /* Slate 50 */
-  --text-muted: #94a3b8; /* Slate 400 */
-  --text-dim: #64748b; /* Slate 500 */
-
-  --accent-emerald: #10b981; /* Emerald 500 */
-  --accent-hover: #059669; /* Emerald 600 */
-  --accent-light: rgba(16, 185, 129, 0.12);
-
-  --border-color: rgba(255, 255, 255, 0.08);
-  --border-focus: #38bdf8;
-
-  /* Status Colors */
-  --tag-work: #3b82f6;
-  --tag-personal: #8b5cf6;
-  --tag-urgent: #ef4444;
-
-  /* Layout & Styling Properties */
-  --radius-lg: 16px;
-  --radius-md: 10px;
-  --radius-sm: 6px;
-  --shadow-main: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
+@import url("https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap");
 
 * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+  font-family: "Sarabun", sans-serif;
 }
 
-body {
-  font-family: "Plus Jakarta Sans", "Sarabun", sans-serif;
-  background-color: var(--bg-base);
-  color: var(--text-main);
-  line-height: 1.6;
-  min-height: 100vh;
-  padding: 2rem 1rem;
+/* Active Nav Tab Styling */
+.nav-tab.active-tab {
+  color: #2563eb;
+  border-bottom-color: #2563eb;
 }
 
-/* Layout Container */
-.app-layout {
-  max-width: 1200px;
-  margin: 0 auto;
+/* Calendar Badge Custom Styling */
+.task-badge-pill {
+  transition:
+    transform 0.15s ease,
+    shadow 0.15s ease;
 }
 
-/* Header Section */
-.app-header {
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.header-brand {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.brand-icon {
-  width: 48px;
-  height: 48px;
-  background: var(--accent-light);
-  color: var(--accent-emerald);
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(16, 185, 129, 0.2);
-}
-
-.app-title {
-  font-size: 1.75rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--text-main);
-}
-
-.app-subtitle {
-  font-size: 0.9rem;
-  color: var(--text-muted);
-}
-
-/* Main Grid Layout */
-.main-content {
-  display: grid;
-  grid-template-columns: 380px 1fr;
-  gap: 1.75rem;
-}
-
-@media (max-width: 900px) {
-  .main-content {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Base Card Style */
-.card {
-  background-color: var(--bg-surface);
-  border-radius: var(--radius-lg);
-  padding: 1.75rem;
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-main);
-}
-
-.card-title {
-  font-size: 1.15rem;
-  font-weight: 600;
-  margin-bottom: 1.25rem;
-  color: var(--text-main);
-}
-
-/* Form Styling */
-.planner-form .form-group {
-  margin-bottom: 1.25rem;
-}
-
-.planner-form .form-row {
-  display: flex;
-  gap: 1rem;
-}
-
-.planner-form .form-row .col {
-  flex: 1;
-}
-
-label {
-  display: block;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--text-muted);
-  margin-bottom: 0.4rem;
-}
-
-.form-control {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background-color: var(--bg-element);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  color: var(--text-main);
-  font-family: inherit;
-  font-size: 0.95rem;
-  transition: var(--transition);
-}
-
-.form-control:focus {
-  outline: none;
-  border-color: var(--accent-emerald);
-  box-shadow: 0 0 0 3px var(--accent-light);
-}
-
-textarea.form-control {
-  resize: vertical;
-}
-
-/* Buttons */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  width: 100%;
-  padding: 0.85rem 1.5rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-  border-radius: var(--radius-md);
-  border: none;
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.btn-primary {
-  background-color: var(--accent-emerald);
-  color: #ffffff;
-}
-
-.btn-primary:hover {
-  background-color: var(--accent-hover);
+.task-badge-pill:hover {
   transform: translateY(-1px);
 }
 
-/* List Section Header & Filters */
-.list-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-  gap: 1rem;
+/* Scrollbar Customization */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
 }
 
-.filter-controls {
-  display: flex;
-  background: var(--bg-element);
-  padding: 4px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-.filter-btn {
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  padding: 0.4rem 0.8rem;
-  font-size: 0.85rem;
-  font-weight: 500;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: var(--transition);
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
 }
 
-.filter-btn.active,
-.filter-btn:hover {
-  color: var(--text-main);
-  background-color: var(--bg-surface-hover);
-}
-
-/* Task Container & Dynamic Items */
-.task-list-container {
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-}
-
-/* Style for dynamic task cards (generated by app.js) */
-.task-item {
-  background-color: var(--bg-element);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 1rem 1.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  transition: var(--transition);
-}
-
-.task-item:hover {
-  border-color: rgba(255, 255, 255, 0.2);
-  transform: translateX(2px);
-}
-
-.task-item.completed {
-  opacity: 0.5;
-}
-
-.task-item.completed .task-title-text {
-  text-decoration: line-through;
-  color: var(--text-muted);
-}
-
-/* Badges & Tags */
-.badge {
-  display: inline-block;
-  padding: 0.2rem 0.6rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  border-radius: 20px;
-  text-transform: uppercase;
-}
-
-.badge-work {
-  background-color: rgba(59, 130, 246, 0.15);
-  color: var(--tag-work);
-}
-.badge-personal {
-  background-color: rgba(139, 92, 246, 0.15);
-  color: var(--tag-personal);
-}
-.badge-urgent {
-  background-color: rgba(239, 68, 68, 0.15);
-  color: var(--tag-urgent);
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }

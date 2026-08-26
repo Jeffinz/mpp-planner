@@ -3,130 +3,785 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Personal Work Planner</title>
+    <title>Personal Work Planner v1.3.0 (Modern UX/UI)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="style.css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sarabun:wght@400;500;600&display=swap"
-      rel="stylesheet"
-    />
   </head>
-  <body>
-    <div class="app-layout">
-      <!-- Header Zone -->
-      <header class="app-header">
-        <div class="header-brand">
-          <div class="brand-icon">
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path
-                d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"
-              />
-            </svg>
+  <body
+    class="bg-slate-50 text-slate-800 min-h-screen pb-20 sm:pb-12 antialiased"
+  >
+    <!-- Toast Notification -->
+    <div
+      id="toast"
+      class="fixed bottom-6 right-1/2 translate-x-1/2 sm:translate-x-0 sm:right-6 bg-slate-900/90 backdrop-blur-md text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 text-sm z-50 transition-all duration-300 opacity-0 pointer-events-none border border-slate-700"
+    >
+      <i
+        data-lucide="check-circle-2"
+        class="text-emerald-400 w-5 h-5 shrink-0"
+      ></i>
+      <span id="toast-message" class="font-medium">ข้อความแจ้งเตือน</span>
+    </div>
+
+    <!-- Header / Navbar -->
+    <header
+      class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm"
+    >
+      <div
+        class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center"
+      >
+        <div class="flex items-center gap-3">
+          <div
+            class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20"
+          >
+            <i data-lucide="calendar-range" class="w-5 h-5"></i>
           </div>
           <div>
-            <h1 class="app-title">Work Planner</h1>
-            <p class="app-subtitle">จัดการงานอย่างมีประสิทธิภาพและสบายตา</p>
+            <h1
+              class="font-bold text-base sm:text-lg text-slate-900 leading-tight"
+            >
+              Work Planner
+            </h1>
+            <p class="text-[11px] text-slate-500">
+              ระบบเตรียมข้อมูลรายงาน MPP (ศอ.บต.)
+            </p>
           </div>
         </div>
-      </header>
 
-      <!-- Main Content Area -->
-      <main class="main-content">
-        <!-- Left Column: Input Form & Controls -->
-        <section class="panel-section input-panel">
-          <div class="card">
-            <h2 class="card-title">เพิ่มรายการใหม่</h2>
-            <form id="planner-form" class="planner-form">
-              <div class="form-group">
-                <label for="task-title">ชื่องาน / รายการ</label>
+        <!-- Header Actions -->
+        <div class="flex items-center gap-2">
+          <button
+            onclick="openSettingsModal()"
+            class="p-2 rounded-xl text-slate-500 hover:bg-slate-100 transition"
+            title="ตั้งค่าข้อมูล"
+          >
+            <i data-lucide="sliders-horizontal" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs Bar -->
+      <div class="max-w-7xl mx-auto px-4 flex border-t border-slate-100">
+        <button
+          onclick="switchTab('dashboard')"
+          id="btn-dashboard"
+          class="nav-tab active-tab flex-1 sm:flex-none py-3 px-4 text-xs sm:text-sm font-semibold border-b-2 flex items-center justify-center gap-2 transition"
+        >
+          <i data-lucide="layout-grid" class="w-4 h-4"></i> ปฏิทินปฏิบัติงาน
+        </button>
+        <button
+          onclick="switchTab('readiness')"
+          id="btn-readiness"
+          class="nav-tab flex-1 sm:flex-none py-3 px-4 text-xs sm:text-sm font-semibold border-b-2 flex items-center justify-center gap-2 transition text-slate-500 border-transparent hover:text-slate-700"
+        >
+          <i data-lucide="copy-check" class="w-4 h-4"></i> ตรวจความพร้อม MPP
+        </button>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto mt-4 px-3 sm:px-6">
+      <!-- TAB 1: DASHBOARD & CALENDAR -->
+      <div id="tab-dashboard" class="space-y-4 sm:space-y-6">
+        <!-- Quick Progress Bar & Stats Banner -->
+        <div
+          class="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 rounded-2xl p-4 sm:p-6 text-white shadow-lg"
+        >
+          <div
+            class="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-4"
+          >
+            <div>
+              <div class="text-xs font-medium text-slate-400 mb-1">
+                ความพร้อมส่งงานเดือนนี้
+              </div>
+              <div
+                class="text-xl sm:text-2xl font-bold flex items-center gap-2"
+              >
+                <span id="stat-progress-text">พร้อมส่ง 0/0 รายการ</span>
+                <span
+                  id="stat-badge-complete"
+                  class="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-normal hidden"
+                  >สมบูรณ์แล้ว</span
+                >
+              </div>
+            </div>
+            <button
+              onclick="openTaskModal()"
+              class="w-full md:w-auto bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-2.5 rounded-xl text-xs sm:text-sm shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2 active:scale-95"
+            >
+              <i data-lucide="plus-circle" class="w-4 h-4"></i>
+              เพิ่มงานปฏิบัติการ
+            </button>
+          </div>
+
+          <!-- Progress Bar -->
+          <div
+            class="w-full bg-slate-700/50 rounded-full h-2.5 overflow-hidden p-0.5 border border-slate-600/30"
+          >
+            <div
+              id="stat-progress-bar"
+              class="bg-gradient-to-r from-blue-500 to-emerald-400 h-1.5 rounded-full transition-all duration-500 w-0"
+            ></div>
+          </div>
+
+          <!-- Stats Chips Grid -->
+          <div
+            class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mt-4 pt-4 border-t border-slate-800 text-xs"
+          >
+            <div
+              class="flex items-center gap-2 bg-slate-800/60 p-2.5 rounded-xl border border-slate-700/50"
+            >
+              <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+              <span class="text-slate-300"
+                >ระดับอำเภอ:
+                <strong id="stat-district" class="text-white">0</strong></span
+              >
+            </div>
+            <div
+              class="flex items-center gap-2 bg-slate-800/60 p-2.5 rounded-xl border border-slate-700/50"
+            >
+              <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+              <span class="text-slate-300"
+                >ระดับตำบล:
+                <strong id="stat-subdistrict" class="text-white"
+                  >0</strong
+                ></span
+              >
+            </div>
+            <div
+              class="flex items-center gap-2 bg-slate-800/60 p-2.5 rounded-xl border border-slate-700/50"
+            >
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+              <span class="text-slate-300"
+                >ระดับหมู่บ้าน:
+                <strong id="stat-village" class="text-white">0</strong></span
+              >
+            </div>
+            <div
+              class="flex items-center gap-2 bg-slate-800/60 p-2.5 rounded-xl border border-slate-700/50"
+            >
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+              <span class="text-slate-300"
+                >Slot ว่าง:
+                <strong id="stat-empty" class="text-white">0</strong></span
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Calendar Month Navigation Controls -->
+        <div
+          class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between gap-2"
+        >
+          <button
+            onclick="changeMonth(-1)"
+            class="p-2 hover:bg-slate-100 text-slate-600 rounded-xl transition border border-slate-200"
+          >
+            <i data-lucide="chevron-left" class="w-5 h-5"></i>
+          </button>
+
+          <div class="flex items-center gap-2">
+            <select
+              id="select-month"
+              onchange="onMonthYearChange()"
+              class="font-bold text-sm sm:text-base text-slate-800 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+            >
+              <option value="0">มกราคม</option>
+              <option value="1">กุมภาพันธ์</option>
+              <option value="2">มีนาคม</option>
+              <option value="3">เมษายน</option>
+              <option value="4">พฤษภาคม</option>
+              <option value="5">มิถุนายน</option>
+              <option value="6">กรกฎาคม</option>
+              <option value="7">สิงหาคม</option>
+              <option value="8">กันยายน</option>
+              <option value="9">ตุลาคม</option>
+              <option value="10">พฤศจิกายน</option>
+              <option value="11">ธันวาคม</option>
+            </select>
+
+            <select
+              id="select-year"
+              onchange="onMonthYearChange()"
+              class="font-bold text-sm sm:text-base text-slate-800 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+            >
+              <option value="2026">2569</option>
+              <option value="2027">2570</option>
+            </select>
+          </div>
+
+          <div class="flex items-center gap-1.5">
+            <button
+              onclick="openHolidayModal()"
+              class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition flex items-center gap-1.5"
+              title="ตั้งค่าวันหยุด"
+            >
+              <i data-lucide="calendar-off" class="w-4 h-4 text-slate-500"></i>
+              <span class="hidden sm:inline">วันหยุด</span>
+            </button>
+            <button
+              onclick="changeMonth(1)"
+              class="p-2 hover:bg-slate-100 text-slate-600 rounded-xl transition border border-slate-200"
+            >
+              <i data-lucide="chevron-right" class="w-5 h-5"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- DESKTOP GRID CALENDAR -->
+        <div
+          class="hidden md:block bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden"
+        >
+          <div
+            class="grid grid-cols-7 bg-slate-50 border-b border-slate-200 text-center font-bold text-xs py-3 text-slate-500"
+          >
+            <div class="text-red-500">อา.</div>
+            <div>จ.</div>
+            <div>อ.</div>
+            <div>พ.</div>
+            <div>พฤ.</div>
+            <div>ศ.</div>
+            <div class="text-red-500">ส.</div>
+          </div>
+          <div
+            class="grid grid-cols-7 gap-px bg-slate-200"
+            id="calendar-grid-desktop"
+          ></div>
+        </div>
+
+        <!-- MOBILE CALENDAR (Agenda Stream View) -->
+        <div
+          class="block md:hidden bg-white rounded-2xl border border-slate-200 shadow-sm p-4 space-y-4"
+        >
+          <div
+            class="flex justify-between items-center text-xs font-bold text-slate-500 border-b pb-2"
+          >
+            <span>📱 รายการงานประจำเดือน</span>
+            <span id="mobile-month-label" class="text-blue-600"
+              >สิงหาคม 2569</span
+            >
+          </div>
+          <div class="space-y-3" id="calendar-list-mobile"></div>
+        </div>
+      </div>
+
+      <!-- TAB 2: WEB APP READINESS -->
+      <div id="tab-readiness" class="hidden space-y-4">
+        <div
+          class="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4"
+        >
+          <div
+            class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-slate-100 gap-2"
+          >
+            <div>
+              <h2 class="text-base sm:text-lg font-bold text-slate-900">
+                ตรวจความพร้อม & กดคัดลอกรายช่องเข้า MPP
+              </h2>
+              <p class="text-xs text-slate-500">
+                เรียงช่องตามลำดับแบบฟอร์ม Web App ศอ.บต. กดปุ่มคัดลอกวางได้ทันที
+              </p>
+            </div>
+            <span
+              id="readiness-summary"
+              class="text-xs font-bold bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full border border-blue-200"
+              >พร้อม 0 / ทั้งหมด 0</span
+            >
+          </div>
+
+          <div class="space-y-3" id="readiness-list"></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- MODAL: ADD/EDIT TASK (Tabbed Clean Form) -->
+    <div
+      id="task-modal"
+      class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex justify-center items-center z-50 p-3 sm:p-4"
+    >
+      <div
+        class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[92vh] flex flex-col overflow-hidden"
+      >
+        <!-- Modal Header -->
+        <div
+          class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50"
+        >
+          <div>
+            <h3 class="text-base font-bold text-slate-900" id="modal-title">
+              จัดการข้อมูลปฏิบัติงาน
+            </h3>
+            <p class="text-xs text-slate-500">
+              บันทึกข้อมูลเพื่อใช้คัดลอกเข้า MPP
+            </p>
+          </div>
+          <button
+            onclick="closeTaskModal()"
+            class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center transition"
+          >
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <form
+          id="task-form"
+          onsubmit="saveTask(event)"
+          class="flex-1 flex flex-col overflow-hidden"
+        >
+          <input type="hidden" id="task-id" />
+
+          <!-- Mission Selector Header -->
+          <div
+            class="p-4 bg-slate-900 text-white flex items-center justify-between gap-3"
+          >
+            <span class="text-xs font-bold flex items-center gap-2"
+              ><i data-lucide="layers" class="w-4 h-4 text-blue-400"></i>
+              เลือกภารกิจ *</span
+            >
+            <select
+              id="task-mission-type"
+              onchange="toggleMissionFields()"
+              class="p-2 rounded-xl bg-slate-800 text-white font-bold border border-slate-700 focus:outline-none text-xs cursor-pointer"
+            >
+              <option value="MISSION_4">ภารกิจ 4 สนับสนุน ศอ.บต.</option>
+              <option value="MISSION_5">ภารกิจ 5 จิตอาสา</option>
+              <option value="SELF_DEV">การพัฒนาตนเอง</option>
+            </select>
+          </div>
+
+          <!-- Form Tabs Navigation -->
+          <div
+            class="flex border-b border-slate-200 bg-slate-50 text-xs font-semibold"
+          >
+            <button
+              type="button"
+              onclick="switchFormTab('details')"
+              id="form-tab-btn-details"
+              class="flex-1 py-2.5 border-b-2 border-blue-600 text-blue-600 bg-white"
+            >
+              1. รายละเอียดงาน
+            </button>
+            <button
+              type="button"
+              onclick="switchFormTab('media')"
+              id="form-tab-btn-media"
+              class="flex-1 py-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-800"
+            >
+              2. รูปภาพ & ผู้รับรอง
+            </button>
+          </div>
+
+          <!-- Form Body Content -->
+          <div
+            class="p-4 sm:p-6 overflow-y-auto space-y-4 text-xs sm:text-sm flex-1"
+          >
+            <!-- SECTION 1: DETAILS TAB -->
+            <div id="form-sec-details" class="space-y-4">
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1"
+                    >ระดับงาน *</label
+                  >
+                  <select
+                    id="task-level"
+                    class="w-full p-2.5 border border-slate-200 rounded-xl bg-white focus:ring-2 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="DISTRICT">🏢 งานระดับอำเภอ</option>
+                    <option value="SUB_DISTRICT">🏘️ งานระดับตำบล</option>
+                    <option value="VILLAGE">🏠 งานระดับหมู่บ้าน</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1"
+                    >ปีงบประมาณ *</label
+                  >
+                  <select
+                    id="task-fiscal-year"
+                    class="w-full p-2.5 border border-slate-200 rounded-xl bg-white focus:ring-2 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="2569">2569</option>
+                    <option value="2570">2570</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Date Selection -->
+              <div id="date-single-container">
+                <label class="block font-bold text-slate-700 mb-1"
+                  >วันที่ปฏิบัติงาน *</label
+                >
                 <input
-                  type="text"
-                  id="task-title"
-                  class="form-control"
-                  placeholder="เช่น สรุปรายงานประจำเดือน..."
-                  required
+                  type="date"
+                  id="task-date"
+                  class="w-full p-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
-              <div class="form-row">
-                <div class="form-group col">
-                  <label for="task-category">หมวดหมู่</label>
-                  <select id="task-category" class="form-control">
-                    <option value="work">งาน (Work)</option>
-                    <option value="personal">ส่วนตัว (Personal)</option>
-                    <option value="urgent">เร่งด่วน (Urgent)</option>
+              <div
+                id="date-range-container"
+                class="hidden grid grid-cols-2 gap-3 bg-amber-50/50 p-3 rounded-2xl border border-amber-200/60"
+              >
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1"
+                    >วันที่เริ่ม *</label
+                  >
+                  <input
+                    type="date"
+                    id="task-date-start"
+                    class="w-full p-2.5 border border-slate-200 rounded-xl"
+                  />
+                </div>
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1"
+                    >วันที่สิ้นสุด *</label
+                  >
+                  <input
+                    type="date"
+                    id="task-date-end"
+                    class="w-full p-2.5 border border-slate-200 rounded-xl"
+                  />
+                </div>
+              </div>
+
+              <!-- Time Slot -->
+              <div
+                class="grid grid-cols-3 gap-2.5 bg-blue-50/50 p-3 rounded-2xl border border-blue-100"
+              >
+                <div>
+                  <label class="block font-bold text-blue-900 mb-1"
+                    >ช่วงเวลา</label
+                  >
+                  <select
+                    id="task-slot"
+                    class="w-full p-2 border border-blue-200 rounded-xl bg-white"
+                    onchange="updateTimeInputs()"
+                    required
+                  >
+                    <option value="MORNING">เช้า</option>
+                    <option value="AFTERNOON">บ่าย</option>
+                    <option value="FULL_DAY">ทั้งวัน</option>
                   </select>
                 </div>
-                <div class="form-group col">
-                  <label for="task-date">กำหนดส่ง</label>
-                  <input type="date" id="task-date" class="form-control" />
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1"
+                    >เวลามา *</label
+                  >
+                  <input
+                    type="text"
+                    id="task-time-start"
+                    value="08:30"
+                    class="w-full p-2 border border-slate-200 rounded-xl text-center"
+                    required
+                  />
+                </div>
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1"
+                    >เวลากลับ *</label
+                  >
+                  <input
+                    type="text"
+                    id="task-time-end"
+                    value="16:30"
+                    class="w-full p-2 border border-slate-200 rounded-xl text-center"
+                    required
+                  />
                 </div>
               </div>
 
-              <div class="form-group">
-                <label for="task-desc">รายละเอียดเพิ่มเติม</label>
-                <textarea
-                  id="task-desc"
-                  class="form-control"
-                  rows="3"
-                  placeholder="ระบุรายละเอียดย่อ..."
-                ></textarea>
-              </div>
-
-              <button type="submit" id="add-btn" class="btn btn-primary">
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
+              <!-- Location Inputs -->
+              <div
+                id="field-address-container"
+                class="space-y-2 pt-2 border-t border-slate-100"
+              >
+                <label
+                  class="block font-bold text-slate-800 flex items-center gap-1.5"
+                  ><i data-lucide="map-pin" class="w-4 h-4 text-red-500"></i>
+                  พิกัดสถานที่ปฏิบัติงาน</label
                 >
-                  <line x1="12" y1="5" x2="12" y2="19"></line>
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                บันทึกรายการ
-              </button>
-            </form>
-          </div>
-        </section>
+                <div class="grid grid-cols-2 gap-2">
+                  <input
+                    type="text"
+                    id="task-province"
+                    value="ตรัง"
+                    class="p-2 border border-slate-200 rounded-xl"
+                    placeholder="จังหวัด"
+                  />
+                  <input
+                    type="text"
+                    id="task-district"
+                    value="เมืองตรัง"
+                    class="p-2 border border-slate-200 rounded-xl"
+                    placeholder="อำเภอ"
+                  />
+                  <input
+                    type="text"
+                    id="task-subdistrict"
+                    placeholder="ตำบล (เช่น ต.ทับเที่ยง)"
+                    class="p-2 border border-slate-200 rounded-xl"
+                  />
+                  <input
+                    type="text"
+                    id="task-village"
+                    placeholder="หมู่บ้าน (เช่น หมู่ที่ 1)"
+                    class="p-2 border border-slate-200 rounded-xl"
+                  />
+                </div>
+              </div>
 
-        <!-- Right Column: Task Board / List Display -->
-        <section class="panel-section list-panel">
-          <div class="card">
-            <div class="list-header">
-              <h2 class="card-title">รายการงานทั้งหมด</h2>
-              <div class="filter-controls">
-                <button class="filter-btn active" data-filter="all">
-                  ทั้งหมด
-                </button>
-                <button class="filter-btn" data-filter="pending">
-                  รอดำเนินการ
-                </button>
-                <button class="filter-btn" data-filter="completed">
-                  เสร็จสิ้น
-                </button>
+              <!-- Main Mission Inputs -->
+              <div class="space-y-3 pt-2 border-t border-slate-100">
+                <div>
+                  <label
+                    class="block font-bold text-slate-800 mb-1"
+                    id="lbl-project"
+                    >ชื่อโครงการ/กิจกรรม *</label
+                  >
+                  <input
+                    type="text"
+                    id="task-project"
+                    class="w-full p-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+
+                <div id="field-objective-container">
+                  <label
+                    class="block font-bold text-slate-800 mb-1"
+                    id="lbl-objective"
+                    >วัตถุประสงค์ *</label
+                  >
+                  <textarea
+                    id="task-objective"
+                    rows="2"
+                    class="w-full p-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500"
+                  ></textarea>
+                </div>
+
+                <div id="field-mission-container">
+                  <label class="block font-bold text-slate-800 mb-1"
+                    >ภารกิจของบัณฑิตอาสา *</label
+                  >
+                  <textarea
+                    id="task-mission"
+                    rows="2"
+                    class="w-full p-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500"
+                  ></textarea>
+                </div>
+
+                <div id="field-result-container">
+                  <label
+                    class="block font-bold text-slate-800 mb-1"
+                    id="lbl-result"
+                    >ผลการดำเนินงาน *</label
+                  >
+                  <textarea
+                    id="task-result"
+                    rows="2"
+                    class="w-full p-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500"
+                  ></textarea>
+                </div>
               </div>
             </div>
 
-            <div id="task-list" class="task-list-container">
-              <!-- Tasks dynamically injected by app.js -->
+            <!-- SECTION 2: MEDIA & APPROVER TAB -->
+            <div id="form-sec-media" class="hidden space-y-4">
+              <div class="space-y-2">
+                <label
+                  class="block font-bold text-slate-800 flex items-center justify-between"
+                >
+                  <span>📸 รูปภาพกิจกรรม (สูงสุด 2 รูป)</span>
+                  <span
+                    class="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full font-semibold"
+                    >Auto 1080p</span
+                  >
+                </label>
+                <input
+                  type="file"
+                  id="image-input"
+                  accept="image/*"
+                  multiple
+                  onchange="handleImageUpload(event)"
+                  class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
+                />
+                <div
+                  id="image-preview-container"
+                  class="grid grid-cols-2 gap-3 pt-2"
+                ></div>
+              </div>
+
+              <div class="pt-3 border-t border-slate-100 space-y-3">
+                <label class="block font-bold text-slate-800"
+                  >ผู้รับรองการปฏิบัติงาน</label
+                >
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 mb-1"
+                    >ชื่อ-นามสกุลผู้รับรอง *</label
+                  >
+                  <input
+                    type="text"
+                    id="task-approver-name"
+                    class="w-full p-2.5 border border-slate-200 rounded-xl"
+                    placeholder="เช่น นายสมชาย ใจดี"
+                  />
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 mb-1"
+                    >ตำแหน่งผู้รับรอง *</label
+                  >
+                  <input
+                    type="text"
+                    id="task-approver-pos"
+                    class="w-full p-2.5 border border-slate-200 rounded-xl"
+                    placeholder="เช่น ผู้ใหญ่บ้าน หมู่ 1"
+                  />
+                </div>
+              </div>
             </div>
           </div>
-        </section>
-      </main>
+
+          <!-- Modal Footer Actions -->
+          <div
+            class="p-4 bg-slate-50 border-t border-slate-100 flex justify-between items-center gap-2"
+          >
+            <button
+              type="button"
+              onclick="deleteTask()"
+              id="btn-delete"
+              class="text-red-600 hover:bg-red-50 px-3 py-2 rounded-xl text-xs font-semibold transition hidden"
+            >
+              ลบงานนี้
+            </button>
+            <div class="flex gap-2 ml-auto">
+              <button
+                type="button"
+                onclick="closeTaskModal()"
+                class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 font-semibold text-xs transition"
+              >
+                ยกเลิก
+              </button>
+              <button
+                type="submit"
+                class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs shadow-md shadow-blue-500/20 transition active:scale-95 flex items-center gap-1.5"
+              >
+                <i data-lucide="save" class="w-4 h-4"></i> บันทึกงาน
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
 
-    <script src="app.js"></script>
+    <!-- MODAL: SETTINGS -->
+    <div
+      id="settings-modal"
+      class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex justify-center items-center z-50 p-4"
+    >
+      <div
+        class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 space-y-5"
+      >
+        <div class="flex justify-between items-center border-b pb-3">
+          <h3
+            class="text-base font-bold text-slate-900 flex items-center gap-2"
+          >
+            <i data-lucide="database" class="w-5 h-5 text-blue-600"></i>
+            จัดการฐานข้อมูล Cloud
+          </h3>
+          <button
+            onclick="closeSettingsModal()"
+            class="text-slate-400 hover:text-slate-600"
+          >
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <div class="space-y-3 text-xs sm:text-sm">
+          <div
+            class="p-3 bg-blue-50 text-blue-900 rounded-2xl border border-blue-100 text-xs leading-relaxed"
+          >
+            <strong>นโยบาย 2 ปีงบประมาณ:</strong> ข้อมูลจะถูกซิงค์ผ่าน Cloud
+            Firebase ปลอดภัย สามารถสั่งลบข้อมูลปีเก่าได้ตามต้องการ
+          </div>
+
+          <div class="space-y-2 pt-2">
+            <button
+              onclick="clearOldFiscalYearData('2568')"
+              class="w-full bg-slate-100 hover:bg-amber-50 hover:text-amber-700 text-slate-700 font-bold p-3 rounded-2xl border border-slate-200 transition flex items-center justify-between text-xs"
+            >
+              <span>ลบข้อมูลปีงบประมาณเก่า (2568)</span>
+              <i data-lucide="archive" class="w-4 h-4"></i>
+            </button>
+
+            <button
+              onclick="clearAllCloudData()"
+              class="w-full bg-red-50 hover:bg-red-100 text-red-600 font-bold p-3 rounded-2xl border border-red-200 transition flex items-center justify-between text-xs"
+            >
+              <span>ล้างข้อมูลบน Cloud ทั้งหมด</span>
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="pt-2 text-right">
+          <button
+            onclick="closeSettingsModal()"
+            class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 font-semibold text-xs"
+          >
+            ปิด
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: HOLIDAY -->
+    <div
+      id="holiday-modal"
+      class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex justify-center items-center z-50 p-4"
+    >
+      <div
+        class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 space-y-4"
+      >
+        <div class="flex justify-between items-center border-b pb-3">
+          <h3 class="text-base font-bold text-slate-900">จัดการวันหยุดพิเศษ</h3>
+          <button
+            onclick="closeHolidayModal()"
+            class="text-slate-400 hover:text-slate-600"
+          >
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-xs font-semibold text-slate-600"
+            >เลือกวันที่ต้องการกำหนดเป็นวันหยุด</label
+          >
+          <input
+            type="date"
+            id="holiday-picker"
+            class="w-full p-2.5 border border-slate-200 rounded-xl text-xs"
+          />
+          <button
+            onclick="addHolidayFromPicker()"
+            class="w-full bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl text-xs font-bold transition"
+          >
+            บันทึกวันหยุด
+          </button>
+        </div>
+
+        <div class="border-t pt-3 space-y-2">
+          <div class="text-xs font-bold text-slate-600">
+            รายการวันหยุดในเดือนนี้:
+          </div>
+          <div
+            id="holiday-list-items"
+            class="space-y-1.5 max-h-40 overflow-y-auto"
+          ></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main JS Module -->
+    <script type="module" src="app.js"></script>
   </body>
 </html>
