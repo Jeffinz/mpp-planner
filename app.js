@@ -49,8 +49,10 @@ let holidays = [];
 let tempImages = [];
 
 window.addEventListener("load", () => {
-  document.getElementById("select-month").value = currentMonth;
-  document.getElementById("select-year").value = currentYear;
+  const selMonth = document.getElementById("select-month");
+  const selYear = document.getElementById("select-year");
+  if (selMonth) selMonth.value = currentMonth;
+  if (selYear) selYear.value = currentYear;
 
   // Bind functions to window context
   window.switchTab = switchTab;
@@ -61,7 +63,6 @@ window.addEventListener("load", () => {
   window.saveTask = saveTask;
   window.deleteTask = deleteTask;
   window.toggleMissionFields = toggleMissionFields;
-  window.toggleOrgSubFields = toggleOrgSubFields;
   window.updateTimeInputs = updateTimeInputs;
   window.handleImageUpload = handleImageUpload;
   window.removeTempImage = removeTempImage;
@@ -93,8 +94,8 @@ window.addEventListener("load", () => {
     tasks = [];
     snapshot.forEach((docSnap) => tasks.push(docSnap.data()));
     renderCalendar();
-    const readinessTab = document.getElementById("tab-readiness");
-    if (readinessTab && !readinessTab.classList.contains("hidden")) {
+    const tabReadiness = document.getElementById("tab-readiness");
+    if (tabReadiness && !tabReadiness.classList.contains("hidden")) {
       renderReadinessList();
     }
   });
@@ -133,10 +134,12 @@ async function deleteHolidayFromCloud(dateStr) {
 }
 
 function openSettingsModal() {
-  document.getElementById("settings-modal").classList.remove("hidden");
+  const el = document.getElementById("settings-modal");
+  if (el) el.classList.remove("hidden");
 }
 function closeSettingsModal() {
-  document.getElementById("settings-modal").classList.add("hidden");
+  const el = document.getElementById("settings-modal");
+  if (el) el.classList.add("hidden");
 }
 
 async function clearOldFiscalYearData(yearBE) {
@@ -209,6 +212,7 @@ function handleImageUpload(e) {
 
 function renderImagePreviews() {
   const container = document.getElementById("image-preview-container");
+  if (!container) return;
   container.innerHTML = "";
   tempImages.forEach((imgBase64, index) => {
     container.innerHTML += `
@@ -234,11 +238,14 @@ function removeTempImage(index) {
 
 function showToast(msg) {
   const toast = document.getElementById("toast");
-  document.getElementById("toast-message").innerText = msg;
-  toast.classList.remove("opacity-0", "pointer-events-none");
-  setTimeout(() => {
-    toast.classList.add("opacity-0", "pointer-events-none");
-  }, 2000);
+  const toastMsg = document.getElementById("toast-message");
+  if (toastMsg) toastMsg.innerText = msg;
+  if (toast) {
+    toast.classList.remove("opacity-0", "pointer-events-none");
+    setTimeout(() => {
+      toast.classList.add("opacity-0", "pointer-events-none");
+    }, 2000);
+  }
 }
 
 function copyField(text, fieldName) {
@@ -249,8 +256,10 @@ function copyField(text, fieldName) {
 }
 
 function onMonthYearChange() {
-  currentMonth = parseInt(document.getElementById("select-month").value);
-  currentYear = parseInt(document.getElementById("select-year").value);
+  const selMonth = document.getElementById("select-month");
+  const selYear = document.getElementById("select-year");
+  if (selMonth) currentMonth = parseInt(selMonth.value);
+  if (selYear) currentYear = parseInt(selYear.value);
   renderCalendar();
 }
 
@@ -267,8 +276,10 @@ function changeMonth(delta) {
   if (currentYear < 2026) currentYear = 2026;
   if (currentYear > 2027) currentYear = 2027;
 
-  document.getElementById("select-month").value = currentMonth;
-  document.getElementById("select-year").value = currentYear;
+  const selMonth = document.getElementById("select-month");
+  const selYear = document.getElementById("select-year");
+  if (selMonth) selMonth.value = currentMonth;
+  if (selYear) selYear.value = currentYear;
   renderCalendar();
 }
 
@@ -284,32 +295,18 @@ function switchTab(tab) {
   if (tab === "dashboard") {
     if (tabDashboard) tabDashboard.classList.remove("hidden");
     if (tabReadiness) tabReadiness.classList.add("hidden");
-    if (btnDashboard) btnDashboard.classList.add("bg-slate-700");
+    if (btnDashboard) btnDashboard.classList.add("bg-slate-700", "text-white");
     renderCalendar();
   } else {
     if (tabDashboard) tabDashboard.classList.add("hidden");
     if (tabReadiness) tabReadiness.classList.remove("hidden");
-    if (btnReadiness) btnReadiness.classList.add("bg-slate-700");
+    if (btnReadiness) btnReadiness.classList.add("bg-slate-700", "text-white");
     renderReadinessList();
   }
 }
 
-function toggleOrgSubFields() {
-  const category = document.getElementById("task-org-category").value;
-  const internalWrap = document.getElementById("org-internal-wrap");
-  const externalWrap = document.getElementById("org-external-wrap");
-
-  if (category === "INTERNAL") {
-    internalWrap.classList.remove("hidden");
-    externalWrap.classList.add("hidden");
-  } else {
-    internalWrap.classList.add("hidden");
-    externalWrap.classList.remove("hidden");
-  }
-}
-
 function toggleMissionFields() {
-  const type = document.getElementById("task-mission-type").value;
+  const type = document.getElementById("task-mission-type")?.value;
   const header = document.getElementById("mission-header");
 
   const volType = document.getElementById("field-volunteer-type-container");
@@ -336,78 +333,86 @@ function toggleMissionFields() {
   );
 
   if (type === "SELF_DEV") {
-    header.innerText = "รายละเอียดการพัฒนาตนเอง";
-    header.className =
-      "p-2 bg-amber-50 text-amber-800 font-bold rounded-lg border border-amber-200";
-    devType.classList.remove("hidden");
-    location.classList.remove("hidden");
-    benefit.classList.remove("hidden");
-    dateRange.classList.remove("hidden");
-    devOrganizerContainer.classList.remove("hidden");
+    if (header) {
+      header.innerText = "รายละเอียดการพัฒนาตนเอง";
+      header.className =
+        "p-2 bg-amber-50 text-amber-800 font-bold rounded-lg border border-amber-200";
+    }
+    devType?.classList.remove("hidden");
+    location?.classList.remove("hidden");
+    benefit?.classList.remove("hidden");
+    dateRange?.classList.remove("hidden");
+    devOrganizerContainer?.classList.remove("hidden");
 
-    objectiveContainer.classList.add("hidden");
-    volType.classList.add("hidden");
-    mission.classList.add("hidden");
-    result.classList.add("hidden");
-    link.classList.add("hidden");
-    partContainer.classList.add("hidden");
-    addressContainer.classList.add("hidden");
-    dateSingle.classList.add("hidden");
-    orgCategoryContainer.classList.add("hidden");
+    objectiveContainer?.classList.add("hidden");
+    volType?.classList.add("hidden");
+    mission?.classList.add("hidden");
+    result?.classList.add("hidden");
+    link?.classList.add("hidden");
+    partContainer?.classList.add("hidden");
+    addressContainer?.classList.add("hidden");
+    dateSingle?.classList.add("hidden");
+    orgCategoryContainer?.classList.add("hidden");
 
-    document.getElementById("lbl-project").innerText = "ชื่อหลักสูตร/กิจกรรม *";
+    const lblProject = document.getElementById("lbl-project");
+    if (lblProject) lblProject.innerText = "ชื่อหลักสูตร/กิจกรรม *";
   } else if (type === "MISSION_5") {
-    header.innerText = "รายละเอียดภารกิจ: จิตอาสา";
-    header.className =
-      "p-2 bg-blue-50 text-blue-800 font-bold rounded-lg border border-blue-200";
-    objectiveContainer.classList.remove("hidden");
-    volType.classList.remove("hidden");
-    location.classList.remove("hidden");
-    link.classList.remove("hidden");
-    result.classList.remove("hidden");
-    dateSingle.classList.remove("hidden");
-    addressContainer.classList.remove("hidden");
-    orgCategoryContainer.classList.remove("hidden");
+    if (header) {
+      header.innerText = "รายละเอียดภารกิจ: จิตอาสา";
+      header.className =
+        "p-2 bg-blue-50 text-blue-800 font-bold rounded-lg border border-blue-200";
+    }
+    objectiveContainer?.classList.remove("hidden");
+    volType?.classList.remove("hidden");
+    location?.classList.remove("hidden");
+    link?.classList.remove("hidden");
+    result?.classList.remove("hidden");
+    dateSingle?.classList.remove("hidden");
+    addressContainer?.classList.remove("hidden");
+    orgCategoryContainer?.classList.remove("hidden");
 
-    devType.classList.add("hidden");
-    mission.classList.add("hidden");
-    benefit.classList.add("hidden");
-    partContainer.classList.add("hidden");
-    dateRange.classList.add("hidden");
-    devOrganizerContainer.classList.add("hidden");
+    devType?.classList.add("hidden");
+    mission?.classList.add("hidden");
+    benefit?.classList.add("hidden");
+    partContainer?.classList.add("hidden");
+    dateRange?.classList.add("hidden");
+    devOrganizerContainer?.classList.add("hidden");
 
-    document.getElementById("lbl-project").innerText = "ชื่อกิจกรรม *";
-    document.getElementById("lbl-objective").innerText =
-      "วัตถุประสงค์กิจกรรม *";
-    document.getElementById("lbl-result").innerText =
-      "ผลการดำเนินงานของกิจกรรม *";
-    toggleOrgSubFields();
+    const lblProject = document.getElementById("lbl-project");
+    const lblObjective = document.getElementById("lbl-objective");
+    const lblResult = document.getElementById("lbl-result");
+    if (lblProject) lblProject.innerText = "ชื่อกิจกรรม *";
+    if (lblObjective) lblObjective.innerText = "วัตถุประสงค์กิจกรรม *";
+    if (lblResult) lblResult.innerText = "ผลการดำเนินงานของกิจกรรม *";
   } else {
-    header.innerText = "รายละเอียดภารกิจ: สนับสนุน ศอ.บต.";
-    header.className =
-      "p-2 bg-emerald-50 text-emerald-800 font-bold rounded-lg border border-emerald-200";
-    objectiveContainer.classList.remove("hidden");
-    mission.classList.remove("hidden");
-    result.classList.remove("hidden");
-    partContainer.classList.remove("hidden");
-    dateSingle.classList.remove("hidden");
-    addressContainer.classList.remove("hidden");
-    orgCategoryContainer.classList.remove("hidden");
+    if (header) {
+      header.innerText = "รายละเอียดภารกิจ: สนับสนุน ศอ.บต.";
+      header.className =
+        "p-2 bg-emerald-50 text-emerald-800 font-bold rounded-lg border border-emerald-200";
+    }
+    objectiveContainer?.classList.remove("hidden");
+    mission?.classList.remove("hidden");
+    result?.classList.remove("hidden");
+    partContainer?.classList.remove("hidden");
+    dateSingle?.classList.remove("hidden");
+    addressContainer?.classList.remove("hidden");
+    orgCategoryContainer?.classList.remove("hidden");
 
-    volType.classList.add("hidden");
-    devType.classList.add("hidden");
-    location.classList.add("hidden");
-    benefit.classList.add("hidden");
-    link.classList.add("hidden");
-    dateRange.classList.add("hidden");
-    devOrganizerContainer.classList.add("hidden");
+    volType?.classList.add("hidden");
+    devType?.classList.add("hidden");
+    location?.classList.add("hidden");
+    benefit?.classList.add("hidden");
+    link?.classList.add("hidden");
+    dateRange?.classList.add("hidden");
+    devOrganizerContainer?.classList.add("hidden");
 
-    document.getElementById("lbl-project").innerText = "ชื่อโครงการ/กิจกรรม *";
-    document.getElementById("lbl-objective").innerText =
-      "วัตถุประสงค์ของโครงการ/กิจกรรม *";
-    document.getElementById("lbl-result").innerText =
-      "ผลการดำเนินงานของกิจกรรม *";
-    toggleOrgSubFields();
+    const lblProject = document.getElementById("lbl-project");
+    const lblObjective = document.getElementById("lbl-objective");
+    const lblResult = document.getElementById("lbl-result");
+    if (lblProject) lblProject.innerText = "ชื่อโครงการ/กิจกรรม *";
+    if (lblObjective)
+      lblObjective.innerText = "วัตถุประสงค์ของโครงการ/กิจกรรม *";
+    if (lblResult) lblResult.innerText = "ผลการดำเนินงานของกิจกรรม *";
   }
 }
 
@@ -552,8 +557,8 @@ function renderDesktopTaskBadge(task, slotLabel) {
   const hasImages = task.images && task.images.length > 0;
 
   return `
-        <div onclick="openTaskModal('${task.id}')" class="cursor-pointer border text-[11px] p-1 rounded transition flex-1 flex flex-col justify-between ${levelColors[task.level]}">
-            <div class="font-bold truncate">${missionLabels[task.missionType]} ${task.project}</div>
+        <div onclick="openTaskModal('${task.id}')" class="cursor-pointer border text-[11px] p-1 rounded transition flex-1 flex flex-col justify-between ${levelColors[task.level] || "bg-blue-50 border-blue-200 text-blue-700"}">
+            <div class="font-bold truncate">${missionLabels[task.missionType] || "🏢"} ${task.project}</div>
             <div class="text-[9px] opacity-75 flex justify-between items-center mt-1">
                 <span>${task.slot === "FULL_DAY" ? "ทั้งวัน" : slotLabel} ${hasImages ? "📷" : ""}</span>
             </div>
@@ -583,10 +588,10 @@ function renderMobileTaskRow(task, slotTimeText) {
   const hasImages = task.images && task.images.length > 0;
 
   return `
-        <div onclick="openTaskModal('${task.id}')" class="p-2 rounded-lg border flex items-center justify-between cursor-pointer ${levelColors[task.level]}">
+        <div onclick="openTaskModal('${task.id}')" class="p-2 rounded-lg border flex items-center justify-between cursor-pointer ${levelColors[task.level] || "bg-blue-50 border-blue-200 text-blue-700"}">
             <div class="overflow-hidden pr-2">
                 <div class="text-[10px] opacity-75">${slotTimeText} ${hasImages ? "📷" : ""}</div>
-                <div class="text-xs font-bold truncate">${missionLabels[task.missionType]} ${task.project}</div>
+                <div class="text-xs font-bold truncate">${missionLabels[task.missionType] || "🏢"} ${task.project}</div>
             </div>
         </div>
     `;
@@ -609,24 +614,32 @@ function updateStats(totalDaysInMonth, weekendCount) {
       (t.dateStart && t.dateStart.startsWith(currentMonthPrefix)),
   );
 
-  document.getElementById("stat-district").innerText = monthTasks.filter(
-    (t) => t.level === "DISTRICT",
-  ).length;
-  document.getElementById("stat-subdistrict").innerText = monthTasks.filter(
-    (t) => t.level === "SUB_DISTRICT",
-  ).length;
-  document.getElementById("stat-village").innerText = monthTasks.filter(
-    (t) => t.level === "VILLAGE",
-  ).length;
-  document.getElementById("stat-holiday").innerText = weekendCount;
+  // ป้องกัน Error ปลอดภัยด้วย Optional Chaining (?.)
+  const elDistrict = document.getElementById("stat-district");
+  const elSubdistrict = document.getElementById("stat-subdistrict");
+  const elVillage = document.getElementById("stat-village");
+  const elHoliday = document.getElementById("stat-holiday");
+  const elEmpty = document.getElementById("stat-empty");
+  const elIncomplete = document.getElementById("stat-incomplete");
+
+  if (elDistrict)
+    elDistrict.innerText = monthTasks.filter(
+      (t) => t.level === "DISTRICT",
+    ).length;
+  if (elSubdistrict)
+    elSubdistrict.innerText = monthTasks.filter(
+      (t) => t.level === "SUB_DISTRICT",
+    ).length;
+  if (elVillage)
+    elVillage.innerText = monthTasks.filter(
+      (t) => t.level === "VILLAGE",
+    ).length;
+  if (elHoliday) elHoliday.innerText = weekendCount;
 
   let takenSlots = 0;
   monthTasks.forEach((t) => (takenSlots += t.slot === "FULL_DAY" ? 2 : 1));
   const totalWorkSlots = (totalDaysInMonth - weekendCount) * 2;
-  document.getElementById("stat-empty").innerText = Math.max(
-    0,
-    totalWorkSlots - takenSlots,
-  );
+  if (elEmpty) elEmpty.innerText = Math.max(0, totalWorkSlots - takenSlots);
 
   const incomplete = monthTasks.filter(
     (t) =>
@@ -635,69 +648,59 @@ function updateStats(totalDaysInMonth, weekendCount) {
       (!t.result && !t.benefit) ||
       !t.approverName,
   ).length;
-  document.getElementById("stat-incomplete").innerText = incomplete;
+  if (elIncomplete) elIncomplete.innerText = incomplete;
 }
 
 function openTaskModal(taskId = null, date = null, slot = "MORNING") {
-  document.getElementById("task-form").reset();
-  document.getElementById("btn-delete").classList.add("hidden");
+  const form = document.getElementById("task-form");
+  if (form) form.reset();
+
+  const btnDel = document.getElementById("btn-delete");
+  if (btnDel) btnDel.classList.add("hidden");
   tempImages = [];
 
   if (taskId) {
     const task = tasks.find((t) => t.id === taskId);
-    document.getElementById("modal-title").innerText =
-      "แก้ไขข้อมูลการปฏิบัติงาน";
-    document.getElementById("task-id").value = task.id;
-    document.getElementById("task-mission-type").value =
-      task.missionType || "MISSION_4";
-    document.getElementById("task-level").value = task.level || "DISTRICT";
-    document.getElementById("task-fiscal-year").value =
-      task.fiscalYear || "2569";
-    document.getElementById("task-date").value =
-      task.date || task.dateStart || "";
-    document.getElementById("task-date-start").value =
-      task.dateStart || task.date || "";
-    document.getElementById("task-date-end").value =
-      task.dateEnd || task.date || "";
-    document.getElementById("task-slot").value = task.slot || "MORNING";
-    document.getElementById("task-time-start").value =
-      task.timeStart || "08:30";
-    document.getElementById("task-time-end").value = task.timeEnd || "16:30";
-    document.getElementById("task-province").value = task.province || "ตรัง";
-    document.getElementById("task-district").value =
-      task.district || "เมืองตรัง";
-    document.getElementById("task-subdistrict").value = task.subdistrict || "";
-    document.getElementById("task-village").value = task.village || "";
-    document.getElementById("task-volunteer-type").value =
-      task.volunteerType || "จิตอาสาพัฒนา";
-    document.getElementById("task-dev-type").value = task.devType || "อบรม";
+    if (task) {
+      document.getElementById("modal-title").innerText =
+        "แก้ไขข้อมูลการปฏิบัติงาน";
+      document.getElementById("task-id").value = task.id;
+      document.getElementById("task-mission-type").value =
+        task.missionType || "MISSION_4";
+      document.getElementById("task-level").value = task.level || "DISTRICT";
+      document.getElementById("task-fiscal-year").value =
+        task.fiscalYear || "2569";
+      document.getElementById("task-date").value =
+        task.date || task.dateStart || "";
+      document.getElementById("task-date-start").value =
+        task.dateStart || task.date || "";
+      document.getElementById("task-date-end").value =
+        task.dateEnd || task.date || "";
+      document.getElementById("task-slot").value = task.slot || "MORNING";
+      document.getElementById("task-time-start").value =
+        task.timeStart || "08:30";
+      document.getElementById("task-time-end").value = task.timeEnd || "16:30";
+      document.getElementById("task-province").value = task.province || "ตรัง";
+      document.getElementById("task-district").value =
+        task.district || "เมืองตรัง";
+      document.getElementById("task-subdistrict").value =
+        task.subdistrict || "";
+      document.getElementById("task-village").value = task.village || "";
+      document.getElementById("task-project").value = task.project || "";
+      document.getElementById("task-objective").value = task.objective || "";
+      document.getElementById("task-mission").value = task.mission || "";
+      document.getElementById("task-result").value = task.result || "";
+      document.getElementById("task-approver-name").value =
+        task.approverName || "";
+      document.getElementById("task-approver-pos").value =
+        task.approverPos || "";
 
-    document.getElementById("task-org-category").value =
-      task.orgCategory || "INTERNAL";
-    document.getElementById("task-org-internal").value =
-      task.orgInternal || "สลธ.";
-    document.getElementById("task-org-external").value =
-      task.orgExternal || "กระทรวงมหาดไทย";
-    document.getElementById("task-org-local").value = task.orgLocal || "";
+      if (task.images && Array.isArray(task.images)) {
+        tempImages = [...task.images];
+      }
 
-    document.getElementById("task-organizer").value = task.organizer || "";
-    document.getElementById("task-project").value = task.project || "";
-    document.getElementById("task-objective").value = task.objective || "";
-    document.getElementById("task-location").value = task.location || "";
-    document.getElementById("task-mission").value = task.mission || "";
-    document.getElementById("task-benefit").value = task.benefit || "";
-    document.getElementById("task-participants").value = task.participants || 0;
-    document.getElementById("task-result").value = task.result || "";
-    document.getElementById("task-link").value = task.link || "";
-    document.getElementById("task-approver-name").value =
-      task.approverName || "";
-    document.getElementById("task-approver-pos").value = task.approverPos || "";
-
-    if (task.images && Array.isArray(task.images)) {
-      tempImages = [...task.images];
+      if (btnDel) btnDel.classList.remove("hidden");
     }
-
-    document.getElementById("btn-delete").classList.remove("hidden");
   } else {
     document.getElementById("modal-title").innerText =
       "เพิ่มข้อมูลการปฏิบัติงาน";
@@ -714,24 +717,28 @@ function openTaskModal(taskId = null, date = null, slot = "MORNING") {
 
   renderImagePreviews();
   toggleMissionFields();
-  document.getElementById("task-modal").classList.remove("hidden");
+  document.getElementById("task-modal")?.classList.remove("hidden");
 }
 
 function closeTaskModal() {
-  document.getElementById("task-modal").classList.add("hidden");
+  document.getElementById("task-modal")?.classList.add("hidden");
 }
 
 function updateTimeInputs() {
-  const slot = document.getElementById("task-slot").value;
+  const slot = document.getElementById("task-slot")?.value;
+  const tStart = document.getElementById("task-time-start");
+  const tEnd = document.getElementById("task-time-end");
+  if (!tStart || !tEnd) return;
+
   if (slot === "MORNING") {
-    document.getElementById("task-time-start").value = "08:30";
-    document.getElementById("task-time-end").value = "12:00";
+    tStart.value = "08:30";
+    tEnd.value = "12:00";
   } else if (slot === "AFTERNOON") {
-    document.getElementById("task-time-start").value = "13:00";
-    document.getElementById("task-time-end").value = "16:30";
+    tStart.value = "13:00";
+    tEnd.value = "16:30";
   } else {
-    document.getElementById("task-time-start").value = "08:30";
-    document.getElementById("task-time-end").value = "16:30";
+    tStart.value = "08:30";
+    tEnd.value = "16:30";
   }
 }
 
@@ -760,21 +767,10 @@ async function saveTask(e) {
     district: document.getElementById("task-district").value,
     subdistrict: document.getElementById("task-subdistrict").value,
     village: document.getElementById("task-village").value,
-    volunteerType: document.getElementById("task-volunteer-type").value,
-    devType: document.getElementById("task-dev-type").value,
-    orgCategory: document.getElementById("task-org-category").value,
-    orgInternal: document.getElementById("task-org-internal").value,
-    orgExternal: document.getElementById("task-org-external").value,
-    orgLocal: document.getElementById("task-org-local").value,
-    organizer: document.getElementById("task-organizer").value,
     project: document.getElementById("task-project").value,
     objective: document.getElementById("task-objective").value,
-    location: document.getElementById("task-location").value,
     mission: document.getElementById("task-mission").value,
-    benefit: document.getElementById("task-benefit").value,
-    participants: document.getElementById("task-participants").value,
     result: document.getElementById("task-result").value,
-    link: document.getElementById("task-link").value,
     approverName: document.getElementById("task-approver-name").value,
     approverPos: document.getElementById("task-approver-pos").value,
     images: tempImages,
@@ -796,18 +792,18 @@ async function deleteTask() {
 
 function openHolidayModal() {
   const monthStr = (currentMonth + 1).toString().padStart(2, "0");
-  document.getElementById("holiday-picker").value =
-    `${currentYear}-${monthStr}-01`;
+  const picker = document.getElementById("holiday-picker");
+  if (picker) picker.value = `${currentYear}-${monthStr}-01`;
   renderHolidayList();
-  document.getElementById("holiday-modal").classList.remove("hidden");
+  document.getElementById("holiday-modal")?.classList.remove("hidden");
 }
 
 function closeHolidayModal() {
-  document.getElementById("holiday-modal").classList.add("hidden");
+  document.getElementById("holiday-modal")?.classList.add("hidden");
 }
 
 async function addHolidayFromPicker() {
-  const val = document.getElementById("holiday-picker").value;
+  const val = document.getElementById("holiday-picker")?.value;
   if (!val) return alert("กรุณาเลือกวันที่ก่อนบันทึก");
   if (!holidays.includes(val)) {
     await saveHolidayToCloud(val);
@@ -828,6 +824,7 @@ async function removeHoliday(dateStr) {
 
 function renderHolidayList() {
   const container = document.getElementById("holiday-list-items");
+  if (!container) return;
   container.innerHTML = "";
   const currentMonthPrefix = `${currentYear}-${(currentMonth + 1).toString().padStart(2, "0")}`;
   const monthHolidays = holidays
@@ -852,17 +849,20 @@ function renderHolidayList() {
 function toggleTaskAccordion(id) {
   const content = document.getElementById(`acc-content-${id}`);
   const icon = document.getElementById(`acc-icon-${id}`);
-  if (content.classList.contains("hidden")) {
-    content.classList.remove("hidden");
-    if (icon) icon.style.transform = "rotate(180deg)";
-  } else {
-    content.classList.add("hidden");
-    if (icon) icon.style.transform = "rotate(0deg)";
+  if (content) {
+    if (content.classList.contains("hidden")) {
+      content.classList.remove("hidden");
+      if (icon) icon.style.transform = "rotate(180deg)";
+    } else {
+      content.classList.add("hidden");
+      if (icon) icon.style.transform = "rotate(0deg)";
+    }
   }
 }
 
 function renderReadinessList() {
   const container = document.getElementById("readiness-list");
+  if (!container) return;
   container.innerHTML = "";
   const currentMonthPrefix = `${currentYear}-${(currentMonth + 1).toString().padStart(2, "0")}`;
   const monthTasks = tasks
@@ -912,7 +912,10 @@ function renderReadinessList() {
         label: "วันที่ปฏิบัติงาน",
         value: formatThaiDate(t.date || t.dateStart),
       },
-      { label: "เวลามา - เวลากลับ", value: `${t.timeStart} - ${t.timeEnd}` },
+      {
+        label: "เวลามา - เวลากลับ",
+        value: `${t.timeStart || "08:30"} - ${t.timeEnd || "16:30"}`,
+      },
       {
         label: "สถานที่ปฏิบัติงาน",
         value:
@@ -967,8 +970,9 @@ function renderReadinessList() {
         `;
   });
 
-  document.getElementById("readiness-summary").innerText =
-    `พร้อม ${readyCount} / ทั้งหมด ${monthTasks.length}`;
+  const elReadinessSummary = document.getElementById("readiness-summary");
+  if (elReadinessSummary)
+    elReadinessSummary.innerText = `พร้อม ${readyCount} / ทั้งหมด ${monthTasks.length}`;
   if (window.lucide) {
     try {
       lucide.createIcons();
