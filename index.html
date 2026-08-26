@@ -3,13 +3,250 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Personal Work Planner v1.2.0 (Clean Modular)</title>
+    <title>Personal Work Planner — ศูนย์จัดการภารกิจ</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Custom CSS -->
     <link rel="stylesheet" href="style.css" />
+    <style id="world-class-design">
+@import url("https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap");
+
+:root{
+  --bg:#f6f8fb;
+  --surface:#ffffff;
+  --surface-2:#f8fafc;
+  --ink:#172033;
+  --muted:#64748b;
+  --line:#e5eaf0;
+  --primary:#2563eb;
+  --primary-dark:#1d4ed8;
+  --success:#059669;
+  --danger:#dc2626;
+  --warning:#d97706;
+  --radius:16px;
+  --shadow:0 1px 2px rgba(15,23,42,.04),0 8px 28px rgba(15,23,42,.05);
+}
+
+*{font-family:"Sarabun",sans-serif;box-sizing:border-box}
+html{background:var(--bg);scroll-behavior:smooth}
+body{background:var(--bg)!important;color:var(--ink)!important;letter-spacing:-.01em}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+::-webkit-scrollbar{width:7px;height:7px}
+::-webkit-scrollbar-track{background:#eef2f7}
+::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:999px}
+::-webkit-scrollbar-thumb:hover{background:#94a3b8}
+
+/* App shell */
+header{
+  background:rgba(255,255,255,.92)!important;
+  color:var(--ink)!important;
+  border-bottom:1px solid var(--line);
+  box-shadow:0 1px 12px rgba(15,23,42,.04)!important;
+  backdrop-filter:blur(18px);
+}
+header > div{max-width:1440px!important;min-height:72px}
+header .text-slate-400{color:#64748b!important}
+header h1{font-size:18px!important;font-weight:700!important;color:#111827!important}
+header h1 span{background:#eff6ff!important;color:#2563eb!important;border:1px solid #dbeafe}
+header p{font-size:12px!important;color:#64748b!important}
+header .nav-btn,
+header button[onclick="openSettingsModal"]{
+  background:transparent!important;
+  color:#64748b!important;
+  border:1px solid transparent!important;
+  border-radius:10px!important;
+}
+header .nav-btn:hover,
+header button[onclick="openSettingsModal"]:hover{
+  background:#f1f5f9!important;color:#1e293b!important
+}
+header .nav-btn.active-tab{
+  background:#eff6ff!important;color:#1d4ed8!important;border-color:#dbeafe!important;
+}
+
+/* Main */
+main{max-width:1440px!important;margin-top:28px!important;padding-left:20px!important;padding-right:20px!important}
+#tab-dashboard,#tab-readiness{gap:24px}
+#tab-dashboard > .grid{
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:12px!important;
+}
+#tab-dashboard > .grid > div{
+  border:1px solid var(--line)!important;
+  border-radius:14px!important;
+  box-shadow:none!important;
+  padding:16px!important;
+  min-height:92px;
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+}
+#tab-dashboard > .grid > div:hover{
+  transform:translateY(-1px);box-shadow:var(--shadow);border-color:#d8e0ea!important
+}
+#tab-dashboard > .grid .text-\[11px\],
+#tab-dashboard > .grid .sm\:text-xs{font-size:12px!important;color:#64748b!important}
+#tab-dashboard > .grid .text-xl,
+#tab-dashboard > .grid .sm\:text-2xl{font-size:26px!important;line-height:1!important;margin-top:8px}
+
+#tab-dashboard > div:nth-child(2){
+  border:1px solid var(--line)!important;
+  border-radius:16px!important;
+  box-shadow:none!important;
+  padding:12px!important;
+}
+#tab-dashboard > div:nth-child(2) button{
+  border:1px solid var(--line)!important;background:#fff!important;color:#475569!important;
+  min-height:40px;border-radius:10px!important
+}
+#tab-dashboard > div:nth-child(2) button:hover{background:#f8fafc!important}
+#tab-dashboard > div:nth-child(2) button[onclick="openTaskModal()"]{
+  background:var(--primary)!important;border-color:var(--primary)!important;color:#fff!important;
+  box-shadow:0 4px 12px rgba(37,99,235,.18)
+}
+#select-month,#select-year{
+  background:#f8fafc!important;border:1px solid var(--line)!important;
+  border-radius:10px!important;padding:8px 10px!important
+}
+
+/* Calendar */
+#calendar-grid-desktop{
+  background:#edf1f5!important;gap:1px!important
+}
+#calendar-grid-desktop > div{
+  background:#fff;
+  min-height:132px;
+  padding:10px!important;
+}
+.hidden.md\:block{
+  border:1px solid var(--line)!important;border-radius:16px!important;box-shadow:var(--shadow)!important
+}
+.hidden.md\:block > div:first-child{
+  background:#f8fafc!important;border-bottom:1px solid var(--line)!important;
+  padding:11px 8px!important;color:#64748b!important
+}
+.hidden.md\:block > div:first-child div{font-size:12px!important;font-weight:700!important}
+#calendar-list-mobile{
+  background:transparent!important
+}
+
+/* Readiness */
+#tab-readiness > div{
+  border:1px solid var(--line)!important;border-radius:16px!important;
+  box-shadow:var(--shadow)!important;padding:24px!important
+}
+#readiness-list > div{
+  border:1px solid var(--line)!important;border-radius:14px!important;
+  box-shadow:none!important
+}
+
+/* Modal system */
+.fixed.inset-0.bg-slate-900\/50{
+  background:rgba(15,23,42,.48)!important;
+  backdrop-filter:blur(8px)!important
+}
+.fixed.inset-0 > div.bg-white{
+  border:1px solid rgba(226,232,240,.9)!important;
+  border-radius:20px!important;
+  box-shadow:0 24px 70px rgba(15,23,42,.18)!important;
+}
+#task-modal > div{max-width:920px!important}
+#task-modal .p-4.sm\:p-5{
+  padding:20px 24px!important;
+  border-bottom:1px solid var(--line)!important
+}
+#task-modal form{
+  padding:24px!important;gap:20px!important
+}
+#task-modal form > div{
+  border-color:var(--line)!important
+}
+#task-modal input:not([type="hidden"]),
+#task-modal select,
+#task-modal textarea,
+#settings-modal input,
+#settings-modal select{
+  min-height:42px;
+  border:1px solid #d7dee8!important;
+  border-radius:10px!important;
+  background:#fff!important;
+  color:#172033!important;
+  padding:9px 12px!important;
+  transition:border-color .15s,box-shadow .15s,background .15s;
+}
+#task-modal textarea{min-height:86px;line-height:1.55}
+#task-modal input:focus,#task-modal select:focus,#task-modal textarea:focus{
+  outline:none!important;border-color:#60a5fa!important;
+  box-shadow:0 0 0 3px rgba(59,130,246,.12)!important
+}
+#task-mission-type{
+  min-height:42px!important;background:#fff!important;color:#172033!important;
+  border:1px solid #d7dee8!important
+}
+#task-modal label{font-size:13px!important;color:#475569!important;font-weight:600!important}
+#task-modal .bg-slate-900{
+  background:linear-gradient(135deg,#172033,#24324a)!important;
+  border-radius:14px!important;padding:16px!important
+}
+#task-modal .bg-slate-50,
+#task-modal .bg-amber-50\/50,
+#task-modal .bg-emerald-50{
+  background:#f8fafc!important;border:1px solid var(--line)!important
+}
+#task-modal .text-emerald-800{color:#334155!important}
+#task-modal .text-emerald-600{color:#059669!important}
+#task-modal .pt-4.flex.justify-between{
+  position:sticky;bottom:-1px;background:#fff;
+  margin:0 -24px -24px!important;padding:16px 24px!important;
+  border-top:1px solid var(--line)!important;z-index:2
+}
+#task-modal #btn-delete{
+  border:1px solid #fecaca!important;background:#fff!important
+}
+#task-modal button[type="submit"]{
+  min-height:42px;border-radius:10px!important;background:var(--primary)!important;
+  box-shadow:0 4px 12px rgba(37,99,235,.18)
+}
+
+/* Settings + holiday modals */
+#settings-modal > div,#holiday-modal > div{
+  border-radius:18px!important;box-shadow:0 24px 70px rgba(15,23,42,.18)!important
+}
+
+/* Toast */
+#toast{
+  bottom:24px!important;right:24px!important;
+  border-radius:12px!important;box-shadow:0 12px 35px rgba(15,23,42,.18)!important
+}
+
+/* Better mobile */
+@media(max-width:900px){
+  #tab-dashboard > .grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:640px){
+  header > div{padding-left:14px!important;padding-right:14px!important}
+  main{margin-top:16px!important;padding-left:12px!important;padding-right:12px!important}
+  #tab-dashboard > .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px!important}
+  #tab-dashboard > .grid > div{min-height:82px;padding:12px!important}
+  #tab-dashboard > .grid .text-xl,#tab-dashboard > .grid .sm\:text-2xl{font-size:22px!important}
+  #tab-dashboard > div:nth-child(2){padding:10px!important}
+  #task-modal > div{max-height:96vh!important;border-radius:16px!important}
+  #task-modal form{padding:16px!important}
+  #task-modal .pt-4.flex.justify-between{
+    margin:0 -16px -16px!important;padding:12px 16px!important
+  }
+  #task-modal .pt-4.flex.justify-between > div{width:100%}
+  #task-modal .pt-4.flex.justify-between button{min-height:42px}
+  #tab-readiness > div{padding:16px!important}
+}
+
+/* Accessibility */
+:focus-visible{outline:3px solid rgba(59,130,246,.25);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}
+}
+</style>
   </head>
   <body class="bg-slate-100 text-slate-800 min-h-screen pb-12">
     <!-- Toast Notification -->
@@ -79,6 +316,13 @@
     </header>
 
     <main class="max-w-7xl mx-auto mt-4 sm:mt-6 px-2 sm:px-4">
+      <div class="mb-5 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
+        <div>
+          <p class="text-xs font-semibold text-blue-600 uppercase tracking-wider">WORK PLANNER</p>
+          <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 mt-1">ภาพรวมการปฏิบัติงาน</h2>
+          <p class="text-sm text-slate-500 mt-1">วางแผน ติดตาม และตรวจความพร้อมของงานในที่เดียว</p>
+        </div>
+      </div>
       <!-- TAB 1: DASHBOARD & CALENDAR -->
       <div id="tab-dashboard" class="space-y-4 sm:space-y-6">
         <!-- Summary Stats Cards -->
