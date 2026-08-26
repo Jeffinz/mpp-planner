@@ -76,6 +76,7 @@ window.addEventListener("load", () => {
   window.removeHoliday = removeHoliday;
   window.copyField = copyField;
   window.toggleTaskAccordion = toggleTaskAccordion;
+  window.toggleHolidayFromCalendar = toggleHolidayFromCalendar;
 
   // บังคับวาดตารางทันทีโดยไม่ต้องรอไอคอน
   renderCalendar();
@@ -244,7 +245,7 @@ function showToast(msg) {
     toast.classList.remove("opacity-0", "pointer-events-none");
     setTimeout(() => {
       toast.classList.add("opacity-0", "pointer-events-none");
-    }, 2000);
+    }, 3000); // ขยายเวลาแสดงผลเป็น 3 วินาที เพื่อให้อ่านทัน
   }
 }
 
@@ -289,18 +290,34 @@ function switchTab(tab) {
   const tabDashboard = document.getElementById("tab-dashboard");
   const tabReadiness = document.getElementById("tab-readiness");
 
-  if (btnDashboard) btnDashboard.classList.remove("bg-slate-700", "text-white");
-  if (btnReadiness) btnReadiness.classList.remove("bg-slate-700", "text-white");
+  // กำหนดสไตล์ปุ่มแบบปกติ (Inactive) ในโทนโหมดมืด
+  const inactiveClass =
+    "px-5 py-2.5 rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2 bg-[#0f172a] text-slate-300 hover:bg-slate-800 border border-slate-700";
+
+  // กำหนดสไตล์ปุ่มที่ถูกเลือก (Active) ให้เป็นสีเขียวมรกตเด่นชัดในโทนโหมดมืด
+  const activeClass =
+    "px-5 py-2.5 rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2 bg-emerald-600 text-white shadow-md shadow-emerald-600/20";
+
+  if (btnDashboard) {
+    btnDashboard.className = `${inactiveClass} min-w-[120px]`;
+  }
+  if (btnReadiness) {
+    btnReadiness.className = `${inactiveClass} min-w-[140px]`;
+  }
 
   if (tab === "dashboard") {
     if (tabDashboard) tabDashboard.classList.remove("hidden");
     if (tabReadiness) tabReadiness.classList.add("hidden");
-    if (btnDashboard) btnDashboard.classList.add("bg-slate-700", "text-white");
+    if (btnDashboard) {
+      btnDashboard.className = `${activeClass} min-w-[120px]`;
+    }
     renderCalendar();
   } else {
     if (tabDashboard) tabDashboard.classList.add("hidden");
     if (tabReadiness) tabReadiness.classList.remove("hidden");
-    if (btnReadiness) btnReadiness.classList.add("bg-slate-700", "text-white");
+    if (btnReadiness) {
+      btnReadiness.className = `${activeClass} min-w-[140px]`;
+    }
     renderReadinessList();
   }
 }
@@ -416,6 +433,22 @@ function toggleMissionFields() {
   }
 }
 
+async function toggleHolidayFromCalendar(dateStr) {
+  if (holidays.includes(dateStr)) {
+    if (
+      confirm(
+        `ต้องการยกเลิกวันหยุดวันที่ ${formatThaiDate(dateStr)} ใช่หรือไม่?`,
+      )
+    ) {
+      await deleteHolidayFromCloud(dateStr);
+      showToast("ยกเลิกวันหยุดเรียบร้อยแล้ว");
+    }
+  } else {
+    await saveHolidayToCloud(dateStr);
+    showToast(`ตั้งวันที่ ${formatThaiDate(dateStr)} เป็นวันหยุดแล้ว`);
+  }
+}
+
 function renderCalendar() {
   const gridDesktop = document.getElementById("calendar-grid-desktop");
   const listMobile = document.getElementById("calendar-list-mobile");
@@ -430,7 +463,7 @@ function renderCalendar() {
   const totalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
 
   for (let i = 0; i < startDayOffset; i++) {
-    gridDesktop.innerHTML += `<div class="bg-slate-50 border border-slate-100 min-h-[120px]"></div>`;
+    gridDesktop.innerHTML += `<div class="bg-[#0b1120]/30 border border-slate-800/40"></div>`;
   }
 
   let weekendCount = 0;
@@ -460,22 +493,21 @@ function renderCalendar() {
     );
 
     let desktopHtml = `
-            <div class="bg-white p-1.5 border border-slate-100 min-h-[130px] flex flex-col justify-between ${isWeekend || isStatutoryHoliday ? "bg-slate-100/70" : ""}">
-                <div class="flex justify-between items-center mb-1">
-                    <span class="text-xs font-bold ${isWeekend || isStatutoryHoliday ? "text-red-500" : "text-slate-700"}">${day}</span>
-                    ${isStatutoryHoliday ? `<button onclick="removeHoliday('${dateStr}')" class="text-[9px] bg-red-100 text-red-600 px-1 rounded font-medium">หยุด ✕</button>` : ""}
-                    ${isWeekend && !isStatutoryHoliday ? '<span class="text-[9px] bg-slate-200 text-slate-600 px-1 rounded">เสาร์-อาทิตย์</span>' : ""}
+            <div class="p-2.5 flex flex-col justify-between ${isWeekend || isStatutoryHoliday ? "!bg-[#0d1424]/80" : ""}">
+                <div class="flex justify-between items-center mb-1.5">
+                    <span onclick="toggleHolidayFromCalendar('${dateStr}')" title="คลิกเพื่อสลับสถานะวันหยุด" class="cursor-pointer text-sm font-bold hover:underline ${isWeekend || isStatutoryHoliday ? "text-red-400" : "text-slate-200"}">${day}</span>
+                    ${isStatutoryHoliday ? `<button onclick="removeHoliday('${dateStr}')" class="text-[10px] bg-red-950/80 text-red-400 border border-red-900/60 px-1.5 py-0.5 rounded-md font-semibold">หยุด ✕</button>` : `<button onclick="toggleHolidayFromCalendar('${dateStr}')" class="text-[10px] text-slate-500 hover:text-slate-300 opacity-60 hover:opacity-100" title="คลิกกำหนดเป็นวันหยุด">+หยุด</button>`}
                 </div>
         `;
 
     if ((isWeekend || isStatutoryHoliday) && dayTasks.length === 0) {
       desktopHtml += `
-                <div onclick="openTaskModal(null, '${dateStr}', 'MORNING')" class="flex-1 bg-slate-200/50 hover:bg-slate-200/80 rounded flex flex-col items-center justify-center text-xs text-slate-400 font-medium cursor-pointer transition">
-                    <span>🛑 วันหยุด</span>
+                <div onclick="openTaskModal(null, '${dateStr}', 'MORNING')" class="flex-1 bg-[#0b1120]/40 hover:bg-[#1e293b]/60 rounded-xl flex items-center justify-center text-xs text-slate-500 font-medium cursor-pointer transition border border-dashed border-slate-800">
+                    <span>🛑 วันหยุดพักผ่อน</span>
                 </div>
             `;
     } else {
-      desktopHtml += `<div class="space-y-1 flex-1 flex flex-col">`;
+      desktopHtml += `<div class="space-y-1.5 flex-1 flex flex-col justify-center">`;
       if (morningTasks.length > 0) {
         desktopHtml += renderDesktopTaskBadge(morningTasks[0], "เช้า");
       } else {
@@ -494,52 +526,40 @@ function renderCalendar() {
     desktopHtml += `</div>`;
     gridDesktop.innerHTML += desktopHtml;
 
-    let mobileCardHtml = `
-            <div class="border border-slate-200 rounded-xl p-3 ${isWeekend || isStatutoryHoliday ? "bg-slate-50/80" : "bg-white"} space-y-2">
-                <div class="flex justify-between items-center border-b border-slate-100 pb-1.5">
-                    <span class="font-bold text-sm ${isWeekend || isStatutoryHoliday ? "text-red-600" : "text-slate-800"}">${day} ${monthNamesThai[currentMonth]} (${dayNamesThaiShort[dayOfWeek]})</span>
+    // Mobile List Render
+    let mobileSlotText = "ทั้งวัน";
+    if (dayTasks.length > 0) {
+      dayTasks.forEach((dt) => {
+        let slotLabel =
+          dt.slot === "MORNING"
+            ? "เช้า"
+            : dt.slot === "AFTERNOON"
+              ? "บ่าย"
+              : "ทั้งวัน";
+        listMobile.innerHTML += renderMobileTaskRow(
+          dt,
+          `${formatThaiDate(dateStr)} (${slotLabel})`,
+        );
+      });
+    } else if (isWeekend || isStatutoryHoliday) {
+      listMobile.innerHTML += `
+                <div class="p-2.5 rounded-lg bg-[#0d1424] border border-slate-800 text-xs text-slate-400 flex justify-between items-center">
+                    <span>🛑 ${formatThaiDate(dateStr)} (วันหยุด)</span>
+                    <button onclick="toggleHolidayFromCalendar('${dateStr}')" class="text-xs text-blue-400 hover:underline">ยกเลิกวันหยุด</button>
                 </div>
-        `;
-
-    if ((isWeekend || isStatutoryHoliday) && dayTasks.length === 0) {
-      mobileCardHtml += `<div onclick="openTaskModal(null, '${dateStr}', 'MORNING')" class="py-2 text-center text-xs text-slate-400 bg-slate-100/60 rounded-lg cursor-pointer">🛑 วันหยุดพักผ่อน</div>`;
+            `;
     } else {
-      mobileCardHtml += `<div class="space-y-1.5">`;
-      if (morningTasks.length > 0) {
-        mobileCardHtml += renderMobileTaskRow(
-          morningTasks[0],
-          "เช้า (08:30–12:00)",
-        );
-      } else {
-        mobileCardHtml += renderMobileEmptyRow(
-          dateStr,
-          "MORNING",
-          "เช้า (08:30–12:00)",
-        );
-      }
-
-      if (morningTasks.length > 0 && morningTasks[0].slot === "FULL_DAY") {
-        // Covered
-      } else if (afternoonTasks.length > 0) {
-        mobileCardHtml += renderMobileTaskRow(
-          afternoonTasks[0],
-          "บ่าย (13:00–16:30)",
-        );
-      } else {
-        mobileCardHtml += renderMobileEmptyRow(
-          dateStr,
-          "AFTERNOON",
-          "บ่าย (13:00–16:30)",
-        );
-      }
-      mobileCardHtml += `</div>`;
+      listMobile.innerHTML += renderMobileEmptyRow(
+        dateStr,
+        "MORNING",
+        `${formatThaiDate(dateStr)} (ว่าง)`,
+      );
     }
-
-    mobileCardHtml += `</div>`;
-    listMobile.innerHTML += mobileCardHtml;
   }
 
   updateStats(totalDays, weekendCount);
+
+  void gridDesktop.offsetHeight;
   if (window.lucide) {
     try {
       lucide.createIcons();
@@ -549,17 +569,18 @@ function renderCalendar() {
 
 function renderDesktopTaskBadge(task, slotLabel) {
   const levelColors = {
-    DISTRICT: "bg-red-50 border-red-200 text-red-700",
-    SUB_DISTRICT: "bg-blue-50 border-blue-200 text-blue-700",
-    VILLAGE: "bg-emerald-50 border-emerald-200 text-emerald-700",
+    DISTRICT: "bg-red-50 border-red-200 text-red-700 hover:bg-red-100",
+    SUB_DISTRICT: "bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100",
+    VILLAGE:
+      "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100",
   };
   const missionLabels = { MISSION_4: "🏢", MISSION_5: "🤝", SELF_DEV: "🎓" };
   const hasImages = task.images && task.images.length > 0;
 
   return `
-        <div onclick="openTaskModal('${task.id}')" class="cursor-pointer border text-[11px] p-1 rounded transition flex-1 flex flex-col justify-between ${levelColors[task.level] || "bg-blue-50 border-blue-200 text-blue-700"}">
-            <div class="font-bold truncate">${missionLabels[task.missionType] || "🏢"} ${task.project}</div>
-            <div class="text-[9px] opacity-75 flex justify-between items-center mt-1">
+        <div onclick="openTaskModal('${task.id}')" title="${task.project || ""}" class="slot-btn-modern cursor-pointer border transition-all flex flex-col justify-between shadow-2xs ${levelColors[task.level] || "bg-blue-50 border-blue-200 text-blue-700"}">
+            <div class="truncate w-full font-semibold text-xs">${missionLabels[task.missionType] || "🏢"} ${task.project}</div>
+            <div class="text-[10px] opacity-80 flex justify-between items-center w-full mt-0.5">
                 <span>${task.slot === "FULL_DAY" ? "ทั้งวัน" : slotLabel} ${hasImages ? "📷" : ""}</span>
             </div>
         </div>
@@ -568,7 +589,7 @@ function renderDesktopTaskBadge(task, slotLabel) {
 
 function renderDesktopEmptySlot(dateStr, slot, slotLabel) {
   return `
-        <div onclick="openTaskModal(null, '${dateStr}', '${slot}')" class="border border-dashed border-slate-200 rounded p-1 text-[10px] text-slate-400 hover:border-emerald-400 cursor-pointer text-center flex-1 flex items-center justify-center">
+        <div onclick="openTaskModal(null, '${dateStr}', '${slot}')" class="slot-btn-modern empty-slot-modern cursor-pointer text-center flex items-center justify-center transition">
             <span>🟢 ${slotLabel} ว่าง</span>
         </div>
     `;
@@ -588,20 +609,21 @@ function renderMobileTaskRow(task, slotTimeText) {
   const hasImages = task.images && task.images.length > 0;
 
   return `
-        <div onclick="openTaskModal('${task.id}')" class="p-2 rounded-lg border flex items-center justify-between cursor-pointer ${levelColors[task.level] || "bg-blue-50 border-blue-200 text-blue-700"}">
+        <div onclick="openTaskModal('${task.id}')" class="p-3 rounded-xl border flex items-center justify-between cursor-pointer ${levelColors[task.level] || "bg-blue-50 border-blue-200 text-blue-700"}">
             <div class="overflow-hidden pr-2">
                 <div class="text-[10px] opacity-75">${slotTimeText} ${hasImages ? "📷" : ""}</div>
                 <div class="text-xs font-bold truncate">${missionLabels[task.missionType] || "🏢"} ${task.project}</div>
             </div>
+            <i data-lucide="chevron-right" class="w-4 h-4 opacity-60 shrink-0"></i>
         </div>
     `;
 }
 
 function renderMobileEmptyRow(dateStr, slot, slotTimeText) {
   return `
-        <div onclick="openTaskModal(null, '${dateStr}', '${slot}')" class="p-2 rounded-lg border border-dashed text-slate-400 flex items-center justify-between cursor-pointer">
+        <div onclick="openTaskModal(null, '${dateStr}', '${slot}')" class="p-3 rounded-xl border border-dashed border-slate-800 text-slate-400 flex items-center justify-between cursor-pointer hover:bg-slate-800/40 transition">
             <span class="text-xs">🟢 ${slotTimeText}</span>
-            <span class="text-[11px] text-emerald-600">+ เพิ่มงาน</span>
+            <span class="text-[11px] text-blue-400 font-semibold">+ เพิ่มงาน</span>
         </div>
     `;
 }
@@ -614,7 +636,6 @@ function updateStats(totalDaysInMonth, weekendCount) {
       (t.dateStart && t.dateStart.startsWith(currentMonthPrefix)),
   );
 
-  // ป้องกัน Error ปลอดภัยด้วย Optional Chaining (?.)
   const elDistrict = document.getElementById("stat-district");
   const elSubdistrict = document.getElementById("stat-subdistrict");
   const elVillage = document.getElementById("stat-village");
@@ -744,6 +765,13 @@ function updateTimeInputs() {
 
 async function saveTask(e) {
   e.preventDefault();
+  const project = document.getElementById("task-project").value.trim();
+  if (!project) {
+    alert("กรุณากรอกชื่อโครงการหรือกิจกรรมก่อนบันทึก");
+    document.getElementById("task-project").focus();
+    return;
+  }
+
   const id = document.getElementById("task-id").value || Date.now().toString();
   const missionType = document.getElementById("task-mission-type").value;
 
@@ -767,7 +795,7 @@ async function saveTask(e) {
     district: document.getElementById("task-district").value,
     subdistrict: document.getElementById("task-subdistrict").value,
     village: document.getElementById("task-village").value,
-    project: document.getElementById("task-project").value,
+    project,
     objective: document.getElementById("task-objective").value,
     mission: document.getElementById("task-mission").value,
     result: document.getElementById("task-result").value,
@@ -838,9 +866,9 @@ function renderHolidayList() {
 
   monthHolidays.forEach((h) => {
     container.innerHTML += `
-            <div class="flex items-center justify-between p-2 rounded bg-slate-50 border text-xs">
-                <span class="font-medium text-slate-700">🛑 ${formatThaiDate(h)}</span>
-                <button onclick="removeHoliday('${h}')" class="text-red-600 font-bold px-2 py-0.5 rounded">ลบออก</button>
+            <div class="flex items-center justify-between p-2 rounded bg-slate-800 border border-slate-700 text-xs">
+                <span class="font-medium text-slate-200">🛑 ${formatThaiDate(h)}</span>
+                <button onclick="removeHoliday('${h}')" class="text-red-400 font-bold px-2 py-0.5 rounded hover:bg-red-950/40">ลบออก</button>
             </div>
         `;
   });
@@ -881,18 +909,19 @@ function renderReadinessList() {
     return;
   }
 
+  // ปรับแต่ง Badge ระดับงานให้สวยงามในโหมดมืด
   const levelBadges = {
     DISTRICT: {
       text: "🏢 ระดับอำเภอ",
-      class: "bg-red-50 text-red-700 border-red-200",
+      class: "bg-rose-950/40 text-rose-300 border-rose-800/60",
     },
     SUB_DISTRICT: {
       text: "🏘️ ระดับตำบล",
-      class: "bg-blue-50 text-blue-700 border-blue-200",
+      class: "bg-sky-950/40 text-sky-300 border-sky-800/60",
     },
     VILLAGE: {
       text: "🏠 ระดับหมู่บ้าน",
-      class: "bg-emerald-50 text-emerald-700 border-emerald-200",
+      class: "bg-emerald-950/40 text-emerald-300 border-emerald-800/60",
     },
   };
 
@@ -933,32 +962,32 @@ function renderReadinessList() {
     ];
 
     container.innerHTML += `
-            <div class="border border-slate-200/90 rounded-2xl overflow-hidden bg-white shadow-xs transition mb-2">
-                <div onclick="toggleTaskAccordion('${t.id}')" class="p-3 bg-slate-50/80 hover:bg-slate-100 cursor-pointer space-y-2 transition">
+            <div class="border border-slate-800 rounded-2xl overflow-hidden bg-[#0f172a] shadow-md transition mb-3">
+                <div onclick="toggleTaskAccordion('${t.id}')" class="p-4 bg-[#0b132b]/80 hover:bg-[#1e293b] cursor-pointer space-y-2 transition">
                     <div class="flex items-center justify-between gap-2">
-                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border ${lvlInfo.class}">${lvlInfo.text}</span>
+                        <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-md border ${lvlInfo.class}">${lvlInfo.text}</span>
                         <div class="flex items-center gap-1.5">
-                            ${isReady ? '<span class="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-2.5 py-0.5 rounded-full">✓ พร้อมลง MPP</span>' : '<span class="text-[10px] bg-red-100 text-red-700 font-bold px-2.5 py-0.5 rounded-full">ขาดข้อมูล</span>'}
+                            ${isReady ? '<span class="text-[11px] bg-emerald-950/50 text-emerald-300 font-bold border border-emerald-800/60 px-3 py-0.5 rounded-full">✓ พร้อมลง MPP</span>' : '<span class="text-[11px] bg-rose-950/50 text-rose-300 font-bold border border-rose-800/60 px-3 py-0.5 rounded-full">ขาดข้อมูล</span>'}
                             <i data-lucide="chevron-down" id="acc-icon-${t.id}" class="w-4 h-4 text-slate-400 transition-transform"></i>
                         </div>
                     </div>
 
-                    <div class="flex items-baseline gap-2 text-xs font-semibold text-slate-800">
-                        <span class="text-blue-600 shrink-0 font-bold bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">${formatThaiDate(t.date || t.dateStart)}</span>
-                        <span class="truncate font-medium text-slate-700">${t.project}</span>
+                    <div class="flex items-baseline gap-2 text-xs font-semibold text-slate-200">
+                        <span class="text-emerald-400 shrink-0 font-bold bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-800/50">${formatThaiDate(t.date || t.dateStart)}</span>
+                        <span class="truncate font-medium text-slate-300">${t.project}</span>
                     </div>
                 </div>
 
-                <div id="acc-content-${t.id}" class="hidden p-2.5 border-t border-slate-100 bg-white space-y-1.5">
+                <div id="acc-content-${t.id}" class="hidden p-3.5 border-t border-slate-800 bg-[#0f172a] space-y-2">
                     ${fields
                       .map(
                         (f) => `
-                        <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100 gap-2">
+                        <div class="flex items-center justify-between p-3 rounded-xl bg-[#0b132b] border border-slate-800 gap-2">
                             <div class="min-w-0 flex-1">
-                                <div class="text-[9px] font-bold text-slate-400 leading-none mb-1">${f.label}</div>
-                                <div class="text-xs text-slate-800 font-medium truncate">${f.value || '<span class="text-red-400 font-normal">ยังไม่ได้กรอก</span>'}</div>
+                                <div class="text-[10px] font-bold text-slate-400 leading-none mb-1">${f.label}</div>
+                                <div class="text-xs text-slate-200 font-medium truncate">${f.value || '<span class="text-rose-400 font-normal">ยังไม่ได้กรอก</span>'}</div>
                             </div>
-                            <button onclick="copyField('${(f.value || "").replace(/'/g, "\\'")}', '${f.label}')" class="bg-white hover:bg-blue-600 hover:text-white text-slate-600 text-[11px] px-2.5 py-1 rounded-lg border border-slate-200 shadow-2xs transition shrink-0 font-semibold active:scale-95">
+                            <button onclick="copyField('${(f.value || "").replace(/'/g, "\\'")}', '${f.label}')" class="bg-[#1e293b] hover:bg-emerald-600 hover:text-white text-slate-300 text-[11px] px-3 py-1.5 rounded-lg border border-slate-700 transition shrink-0 font-semibold active:scale-95 shadow-xs">
                                 คัดลอก
                             </button>
                         </div>

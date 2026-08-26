@@ -3,197 +3,287 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Personal Work Planner v1.2.4 Fixed</title>
-    <!-- Tailwind CSS -->
+    <title>Personal Work Planner - Soft Warm Theme</title>
+    <!-- Tailwind CSS & Lucide Icons -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="style.css" />
+    <!-- Google Fonts: Prompt -->
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap");
+
+      * {
+        font-family:
+          "Prompt",
+          -apple-system,
+          sans-serif !important;
+        box-sizing: border-box;
+      }
+
+      body {
+        background-color: #121417 !important;
+        color: #e1e4e8 !important;
+        font-size: 15px !important;
+        margin: 0;
+        padding-bottom: 40px;
+      }
+
+      main {
+        max-width: 1240px !important;
+        margin: 24px auto !important;
+        padding: 0 20px !important;
+      }
+
+      .glass-card {
+        background: #1a1d23 !important;
+        backdrop-filter: blur(12px);
+        border: 1px solid #282d37 !important;
+        border-radius: 20px !important;
+        box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3) !important;
+      }
+
+      .calendar-wrapper {
+        background: #1a1d23 !important;
+        border: 1px solid #282d37 !important;
+        border-radius: 24px !important;
+        overflow: hidden !important;
+        box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.4) !important;
+      }
+
+      #calendar-grid-desktop {
+        display: grid !important;
+        grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+        gap: 1px !important;
+        background-color: #282d37 !important;
+      }
+
+      #calendar-grid-desktop > div {
+        width: 100% !important;
+        min-height: 160px !important;
+        padding: 10px !important;
+        background-color: #16191f !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        transition: background-color 0.2s ease;
+        border: none !important;
+      }
+
+      #calendar-grid-desktop > div:hover {
+        background-color: #1f232b !important;
+      }
+
+      .slot-btn-modern {
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        justify-content: center !important;
+        padding: 6px 10px !important;
+        border-radius: 10px !important;
+        font-size: 12px !important;
+        font-weight: 500 !important;
+        min-height: 48px !important;
+        transition: all 0.2s ease !important;
+      }
+
+      .empty-slot-modern {
+        background-color: #1a1d23 !important;
+        border: 1px dashed #323846 !important;
+        color: #8b949e !important;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 10px !important;
+        min-height: 44px !important;
+        width: 100% !important;
+        font-size: 12px !important;
+        font-weight: 500 !important;
+      }
+
+      .empty-slot-modern:hover {
+        background-color: #222630 !important;
+        border-color: #238636 !important;
+        color: #7ee787 !important;
+      }
+
+      select,
+      input,
+      textarea {
+        background-color: #16191f !important;
+        color: #e1e4e8 !important;
+        border: 1px solid #323846 !important;
+        border-radius: 12px !important;
+        padding: 10px 14px !important;
+      }
+
+      select option {
+        background-color: #1a1d23 !important;
+        color: #e1e4e8 !important;
+      }
+
+      select:focus,
+      input:focus,
+      textarea:focus {
+        border-color: #238636 !important;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(35, 134, 54, 0.2);
+      }
+    </style>
   </head>
-  <body class="bg-slate-100 text-slate-800 min-h-screen pb-12">
+  <body class="bg-[#121417] text-[#e1e4e8] min-h-screen pb-16">
     <!-- Toast Notification -->
     <div
       id="toast"
-      class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-xl flex items-center gap-2 text-sm z-50 transition-opacity duration-300 opacity-0 pointer-events-none"
+      class="fixed bottom-6 right-6 bg-[#1a1d23] text-[#7ee787] border border-[#238636]/40 px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 text-sm z-50 transition-all duration-300 opacity-0 pointer-events-none backdrop-blur-md"
     >
-      <i data-lucide="check-circle-2" class="text-emerald-400 w-4 h-4"></i>
-      <span id="toast-message">ข้อความแจ้งเตือน</span>
+      <i data-lucide="check-circle-2" class="text-[#7ee787] w-5 h-5"></i>
+      <span id="toast-message" class="font-medium text-[#e1e4e8]"
+        >ข้อความแจ้งเตือน</span
+      >
     </div>
 
     <!-- Header / Navbar -->
     <header
-      class="bg-slate-900 text-white p-3 sm:p-4 shadow-lg sticky top-0 z-50"
+      class="bg-[#16191f]/80 backdrop-blur-md border-b border-[#282d37] sticky top-0 z-40 shadow-lg"
     >
       <div
-        class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3"
+        class="max-w-7xl mx-auto px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4"
       >
-        <div
-          class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start"
-        >
-          <div class="flex items-center gap-2.5">
-            <i
-              data-lucide="calendar"
-              class="text-emerald-400 w-6 h-6 sm:w-7 sm:h-7 animate-pulse"
-            ></i>
-            <div>
-              <h1 class="font-bold text-base sm:text-lg leading-tight">
-                Personal Work Planner
-                <span
-                  class="text-[10px] bg-emerald-500 text-white px-2 py-0.5 rounded-full font-normal"
-                  >v1.2.4</span
-                >
-              </h1>
-              <p class="text-[10px] sm:text-xs text-slate-400">
-                ระบบจัดการงานบัณฑิตอาสา (ปีงบประมาณ 2569–2570)
-              </p>
-            </div>
+        <div class="flex items-center gap-3.5">
+          <div
+            class="bg-gradient-to-tr from-[#238636] to-[#2ea043] text-white p-3 rounded-2xl shadow-md shadow-[#238636]/20"
+          >
+            <i data-lucide="calendar" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h1
+              class="font-bold text-lg text-[#e1e4e8] flex items-center gap-2.5 leading-tight"
+            >
+              Personal Work Planner
+              <span
+                class="text-[11px] bg-[#113224] text-[#7ee787] border border-[#238636]/40 px-2.5 py-0.5 rounded-full font-semibold"
+                >Soft Warm Pro</span
+              >
+            </h1>
+            <p class="text-xs text-[#8b949e] mt-0.5">
+              ระบบจัดการงานบัณฑิตอาสา (ปีงบประมาณ 2569–2570)[cite: 2]
+            </p>
           </div>
         </div>
-        <div class="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
+
+        <div class="flex items-center gap-2">
           <button
             onclick="switchTab('dashboard')"
-            class="nav-btn flex-1 sm:flex-initial w-1/2 sm:w-auto bg-slate-800 hover:bg-slate-700 px-2.5 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center justify-center gap-1 sm:gap-1.5 border border-slate-700 bg-slate-700 text-white shrink-0"
+            class="px-5 py-2.5 rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2 bg-[#238636] hover:bg-[#2ea043] text-white shadow-md min-w-[120px]"
             id="btn-dashboard"
           >
-            <i data-lucide="layout-dashboard" class="w-4 h-4 shrink-0"></i>
-            <span class="truncate">ปฏิทิน</span>
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+            <span>ปฏิทิน</span>
           </button>
           <button
             onclick="switchTab('readiness')"
-            class="nav-btn flex-1 sm:flex-initial w-1/2 sm:w-auto bg-slate-800 hover:bg-slate-700 px-2.5 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center justify-center gap-1 sm:gap-1.5 border border-slate-700 shrink-0"
+            class="px-5 py-2.5 rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2 bg-[#1a1d23] text-[#c9d1d9] hover:bg-[#222630] border border-[#323846] min-w-[140px]"
             id="btn-readiness"
           >
-            <i data-lucide="shield-check" class="w-4 h-4 shrink-0"></i>
-            <span class="truncate">ตรวจความพร้อม</span>
+            <i data-lucide="shield-check" class="w-4 h-4 text-[#7ee787]"></i>
+            <span>ตรวจความพร้อม</span>
           </button>
           <button
             onclick="openSettingsModal()"
-            class="bg-slate-800 hover:bg-slate-700 p-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center justify-center border border-slate-700 text-slate-300 hover:text-white shrink-0"
-            title="จัดการข้อมูลปีเก่า / ล้างข้อมูล"
+            class="p-2.5 h-[42px] w-[42px] flex items-center justify-center rounded-xl bg-[#1a1d23] text-[#c9d1d9] hover:bg-[#222630] border border-[#323846] transition shrink-0"
+            title="จัดการข้อมูล"
           >
-            <i data-lucide="settings" class="w-4 h-4"></i>
+            <i data-lucide="settings" class="w-5 h-5"></i>
           </button>
         </div>
       </div>
     </header>
 
-    <main class="max-w-7xl mx-auto mt-4 sm:mt-6 px-2 sm:px-4">
+    <main class="max-w-7xl mx-auto mt-8 px-6">
       <!-- TAB 1: DASHBOARD & CALENDAR -->
-      <div id="tab-dashboard" class="space-y-4 sm:space-y-6">
-        <!-- Summary Stats Cards Dashboard (คืนค่า ID ครบถ้วน) -->
-        <div
-          class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 sm:gap-3"
-        >
-          <div
-            class="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm"
-          >
+      <div id="tab-dashboard" class="space-y-6">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+          <div class="glass-card p-5">
             <div
-              class="text-[11px] sm:text-xs font-semibold text-slate-500 mb-0.5"
+              class="text-xs font-semibold text-[#8b949e] mb-1 flex items-center gap-1.5"
             >
               🏢 อำเภอ
             </div>
-            <div
-              class="text-xl sm:text-2xl font-bold text-red-600"
-              id="stat-district"
-            >
+            <div class="text-3xl font-bold text-[#ff7b72]" id="stat-district">
               0
             </div>
           </div>
-          <div
-            class="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm"
-          >
+          <div class="glass-card p-5">
             <div
-              class="text-[11px] sm:text-xs font-semibold text-slate-500 mb-0.5"
+              class="text-xs font-semibold text-[#8b949e] mb-1 flex items-center gap-1.5"
             >
               🏘️ ตำบล
             </div>
             <div
-              class="text-xl sm:text-2xl font-bold text-blue-600"
+              class="text-3xl font-bold text-[#79c0ff]"
               id="stat-subdistrict"
             >
               0
             </div>
           </div>
-          <div
-            class="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm"
-          >
+          <div class="glass-card p-5">
             <div
-              class="text-[11px] sm:text-xs font-semibold text-slate-500 mb-0.5"
+              class="text-xs font-semibold text-[#8b949e] mb-1 flex items-center gap-1.5"
             >
               🏠 หมู่บ้าน
             </div>
-            <div
-              class="text-xl sm:text-2xl font-bold text-emerald-600"
-              id="stat-village"
-            >
+            <div class="text-3xl font-bold text-[#7ee787]" id="stat-village">
               0
             </div>
           </div>
-          <div
-            class="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm"
-          >
+          <div class="glass-card p-5">
             <div
-              class="text-[11px] sm:text-xs font-semibold text-slate-500 mb-0.5"
+              class="text-xs font-semibold text-[#8b949e] mb-1 flex items-center gap-1.5"
             >
               🛑 วันหยุดรวม
             </div>
-            <div
-              class="text-xl sm:text-2xl font-bold text-slate-600"
-              id="stat-holiday"
-            >
+            <div class="text-3xl font-bold text-[#c9d1d9]" id="stat-holiday">
               0
             </div>
           </div>
-          <div
-            class="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm"
-          >
+          <div class="glass-card p-5">
             <div
-              class="text-[11px] sm:text-xs font-semibold text-slate-500 mb-0.5"
+              class="text-xs font-semibold text-[#8b949e] mb-1 flex items-center gap-1.5"
             >
               🟢 Slot ว่าง
             </div>
-            <div
-              class="text-xl sm:text-2xl font-bold text-amber-500"
-              id="stat-empty"
-            >
+            <div class="text-3xl font-bold text-[#d29922]" id="stat-empty">
               0
             </div>
           </div>
-          <div
-            class="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm bg-red-50/50"
-          >
+          <div class="glass-card p-5 !bg-[#3b171a]/30 !border-[#5a2228]/50">
             <div
-              class="text-[11px] sm:text-xs font-semibold text-red-600 mb-0.5"
+              class="text-xs font-semibold text-[#ff7b72] mb-1 flex items-center gap-1.5"
             >
               ⚠️ ข้อมูลไม่ครบ
             </div>
-            <div
-              class="text-xl sm:text-2xl font-bold text-red-600"
-              id="stat-incomplete"
-            >
+            <div class="text-3xl font-bold text-[#ff7b72]" id="stat-incomplete">
               0
             </div>
           </div>
         </div>
 
-        <!-- Calendar Control Header -->
         <div
-          class="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-3"
+          class="glass-card p-4.5 flex flex-col md:flex-row justify-between items-center gap-4"
         >
-          <div class="flex items-center justify-between w-full md:w-auto gap-2">
+          <div class="flex items-center justify-between w-full md:w-auto gap-3">
             <button
               onclick="changeMonth(-1)"
-              class="p-1.5 sm:p-2 hover:bg-slate-100 rounded-lg border border-slate-200 transition"
+              class="p-2.5 hover:bg-[#222630] rounded-xl border border-[#323846] transition text-[#c9d1d9]"
             >
-              <i data-lucide="chevron-left" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+              <i data-lucide="chevron-left" class="w-5 h-5"></i>
             </button>
-
-            <div class="flex items-center gap-1.5 sm:gap-2">
+            <div class="flex items-center gap-2.5">
               <select
                 id="select-month"
                 onchange="onMonthYearChange()"
-                class="font-bold text-sm sm:text-lg text-slate-800 bg-slate-50 p-1 sm:p-1.5 rounded-lg border border-slate-200 cursor-pointer"
+                class="font-semibold text-base text-[#e1e4e8] bg-[#16191f] px-3.5 py-2 rounded-xl border border-[#323846] cursor-pointer"
               >
                 <option value="0">มกราคม</option>
                 <option value="1">กุมภาพันธ์</option>
@@ -208,104 +298,92 @@
                 <option value="10">พฤศจิกายน</option>
                 <option value="11">ธันวาคม</option>
               </select>
-
               <select
                 id="select-year"
                 onchange="onMonthYearChange()"
-                class="font-bold text-sm sm:text-lg text-slate-800 bg-slate-50 p-1 sm:p-1.5 rounded-lg border border-slate-200 cursor-pointer"
+                class="font-semibold text-base text-[#e1e4e8] bg-[#16191f] px-3.5 py-2 rounded-xl border border-[#323846] cursor-pointer"
               >
                 <option value="2026">2569 (2026)</option>
                 <option value="2027">2570 (2027)</option>
               </select>
             </div>
-
             <button
               onclick="changeMonth(1)"
-              class="p-1.5 sm:p-2 hover:bg-slate-100 rounded-lg border border-slate-200 transition"
+              class="p-2.5 hover:bg-[#222630] rounded-xl border border-[#323846] transition text-[#c9d1d9]"
             >
-              <i data-lucide="chevron-right" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+              <i data-lucide="chevron-right" class="w-5 h-5"></i>
             </button>
           </div>
 
-          <div class="flex gap-2 w-full md:w-auto justify-end">
+          <div class="flex gap-3 w-full md:w-auto justify-end">
             <button
               onclick="openHolidayModal()"
-              class="flex-1 md:flex-none bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition flex items-center justify-center gap-1"
+              class="bg-[#1a1d23] hover:bg-[#222630] text-[#c9d1d9] px-4 py-2.5 rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2 border border-[#323846]"
             >
-              <i data-lucide="ban" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+              <i data-lucide="ban" class="w-4 h-4 text-[#8b949e]"></i>
               จัดการวันหยุด
             </button>
             <button
               onclick="openTaskModal()"
-              class="flex-1 md:flex-none bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition flex items-center justify-center gap-1"
+              class="bg-[#238636] hover:bg-[#2ea043] text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2 shadow-md"
             >
-              <i data-lucide="plus" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
-              เพิ่มงานใหม่
+              <i data-lucide="plus" class="w-4 h-4"></i> เพิ่มงานใหม่
             </button>
           </div>
         </div>
 
         <!-- DESKTOP GRID CALENDAR -->
-        <div
-          class="hidden md:block bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
-        >
+        <div class="calendar-wrapper hidden md:block">
           <div
-            class="grid grid-cols-7 bg-slate-50 border-b border-slate-200 text-center font-semibold text-sm py-2 text-slate-600"
+            class="grid grid-cols-7 bg-[#282d37] border-b border-[#282d37] text-center font-semibold text-sm py-3.5 text-[#8b949e] tracking-wide"
           >
-            <div class="text-red-500">อาทิตย์</div>
+            <div class="text-[#ff7b72]">อาทิตย์</div>
             <div>จันทร์</div>
             <div>อังคาร</div>
             <div>พุธ</div>
             <div>พฤหัสบดี</div>
             <div>ศุกร์</div>
-            <div class="text-red-500">เสาร์</div>
+            <div class="text-[#ff7b72]">เสาร์</div>
           </div>
           <div
-            class="grid grid-cols-7 gap-px bg-slate-200"
+            class="grid grid-cols-7 gap-px bg-[#282d37]"
             id="calendar-grid-desktop"
           ></div>
         </div>
 
         <!-- MOBILE AGENDA LIST CALENDAR -->
-        <div
-          class="block md:hidden bg-white rounded-xl border border-slate-200 shadow-sm p-3 space-y-3"
-        >
+        <div class="block md:hidden glass-card p-5 space-y-3">
           <div
-            class="text-xs font-bold text-slate-500 pb-2 border-b border-slate-100 flex justify-between items-center"
+            class="text-xs font-semibold text-[#8b949e] pb-3 border-b border-[#282d37] flex justify-between items-center"
           >
-            <span>📱 รายการงานประจำเดือน (Agenda List)</span>
-            <span class="text-[10px] text-slate-400">เรียงตามวันที่</span>
+            <span>📱 รายการงานประจำเดือน</span>
+            <span>เรียงตามวันที่</span>
           </div>
           <div class="space-y-3" id="calendar-list-mobile"></div>
         </div>
       </div>
 
       <!-- TAB 2: WEB APP READINESS -->
-      <div id="tab-readiness" class="hidden space-y-4 sm:space-y-6">
-        <div
-          class="bg-white p-4 sm:p-6 rounded-xl border border-slate-200 shadow-sm"
-        >
+      <div id="tab-readiness" class="hidden space-y-6">
+        <div class="glass-card p-6">
           <div
-            class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-2 sm:pb-4 border-b border-slate-100 gap-2"
+            class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-5 border-b border-[#282d37] gap-3"
           >
             <div>
-              <h2
-                class="text-base sm:text-lg font-bold text-slate-900 hidden sm:block"
-              >
-                ตรวจความพร้อม & กดคัดลอกรายช่องเข้า MPP
+              <h2 class="text-lg font-bold text-[#e1e4e8]">
+                ตรวจความพร้อม & คัดลอกรายช่องเข้า MPP[cite: 1]
               </h2>
-              <p class="text-xs text-slate-500 hidden sm:block">
+              <p class="text-xs text-[#8b949e] mt-0.5">
                 รองรับ ภารกิจ 4, ภารกิจ 5 และ การพัฒนาตนเอง
               </p>
             </div>
             <span
               id="readiness-summary"
-              class="text-xs font-bold bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full border border-blue-200"
+              class="text-xs font-semibold bg-[#113224] text-[#7ee787] border border-[#238636]/40 px-4 py-1.5 rounded-full"
               >พร้อม 0 / ทั้งหมด 0</span
             >
           </div>
-
-          <div class="space-y-3" id="readiness-list"></div>
+          <div class="space-y-3.5 mt-5" id="readiness-list"></div>
         </div>
       </div>
     </main>
@@ -313,51 +391,50 @@
     <!-- MODAL: ADD/EDIT TASK -->
     <div
       id="task-modal"
-      class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex justify-center items-center z-50 p-2 sm:p-4"
+      class="fixed inset-0 bg-black/70 backdrop-blur-xs hidden flex justify-center items-center z-50 p-4"
     >
       <div
-        class="bg-white rounded-2xl shadow-xl w-full max-w-3xl max-h-[95vh] flex flex-col"
+        class="glass-card w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden text-[#e1e4e8] shadow-2xl border border-[#323846]"
       >
         <div
-          class="p-4 sm:p-5 border-b border-slate-100 flex justify-between items-center bg-white rounded-t-2xl"
+          class="p-5 border-b border-[#282d37] flex justify-between items-center bg-[#16191f] shrink-0"
         >
           <div>
-            <h3
-              class="text-base sm:text-lg font-bold text-slate-800"
-              id="modal-title"
-            >
+            <h3 class="text-base font-bold text-[#e1e4e8]" id="modal-title">
               จัดการข้อมูลการปฏิบัติงาน
             </h3>
-            <p class="text-xs text-emerald-600 font-medium">
+            <p class="text-xs text-[#7ee787] font-medium mt-0.5">
               ข้อมูลจะบันทึกซิงค์ขึ้น Cloud ทันที
             </p>
           </div>
           <button
             onclick="closeTaskModal()"
-            class="text-slate-400 hover:text-slate-600"
+            class="p-1.5 text-[#8b949e] hover:text-[#e1e4e8] rounded-lg hover:bg-[#222630] transition"
           >
-            <i data-lucide="x" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+            <i data-lucide="x" class="w-5 h-5"></i>
           </button>
         </div>
 
         <form
           id="task-form"
           onsubmit="saveTask(event)"
-          class="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1 text-xs sm:text-sm"
+          class="p-6 space-y-5 overflow-y-auto flex-1 text-sm bg-[#121417]"
         >
           <input type="hidden" id="task-id" />
 
           <div
-            class="bg-slate-900 text-white p-3 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+            class="bg-[#113224]/50 text-[#7ee787] p-4.5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-[#238636]/30"
           >
-            <span class="font-bold flex items-center gap-1.5"
-              ><i data-lucide="layers" class="w-4 h-4 text-emerald-400"></i>
-              เลือกประเภทงาน/ภารกิจ MPP *</span
+            <span
+              class="font-semibold text-sm flex items-center gap-2 text-[#7ee787]"
             >
+              <i data-lucide="layers" class="w-4 h-4 text-[#7ee787]"></i>
+              เลือกประเภทงาน/ภารกิจ MPP *
+            </span>
             <select
               id="task-mission-type"
               onchange="toggleMissionFields()"
-              class="p-2 rounded-lg bg-slate-800 text-white font-bold border border-slate-700 focus:outline-none text-xs sm:text-sm cursor-pointer"
+              class="p-2.5 rounded-xl bg-[#16191f] text-[#e1e4e8] font-semibold text-sm cursor-pointer border border-[#238636]/40"
             >
               <option value="MISSION_4">ภารกิจ 4 สนับสนุน ศอ.บต.</option>
               <option value="MISSION_5">ภารกิจ 5 จิตอาสา</option>
@@ -366,14 +443,14 @@
           </div>
 
           <div
-            class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2"
+            class="bg-[#1a1d23] p-4.5 rounded-2xl border border-[#282d37] space-y-2"
           >
-            <label class="block font-bold text-slate-700"
+            <label class="block font-semibold text-[#c9d1d9] text-sm"
               >ระดับงาน (สำหรับ Personal Planner) *</label
             >
             <select
               id="task-level"
-              class="w-full p-2 border border-slate-300 rounded-lg bg-white"
+              class="w-full p-2.5 border border-[#323846] rounded-xl bg-[#16191f] font-medium text-[#e1e4e8]"
               required
             >
               <option value="DISTRICT">🏢 งานระดับอำเภอ</option>
@@ -382,69 +459,71 @@
             </select>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            <div>
-              <label class="block font-semibold text-slate-700 mb-1"
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="bg-[#1a1d23] p-4.5 rounded-2xl border border-[#282d37]">
+              <label class="block font-semibold text-[#c9d1d9] mb-1.5"
                 >ปีงบประมาณ *</label
               >
               <select
                 id="task-fiscal-year"
-                class="w-full p-2 border border-slate-300 rounded-lg"
+                class="w-full p-2.5 border border-[#323846] rounded-xl bg-[#16191f] font-medium text-[#e1e4e8]"
                 required
               >
                 <option value="2569">2569</option>
                 <option value="2570">2570</option>
               </select>
             </div>
-
-            <div id="date-single-container">
-              <label class="block font-semibold text-slate-700 mb-1"
+            <div
+              id="date-single-container"
+              class="bg-[#1a1d23] p-4.5 rounded-2xl border border-[#282d37]"
+            >
+              <label class="block font-semibold text-[#c9d1d9] mb-1.5"
                 >วันที่ปฏิบัติงาน *</label
               >
               <input
                 type="date"
                 id="task-date"
-                class="w-full p-2 border border-slate-300 rounded-lg"
+                class="w-full p-2.5 border border-[#323846] rounded-xl bg-[#16191f] font-medium text-[#e1e4e8]"
               />
             </div>
           </div>
 
           <div
             id="date-range-container"
-            class="hidden grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 bg-amber-50/50 p-3 rounded-xl border border-amber-200"
+            class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[#3d2c1e]/40 p-4.5 rounded-2xl border border-[#89571e]/40"
           >
             <div>
-              <label class="block font-semibold text-slate-700 mb-1"
+              <label class="block font-semibold text-[#f0883e] mb-1"
                 >วันที่เริ่ม *</label
               >
               <input
                 type="date"
                 id="task-date-start"
-                class="w-full p-2 border border-slate-300 rounded-lg"
+                class="w-full p-2.5 border border-[#89571e]/50 rounded-xl bg-[#16191f] font-medium text-[#e1e4e8]"
               />
             </div>
             <div>
-              <label class="block font-semibold text-slate-700 mb-1"
+              <label class="block font-semibold text-[#f0883e] mb-1"
                 >วันที่สิ้นสุด *</label
               >
               <input
                 type="date"
                 id="task-date-end"
-                class="w-full p-2 border border-slate-300 rounded-lg"
+                class="w-full p-2.5 border border-[#89571e]/50 rounded-xl bg-[#16191f] font-medium text-[#e1e4e8]"
               />
             </div>
           </div>
 
           <div
-            class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 bg-blue-50/50 p-3 rounded-xl border border-blue-100"
+            class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-[#1a1d23] p-4.5 rounded-2xl border border-[#282d37]"
           >
             <div>
-              <label class="block font-semibold text-blue-900 mb-1"
+              <label class="block font-semibold text-[#c9d1d9] mb-1"
                 >ช่วงเวลา (เลือกเร็ว)</label
               >
               <select
                 id="task-slot"
-                class="w-full p-2 border border-blue-300 rounded-lg bg-white"
+                class="w-full p-2.5 border border-[#323846] rounded-xl bg-[#16191f] font-medium text-[#e1e4e8]"
                 onchange="updateTimeInputs()"
                 required
               >
@@ -454,26 +533,26 @@
               </select>
             </div>
             <div>
-              <label class="block font-semibold text-slate-700 mb-1"
+              <label class="block font-semibold text-[#c9d1d9] mb-1"
                 >เวลามา *</label
               >
               <input
                 type="text"
                 id="task-time-start"
                 value="08:30"
-                class="w-full p-2 border border-slate-300 rounded-lg"
+                class="w-full p-2.5 border border-[#323846] rounded-xl bg-[#16191f] font-medium text-[#e1e4e8]"
                 required
               />
             </div>
             <div>
-              <label class="block font-semibold text-slate-700 mb-1"
+              <label class="block font-semibold text-[#c9d1d9] mb-1"
                 >เวลากลับ *</label
               >
               <input
                 type="text"
                 id="task-time-end"
                 value="16:30"
-                class="w-full p-2 border border-slate-300 rounded-lg"
+                class="w-full p-2.5 border border-[#323846] rounded-xl bg-[#16191f] font-medium text-[#e1e4e8]"
                 required
               />
             </div>
@@ -481,247 +560,249 @@
 
           <div
             id="field-address-container"
-            class="space-y-2 pt-2 border-t border-slate-100"
+            class="space-y-3 pt-3 border-t border-[#282d37] bg-[#1a1d23] p-4.5 rounded-2xl"
           >
-            <div class="font-bold text-slate-800 flex items-center gap-1.5">
-              <i data-lucide="map-pin" class="w-4 h-4 text-red-500"></i>
+            <div class="font-bold text-[#e1e4e8] flex items-center gap-1.5">
+              <i data-lucide="map-pin" class="w-4 h-4 text-[#ff7b72]"></i>
               สถานที่ปฏิบัติงานจริง
             </div>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div>
-                <label class="block text-xs font-medium text-slate-600 mb-1"
+                <label class="block text-xs font-semibold text-[#8b949e] mb-1"
                   >จังหวัด *</label
                 >
                 <input
                   type="text"
                   id="task-province"
                   value="ตรัง"
-                  class="w-full p-2 border border-slate-300 rounded-lg"
+                  class="w-full p-2.5 border border-[#323846] rounded-xl bg-[#16191f] font-medium text-[#e1e4e8]"
                 />
               </div>
               <div>
-                <label class="block text-xs font-medium text-slate-600 mb-1"
+                <label class="block text-xs font-semibold text-[#8b949e] mb-1"
                   >อำเภอ *</label
                 >
                 <input
                   type="text"
                   id="task-district"
                   value="เมืองตรัง"
-                  class="w-full p-2 border border-slate-300 rounded-lg"
+                  class="w-full p-2.5 border border-[#323846] rounded-xl bg-[#16191f] font-medium text-[#e1e4e8]"
                 />
               </div>
               <div>
-                <label class="block text-xs font-medium text-slate-600 mb-1"
+                <label class="block text-xs font-semibold text-[#8b949e] mb-1"
                   >ตำบล *</label
                 >
                 <input
                   type="text"
                   id="task-subdistrict"
                   placeholder="ต.ทับเที่ยง"
-                  class="w-full p-2 border border-slate-300 rounded-lg"
+                  class="w-full p-2.5 border border-[#323846] rounded-xl bg-[#16191f] font-medium text-[#e1e4e8]"
                 />
               </div>
               <div>
-                <label class="block text-xs font-medium text-slate-600 mb-1"
+                <label class="block text-xs font-semibold text-[#8b949e] mb-1"
                   >หมู่บ้าน *</label
                 >
                 <input
                   type="text"
                   id="task-village"
                   placeholder="หมู่ที่ 1"
-                  class="w-full p-2 border border-slate-300 rounded-lg"
+                  class="w-full p-2.5 border border-[#323846] rounded-xl bg-[#16191f] font-medium text-[#e1e4e8]"
                 />
               </div>
             </div>
           </div>
 
-          <div class="space-y-3 pt-2 border-t border-slate-100">
+          <div
+            class="space-y-4 pt-3 border-t border-[#282d37] bg-[#1a1d23] p-4.5 rounded-2xl"
+          >
             <div
               id="mission-header"
-              class="p-2 bg-emerald-50 text-emerald-800 font-bold rounded-lg border border-emerald-200"
+              class="p-3.5 bg-[#113224]/50 text-[#7ee787] font-semibold rounded-xl border border-[#238636]/30"
             >
               รายละเอียดภารกิจ
             </div>
-
             <div>
               <label
-                class="block font-semibold text-slate-700 mb-1"
+                class="block font-semibold text-[#c9d1d9] mb-1"
                 id="lbl-project"
                 >ชื่อโครงการ/กิจกรรม *</label
               >
               <input
                 type="text"
                 id="task-project"
-                class="w-full p-2 border border-slate-300 rounded-lg"
+                class="w-full p-2.5 border border-[#323846] rounded-xl bg-[#16191f] font-medium text-[#e1e4e8]"
                 required
               />
             </div>
-
             <div id="field-objective-container">
               <label
-                class="block font-semibold text-slate-700 mb-1"
+                class="block font-semibold text-[#c9d1d9] mb-1"
                 id="lbl-objective"
                 >วัตถุประสงค์ของโครงการ/กิจกรรม *</label
               >
               <textarea
                 id="task-objective"
                 rows="2"
-                class="w-full p-2 border border-slate-300 rounded-lg"
+                class="w-full p-2.5 border border-[#323846] rounded-xl bg-[#16191f] font-medium text-[#e1e4e8]"
               ></textarea>
             </div>
-
             <div id="field-mission-container">
-              <label class="block font-semibold text-slate-700 mb-1"
+              <label class="block font-semibold text-[#c9d1d9] mb-1"
                 >ภารกิจของบัณฑิตอาสา *</label
               >
               <textarea
                 id="task-mission"
                 rows="2"
-                class="w-full p-2 border border-slate-300 rounded-lg"
+                class="w-full p-2.5 border border-[#323846] rounded-xl bg-[#16191f] font-medium text-[#e1e4e8]"
               ></textarea>
             </div>
-
             <div id="field-result-container">
               <label
-                class="block font-semibold text-slate-700 mb-1"
+                class="block font-semibold text-[#c9d1d9] mb-1"
                 id="lbl-result"
                 >ผลการดำเนินงานของกิจกรรม *</label
               >
               <textarea
                 id="task-result"
                 rows="2"
-                class="w-full p-2 border border-slate-300 rounded-lg"
+                class="w-full p-2.5 border border-[#323846] rounded-xl bg-[#16191f] font-medium text-[#e1e4e8]"
               ></textarea>
             </div>
           </div>
 
-          <div class="space-y-2 pt-2 border-t border-slate-100">
-            <div class="font-bold text-slate-800">ผู้รับรองการปฏิบัติงาน</div>
+          <div
+            class="space-y-3 pt-3 border-t border-[#282d37] bg-[#1a1d23] p-4.5 rounded-2xl"
+          >
+            <div class="font-semibold text-[#e1e4e8]">
+              ผู้รับรองการปฏิบัติงาน
+            </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1"
+                <label class="block text-xs font-semibold text-[#8b949e] mb-1"
                   >ชื่อ-นามสกุลผู้รับรอง *</label
                 >
                 <input
                   type="text"
                   id="task-approver-name"
-                  class="w-full p-2 border border-slate-300 rounded-lg"
+                  class="w-full p-2.5 border border-[#323846] rounded-xl bg-[#16191f] font-medium text-[#e1e4e8]"
                   placeholder="--ชื่อ-นามสกุลผู้รับรอง--"
                 />
               </div>
               <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1"
+                <label class="block text-xs font-semibold text-[#8b949e] mb-1"
                   >ตำแหน่งผู้รับรอง *</label
                 >
                 <input
                   type="text"
                   id="task-approver-pos"
-                  class="w-full p-2 border border-slate-300 rounded-lg"
+                  class="w-full p-2.5 border border-[#323846] rounded-xl bg-[#16191f] font-medium text-[#e1e4e8]"
                   placeholder="--ตำแหน่งผู้รับรอง--"
                 />
               </div>
             </div>
           </div>
+        </form>
 
-          <div
-            class="pt-4 flex justify-between gap-3 border-t border-slate-100"
+        <div
+          class="p-4 border-t border-[#282d37] bg-[#16191f] flex justify-between gap-3 shrink-0"
+        >
+          <button
+            type="button"
+            onclick="deleteTask()"
+            id="btn-delete"
+            class="bg-[#3b171a] text-[#ff7b72] hover:bg-[#5a2228] px-5 py-2.5 rounded-xl font-semibold transition hidden border border-[#ff7b72]/30 text-sm"
           >
+            ลบงานนี้
+          </button>
+          <div class="flex gap-2.5 ml-auto">
             <button
               type="button"
-              onclick="deleteTask()"
-              id="btn-delete"
-              class="bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2 rounded-lg font-medium transition hidden"
+              onclick="closeTaskModal()"
+              class="bg-[#21262d] text-[#c9d1d9] hover:bg-[#30363d] px-5 py-2.5 rounded-xl font-semibold transition text-sm"
             >
-              ลบงานนี้
+              ยกเลิก
             </button>
-            <div class="flex gap-2 ml-auto">
-              <button
-                type="button"
-                onclick="closeTaskModal()"
-                class="bg-slate-100 text-slate-600 hover:bg-slate-200 px-4 py-2 rounded-lg font-medium transition"
-              >
-                ยกเลิก
-              </button>
-              <button
-                type="submit"
-                class="bg-emerald-600 text-white hover:bg-emerald-700 px-6 py-2 rounded-lg font-medium transition flex items-center gap-1.5"
-              >
-                <i data-lucide="save" class="w-4 h-4"></i> บันทึกข้อมูล
-              </button>
-            </div>
+            <button
+              type="button"
+              onclick="document.getElementById('task-form').requestSubmit()"
+              class="bg-[#238636] text-white hover:bg-[#2ea043] px-6 py-2.5 rounded-xl font-semibold transition flex items-center gap-2 shadow-md text-sm"
+            >
+              <i data-lucide="save" class="w-4 h-4"></i> บันทึกข้อมูล
+            </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
 
     <!-- MODAL: SETTINGS -->
     <div
       id="settings-modal"
-      class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex justify-center items-center z-50 p-3 sm:p-4"
+      class="fixed inset-0 bg-black/70 backdrop-blur-xs hidden flex justify-center items-center z-50 p-4"
     >
       <div
-        class="bg-white rounded-2xl shadow-xl w-full max-w-md p-4 sm:p-6 space-y-4"
+        class="glass-card w-full max-w-md p-6 space-y-5 text-[#e1e4e8] shadow-2xl border border-[#323846]"
       >
         <div
-          class="flex justify-between items-center border-b border-slate-100 pb-3"
+          class="flex justify-between items-center border-b border-[#282d37] pb-4"
         >
           <h3
-            class="text-base sm:text-lg font-bold text-slate-800 flex items-center gap-2"
+            class="text-base font-bold text-[#e1e4e8] flex items-center gap-2"
           >
-            <i data-lucide="database" class="w-5 h-5 text-slate-600"></i>
-            จัดการวงจรข้อมูล (Data Lifecycle)
+            <i data-lucide="database" class="w-5 h-5 text-[#7ee787]"></i>
+            จัดการวงจรข้อมูล
           </h3>
           <button
             onclick="closeSettingsModal()"
-            class="text-slate-400 hover:text-slate-600"
+            class="text-[#8b949e] hover:text-[#e1e4e8]"
           >
             <i data-lucide="x" class="w-5 h-5"></i>
           </button>
         </div>
-
-        <div class="space-y-3 text-xs sm:text-sm">
+        <div class="space-y-3.5 text-sm">
           <div
-            class="p-3 bg-blue-50 text-blue-800 rounded-xl border border-blue-200 space-y-1"
+            class="p-4 bg-[#113224]/50 text-[#7ee787] rounded-2xl border border-[#238636]/30 space-y-1"
           >
-            <div class="font-bold flex items-center gap-1">
-              <i data-lucide="info" class="w-4 h-4"></i> นโยบายเก็บข้อมูล 2
-              ปีงบประมาณ
+            <div class="font-semibold flex items-center gap-1.5 text-[#7ee787]">
+              <i data-lucide="info" class="w-4 h-4 text-[#7ee787]"></i>
+              นโยบายเก็บข้อมูล 2 ปีงบประมาณ
             </div>
-            <p class="text-xs text-blue-700">
+            <p class="text-xs text-[#7ee787]/80 leading-relaxed">
               ระบบตั้งค่าให้เก็บข้อมูลไว้ตรวจทานย้อนหลัง 2 ปีงบประมาณ
               เพื่อประหยัดพื้นที่ Cloud ฟรีตลอดไป
             </p>
           </div>
-
-          <div class="pt-2 space-y-2">
+          <div class="space-y-2.5">
             <button
               onclick="clearOldFiscalYearData('2568')"
-              class="w-full bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold p-3 rounded-xl border border-amber-200 transition flex items-center justify-between"
+              class="w-full bg-[#3d2c1e]/40 hover:bg-[#3d2c1e]/70 text-[#f0883e] font-semibold p-3.5 rounded-xl border border-[#89571e]/40 transition flex items-center justify-between"
             >
               <span class="flex items-center gap-2"
-                ><i data-lucide="archive" class="w-4 h-4 text-amber-600"></i>
+                ><i data-lucide="archive" class="w-4 h-4 text-[#f0883e]"></i>
                 ลบข้อมูลปีงบประมาณเก่า (2568)</span
               >
-              <i data-lucide="trash" class="w-4 h-4 text-amber-600"></i>
+              <i data-lucide="trash" class="w-4 h-4 text-[#f0883e]"></i>
             </button>
-
             <button
               onclick="clearAllCloudData()"
-              class="w-full bg-red-50 hover:bg-red-100 text-red-600 font-bold p-3 rounded-xl border border-red-200 transition flex items-center justify-between"
+              class="w-full bg-[#3b171a]/40 hover:bg-[#3b171a]/70 text-[#ff7b72] font-semibold p-3.5 rounded-xl border border-[#ff7b72]/30 transition flex items-center justify-between"
             >
               <span class="flex items-center gap-2"
-                ><i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                ><i
+                  data-lucide="alert-triangle"
+                  class="w-4 h-4 text-[#ff7b72]"
+                ></i>
                 ล้างข้อมูลบน Cloud ทั้งหมด</span
               >
-              <i data-lucide="trash-2" class="w-4 h-4"></i>
+              <i data-lucide="trash-2" class="w-4 h-4 text-[#ff7b72]"></i>
             </button>
           </div>
         </div>
-
-        <div class="pt-3 border-t border-slate-100 text-right">
+        <div class="pt-3 border-t border-[#282d37] text-right">
           <button
             onclick="closeSettingsModal()"
-            class="bg-slate-100 text-slate-600 hover:bg-slate-200 px-4 py-2 rounded-lg font-medium transition text-xs"
+            class="bg-[#21262d] text-[#c9d1d9] hover:bg-[#30363d] px-5 py-2 rounded-xl font-semibold transition text-xs"
           >
             ปิด
           </button>
@@ -732,56 +813,1024 @@
     <!-- MODAL: HOLIDAY -->
     <div
       id="holiday-modal"
-      class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex justify-center items-center z-50 p-3 sm:p-4"
+      class="fixed inset-0 bg-black/70 backdrop-blur-xs hidden flex justify-center items-center z-50 p-4"
     >
       <div
-        class="bg-white rounded-2xl shadow-xl w-full max-w-md p-4 sm:p-6 space-y-3 sm:space-y-4"
+        class="glass-card w-full max-w-md p-6 space-y-4 text-[#e1e4e8] shadow-2xl border border-[#323846]"
       >
         <div
-          class="flex justify-between items-center border-b border-slate-100 pb-3"
+          class="flex justify-between items-center border-b border-[#282d37] pb-4"
         >
-          <h3 class="text-base sm:text-lg font-bold text-slate-800">
+          <h3 class="text-base font-bold text-[#e1e4e8]">
             จัดการวันหยุดนักขัตฤกษ์ / พิเศษ
           </h3>
           <button
             onclick="closeHolidayModal()"
-            class="text-slate-400 hover:text-slate-600"
+            class="text-[#8b949e] hover:text-[#e1e4e8]"
           >
             <i data-lucide="x" class="w-5 h-5"></i>
           </button>
         </div>
-
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1"
+          <label class="block text-xs font-semibold text-[#8b949e] mb-1.5"
             >เลือกวันที่ต้องการเพิ่มเป็นวันหยุด</label
           >
           <input
             type="date"
             id="holiday-picker"
-            class="w-full p-2 border border-slate-300 rounded-lg text-xs sm:text-sm"
+            class="w-full p-2.5 border border-[#323846] rounded-xl text-sm font-medium bg-[#16191f] text-[#e1e4e8]"
           />
         </div>
-
         <button
           onclick="addHolidayFromPicker()"
-          class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-xs sm:text-sm font-medium transition"
+          class="w-full bg-[#238636] hover:bg-[#2ea043] text-white py-2.5 rounded-xl text-sm font-semibold transition shadow-md"
         >
           บันทึกเป็นวันหยุด
         </button>
-
-        <div class="border-t border-slate-100 pt-3 space-y-2">
-          <div class="text-xs font-bold text-slate-600">
+        <div class="border-t border-[#282d37] pt-3 space-y-2">
+          <div class="text-xs font-semibold text-[#8b949e]">
             รายการวันหยุดพิเศษที่บันทึกไว้ในเดือนนี้:
           </div>
           <div
             id="holiday-list-items"
-            class="space-y-1.5 max-h-40 overflow-y-auto"
+            class="space-y-2 max-h-40 overflow-y-auto"
           ></div>
         </div>
       </div>
     </div>
 
-    <!-- Main Logic Script (Module) -->
-    <script type="module" src="app.js"></script>
+    <!-- MAIN JAVASCRIPT LOGIC -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+      import {
+        getFirestore,
+        collection,
+        doc,
+        setDoc,
+        deleteDoc,
+        onSnapshot,
+        query,
+        where,
+        getDocs,
+      } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyDRaSrfpxCwBMHAFlqoCJBvzw5paakUQcI",
+        authDomain: "mpp-planner.firebaseapp.com",
+        projectId: "mpp-planner",
+        storageBucket: "mpp-planner.firebasestorage.app",
+        messagingSenderId: "413077415177",
+        appId: "1:413077415177:web:26b2bb1aa1926ec3031fd8",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      const monthNamesThai = [
+        "มกราคม",
+        "กุมภาพันธ์",
+        "มีนาคม",
+        "เมษายน",
+        "พฤษภาคม",
+        "มิถุนายน",
+        "กรกฎาคม",
+        "สิงหาคม",
+        "กันยายน",
+        "ตุลาคม",
+        "พฤศจิกายน",
+        "ธันวาคม",
+      ];
+
+      const today = new Date();
+      let currentYear = today.getFullYear();
+      let currentMonth = today.getMonth();
+
+      let tasks = [];
+      let holidays = [];
+      let tempImages = [];
+
+      window.addEventListener("load", () => {
+        const selMonth = document.getElementById("select-month");
+        const selYear = document.getElementById("select-year");
+        if (selMonth) selMonth.value = currentMonth;
+        if (selYear) selYear.value = currentYear;
+
+        window.switchTab = switchTab;
+        window.onMonthYearChange = onMonthYearChange;
+        window.changeMonth = changeMonth;
+        window.openTaskModal = openTaskModal;
+        window.closeTaskModal = closeTaskModal;
+        window.saveTask = saveTask;
+        window.deleteTask = deleteTask;
+        window.toggleMissionFields = toggleMissionFields;
+        window.updateTimeInputs = updateTimeInputs;
+        window.handleImageUpload = handleImageUpload;
+        window.removeTempImage = removeTempImage;
+        window.openSettingsModal = openSettingsModal;
+        window.closeSettingsModal = closeSettingsModal;
+        window.clearOldFiscalYearData = clearOldFiscalYearData;
+        window.clearAllCloudData = clearAllCloudData;
+        window.openHolidayModal = openHolidayModal;
+        window.closeHolidayModal = closeHolidayModal;
+        window.addHolidayFromPicker = addHolidayFromPicker;
+        window.removeHoliday = removeHoliday;
+        window.copyField = copyField;
+        window.toggleTaskAccordion = toggleTaskAccordion;
+        window.toggleHolidayFromCalendar = toggleHolidayFromCalendar;
+
+        renderCalendar();
+
+        if (window.lucide) {
+          try {
+            lucide.createIcons();
+          } catch (e) {
+            console.warn(e);
+          }
+        }
+
+        onSnapshot(collection(db, "tasks"), (snapshot) => {
+          tasks = [];
+          snapshot.forEach((docSnap) => tasks.push(docSnap.data()));
+          renderCalendar();
+          const tabReadiness = document.getElementById("tab-readiness");
+          if (tabReadiness && !tabReadiness.classList.contains("hidden")) {
+            renderReadinessList();
+          }
+        });
+
+        onSnapshot(collection(db, "holidays"), (snapshot) => {
+          holidays = [];
+          snapshot.forEach((docSnap) => holidays.push(docSnap.data().date));
+          renderCalendar();
+        });
+      });
+
+      function formatThaiDate(dateStr) {
+        if (!dateStr) return "";
+        const parts = dateStr.split("-");
+        if (parts.length !== 3) return dateStr;
+        const yearBE = parseInt(parts[0]) + 543;
+        const monthText = monthNamesThai[parseInt(parts[1]) - 1];
+        const dayNum = parseInt(parts[2]);
+        return `${dayNum} ${monthText} ${yearBE}`;
+      }
+
+      async function saveTaskToCloud(taskData) {
+        await setDoc(doc(db, "tasks", taskData.id), taskData);
+      }
+
+      async function deleteTaskFromCloud(id) {
+        await deleteDoc(doc(db, "tasks", id));
+      }
+
+      async function saveHolidayToCloud(dateStr) {
+        await setDoc(doc(db, "holidays", dateStr), { date: dateStr });
+      }
+
+      async function deleteHolidayFromCloud(dateStr) {
+        await deleteDoc(doc(db, "holidays", dateStr));
+      }
+
+      function openSettingsModal() {
+        document.getElementById("settings-modal")?.classList.remove("hidden");
+      }
+      function closeSettingsModal() {
+        document.getElementById("settings-modal")?.classList.add("hidden");
+      }
+
+      async function clearOldFiscalYearData(yearBE) {
+        if (confirm(`ลบข้อมูลปีงบประมาณ ${yearBE} ออกจาก Cloud ใช่หรือไม่?`)) {
+          const q = query(
+            collection(db, "tasks"),
+            where("fiscalYear", "==", yearBE),
+          );
+          const querySnapshot = await getDocs(q);
+          querySnapshot.forEach(async (docSnap) => {
+            await deleteDoc(doc(db, "tasks", docSnap.id));
+          });
+          closeSettingsModal();
+          showToast(`ลบข้อมูลปีงบประมาณ ${yearBE} เรียบร้อยแล้ว`);
+        }
+      }
+
+      async function clearAllCloudData() {
+        if (confirm("⚠️ ต้องการลบข้อมูลทั้งหมดบน Cloud ใช่หรือไม่?")) {
+          const querySnapshot = await getDocs(collection(db, "tasks"));
+          querySnapshot.forEach(async (docSnap) => {
+            await deleteDoc(doc(db, "tasks", docSnap.id));
+          });
+          closeSettingsModal();
+          showToast("ล้างข้อมูลทั้งหมดเรียบร้อยแล้ว");
+        }
+      }
+
+      function handleImageUpload(e) {
+        const files = Array.from(e.target.files);
+        if (tempImages.length + files.length > 2) {
+          alert("แนบรูปภาพได้สูงสุดเพียง 2 รูปเท่านั้น");
+          return;
+        }
+        files.forEach((file) => {
+          const reader = new FileReader();
+          reader.onload = function (event) {
+            const img = new Image();
+            img.onload = function () {
+              const canvas = document.createElement("canvas");
+              let width = img.width;
+              let height = img.height;
+              const maxDimension = 1920;
+              if (width > height) {
+                if (width > maxDimension) {
+                  height = Math.round((height * maxDimension) / width);
+                  width = maxDimension;
+                }
+              } else {
+                if (height > maxDimension) {
+                  width = Math.round((width * maxDimension) / height);
+                  height = maxDimension;
+                }
+              }
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext("2d");
+              ctx.drawImage(img, 0, 0, width, height);
+              const compressedBase64 = canvas.toDataURL("image/jpeg", 0.7);
+              tempImages.push(compressedBase64);
+              renderImagePreviews();
+            };
+            img.src = event.target.result;
+          };
+          reader.readAsDataURL(file);
+        });
+        e.target.value = "";
+      }
+
+      function renderImagePreviews() {
+        const container = document.getElementById("image-preview-container");
+        if (!container) return;
+        container.innerHTML = "";
+        tempImages.forEach((imgBase64, index) => {
+          container.innerHTML += `
+            <div class="relative group border rounded-xl overflow-hidden bg-slate-100 aspect-video flex items-center justify-center">
+                <img src="${imgBase64}" class="object-cover w-full h-full">
+                <button type="button" onclick="removeTempImage(${index})" class="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 shadow hover:bg-red-700 transition">
+                    <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                </button>
+            </div>`;
+        });
+        if (window.lucide) {
+          try {
+            lucide.createIcons();
+          } catch (e) {}
+        }
+      }
+
+      function removeTempImage(index) {
+        tempImages.splice(index, 1);
+        renderImagePreviews();
+      }
+
+      function showToast(msg) {
+        const toast = document.getElementById("toast");
+        const toastMsg = document.getElementById("toast-message");
+        if (toastMsg) toastMsg.innerText = msg;
+        if (toast) {
+          toast.classList.remove("opacity-0", "pointer-events-none");
+          setTimeout(() => {
+            toast.classList.add("opacity-0", "pointer-events-none");
+          }, 3000);
+        }
+      }
+
+      function copyField(text, fieldName) {
+        if (!text) return alert(`ไม่มีข้อมูลในช่อง ${fieldName}`);
+        navigator.clipboard.writeText(text).then(() => {
+          showToast(`คัดลอก "${fieldName}" แล้ว`);
+        });
+      }
+
+      function onMonthYearChange() {
+        const selMonth = document.getElementById("select-month");
+        const selYear = document.getElementById("select-year");
+        if (selMonth) currentMonth = parseInt(selMonth.value);
+        if (selYear) currentYear = parseInt(selYear.value);
+        renderCalendar();
+      }
+
+      function changeMonth(delta) {
+        currentMonth += delta;
+        if (currentMonth > 11) {
+          currentMonth = 0;
+          currentYear++;
+        } else if (currentMonth < 0) {
+          currentMonth = 11;
+          currentYear--;
+        }
+        if (currentYear < 2026) currentYear = 2026;
+        if (currentYear > 2027) currentYear = 2027;
+
+        const selMonth = document.getElementById("select-month");
+        const selYear = document.getElementById("select-year");
+        if (selMonth) selMonth.value = currentMonth;
+        if (selYear) selYear.value = currentYear;
+        renderCalendar();
+      }
+
+      function switchTab(tab) {
+        const btnDashboard = document.getElementById("btn-dashboard");
+        const btnReadiness = document.getElementById("btn-readiness");
+        const tabDashboard = document.getElementById("tab-dashboard");
+        const tabReadiness = document.getElementById("tab-readiness");
+
+        const inactiveClass =
+          "px-5 py-2.5 rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2 bg-[#1a1d23] text-[#c9d1d9] hover:bg-[#222630] border border-[#323846]";
+        const activeClass =
+          "px-5 py-2.5 rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2 bg-[#238636] hover:bg-[#2ea043] text-white shadow-md";
+
+        if (btnDashboard)
+          btnDashboard.className = `${inactiveClass} min-w-[120px]`;
+        if (btnReadiness)
+          btnReadiness.className = `${inactiveClass} min-w-[140px]`;
+
+        if (tab === "dashboard") {
+          if (tabDashboard) tabDashboard.classList.remove("hidden");
+          if (tabReadiness) tabReadiness.classList.add("hidden");
+          if (btnDashboard)
+            btnDashboard.className = `${activeClass} min-w-[120px]`;
+          renderCalendar();
+        } else {
+          if (tabDashboard) tabDashboard.classList.add("hidden");
+          if (tabReadiness) tabReadiness.classList.remove("hidden");
+          if (btnReadiness)
+            btnReadiness.className = `${activeClass} min-w-[140px]`;
+          renderReadinessList();
+        }
+      }
+
+      function toggleMissionFields() {
+        const type = document.getElementById("task-mission-type")?.value;
+        const header = document.getElementById("mission-header");
+        const mission = document.getElementById("field-mission-container");
+        const result = document.getElementById("field-result-container");
+        const partContainer = document.getElementById(
+          "field-participants-container",
+        );
+        const dateSingle = document.getElementById("date-single-container");
+        const dateRange = document.getElementById("date-range-container");
+        const objectiveContainer = document.getElementById(
+          "field-objective-container",
+        );
+
+        if (type === "SELF_DEV") {
+          if (header) {
+            header.innerText = "รายละเอียดการพัฒนาตนเอง";
+            header.className =
+              "p-2 bg-[#3d2c1e]/50 text-[#f0883e] font-bold rounded-lg border border-[#89571e]/40";
+          }
+          dateRange?.classList.remove("hidden");
+          dateSingle?.classList.add("hidden");
+          const lblProject = document.getElementById("lbl-project");
+          if (lblProject) lblProject.innerText = "ชื่อหลักสูตร/กิจกรรม *";
+        } else if (type === "MISSION_5") {
+          if (header) {
+            header.innerText = "รายละเอียดภารกิจ: จิตอาสา";
+            header.className =
+              "p-2 bg-[#1f385c]/55 text-[#79c0ff] font-bold rounded-lg border border-[#388bfd]/40";
+          }
+          objectiveContainer?.classList.remove("hidden");
+          result?.classList.remove("hidden");
+          dateSingle?.classList.remove("hidden");
+          dateRange?.classList.add("hidden");
+          const lblProject = document.getElementById("lbl-project");
+          const lblObjective = document.getElementById("lbl-objective");
+          const lblResult = document.getElementById("lbl-result");
+          if (lblProject) lblProject.innerText = "ชื่อกิจกรรม *";
+          if (lblObjective) lblObjective.innerText = "วัตถุประสงค์กิจกรรม *";
+          if (lblResult) lblResult.innerText = "ผลการดำเนินงานของกิจกรรม *";
+        } else {
+          if (header) {
+            header.innerText = "รายละเอียดภารกิจ: สนับสนุน ศอ.บต.";
+            header.className =
+              "p-2 bg-[#113224]/50 text-[#7ee787] font-bold rounded-lg border border-[#238636]/40";
+          }
+          objectiveContainer?.classList.remove("hidden");
+          mission?.classList.remove("hidden");
+          result?.classList.remove("hidden");
+          partContainer?.classList.remove("hidden");
+          dateSingle?.classList.remove("hidden");
+          dateRange?.classList.add("hidden");
+          const lblProject = document.getElementById("lbl-project");
+          const lblObjective = document.getElementById("lbl-objective");
+          const lblResult = document.getElementById("lbl-result");
+          if (lblProject) lblProject.innerText = "ชื่อโครงการ/กิจกรรม *";
+          if (lblObjective)
+            lblObjective.innerText = "วัตถุประสงค์ของโครงการ/กิจกรรม *";
+          if (lblResult) lblResult.innerText = "ผลการดำเนินงานของกิจกรรม *";
+        }
+      }
+
+      async function toggleHolidayFromCalendar(dateStr) {
+        if (holidays.includes(dateStr)) {
+          if (
+            confirm(
+              `ต้องการยกเลิกวันหยุดวันที่ ${formatThaiDate(dateStr)} ใช่หรือไม่?`,
+            )
+          ) {
+            await deleteHolidayFromCloud(dateStr);
+            showToast("ยกเลิกวันหยุดเรียบร้อยแล้ว");
+          }
+        } else {
+          await saveHolidayToCloud(dateStr);
+          showToast(`ตั้งวันที่ ${formatThaiDate(dateStr)} เป็นวันหยุดแล้ว`);
+        }
+      }
+
+      function renderCalendar() {
+        const gridDesktop = document.getElementById("calendar-grid-desktop");
+        const listMobile = document.getElementById("calendar-list-mobile");
+        if (!gridDesktop || !listMobile) return;
+
+        gridDesktop.innerHTML = "";
+        listMobile.innerHTML = "";
+
+        const firstDay = new Date(currentYear, currentMonth, 1);
+        const startDayOffset = firstDay.getDay();
+        const totalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+        for (let i = 0; i < startDayOffset; i++) {
+          gridDesktop.innerHTML += `<div class="bg-[#121417]/40 border border-[#282d37]/40"></div>`;
+        }
+
+        let weekendCount = 0;
+
+        for (let day = 1; day <= totalDays; day++) {
+          const dateObj = new Date(currentYear, currentMonth, day);
+          const dayOfWeek = dateObj.getDay();
+          const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+          const monthStr = (currentMonth + 1).toString().padStart(2, "0");
+          const dayStr = day.toString().padStart(2, "0");
+          const dateStr = `${currentYear}-${monthStr}-${dayStr}`;
+
+          const isStatutoryHoliday = holidays.includes(dateStr);
+          if (isWeekend || isStatutoryHoliday) weekendCount++;
+
+          const dayTasks = tasks.filter(
+            (t) =>
+              t.date === dateStr ||
+              (t.dateStart && t.dateStart <= dateStr && t.dateEnd >= dateStr),
+          );
+          const morningTasks = dayTasks.filter(
+            (t) => t.slot === "MORNING" || t.slot === "FULL_DAY",
+          );
+          const afternoonTasks = dayTasks.filter(
+            (t) => t.slot === "AFTERNOON" || t.slot === "FULL_DAY",
+          );
+
+          let desktopHtml = `
+            <div class="p-2.5 flex flex-col justify-between ${isWeekend || isStatutoryHoliday ? "!bg-[#16181d]/90" : ""}">
+                <div class="flex justify-between items-center mb-1.5">
+                    <span onclick="toggleHolidayFromCalendar('${dateStr}')" title="คลิกเพื่อสลับสถานะวันหยุด" class="cursor-pointer text-sm font-bold hover:underline ${isWeekend || isStatutoryHoliday ? "text-[#ff7b72]" : "text-[#e1e4e8]"}">${day}</span>
+                    ${isStatutoryHoliday ? `<button onclick="removeHoliday('${dateStr}')" class="text-[10px] bg-[#3b171a] text-[#ff7b72] border border-[#ff7b72]/30 px-1.5 py-0.5 rounded-md font-semibold">หยุด ✕</button>` : `<button onclick="toggleHolidayFromCalendar('${dateStr}')" class="text-[10px] text-[#8b949e] hover:text-[#e1e4e8] opacity-60 hover:opacity-100" title="คลิกกำหนดเป็นวันหยุด">+หยุด</button>`}
+                </div>`;
+
+          if ((isWeekend || isStatutoryHoliday) && dayTasks.length === 0) {
+            desktopHtml += `
+                <div onclick="openTaskModal(null, '${dateStr}', 'MORNING')" class="flex-1 bg-[#121417]/50 hover:bg-[#1a1d23] rounded-xl flex items-center justify-center text-xs text-[#8b949e] font-medium cursor-pointer transition border border-dashed border-[#282d37]">
+                    <span>🛑 วันหยุดพักผ่อน</span>
+                </div>`;
+          } else {
+            desktopHtml += `<div class="space-y-1.5 flex-1 flex flex-col justify-center">`;
+            if (morningTasks.length > 0) {
+              desktopHtml += renderDesktopTaskBadge(morningTasks[0], "เช้า");
+            } else {
+              desktopHtml += renderDesktopEmptySlot(dateStr, "MORNING", "เช้า");
+            }
+            if (!morningTasks[0] || morningTasks[0].slot !== "FULL_DAY") {
+              if (afternoonTasks.length > 0) {
+                desktopHtml += renderDesktopTaskBadge(
+                  afternoonTasks[0],
+                  "บ่าย",
+                );
+              } else {
+                desktopHtml += renderDesktopEmptySlot(
+                  dateStr,
+                  "AFTERNOON",
+                  "บ่าย",
+                );
+              }
+            }
+            desktopHtml += `</div>`;
+          }
+          desktopHtml += `</div>`;
+          gridDesktop.innerHTML += desktopHtml;
+
+          if (dayTasks.length > 0) {
+            dayTasks.forEach((dt) => {
+              let slotLabel =
+                dt.slot === "MORNING"
+                  ? "เช้า"
+                  : dt.slot === "AFTERNOON"
+                    ? "บ่าย"
+                    : "ทั้งวัน";
+              listMobile.innerHTML += renderMobileTaskRow(
+                dt,
+                `${formatThaiDate(dateStr)} (${slotLabel})`,
+              );
+            });
+          } else if (isWeekend || isStatutoryHoliday) {
+            listMobile.innerHTML += `
+                <div class="p-2.5 rounded-lg bg-[#16181d] border border-[#282d37] text-xs text-[#8b949e] flex justify-between items-center">
+                    <span>🛑 ${formatThaiDate(dateStr)} (วันหยุด)</span>
+                    <button onclick="toggleHolidayFromCalendar('${dateStr}')" class="text-xs text-[#79c0ff] hover:underline">ยกเลิกวันหยุด</button>
+                </div>`;
+          } else {
+            listMobile.innerHTML += renderMobileEmptyRow(
+              dateStr,
+              "MORNING",
+              `${formatThaiDate(dateStr)} (ว่าง)`,
+            );
+          }
+        }
+
+        updateStats(totalDays, weekendCount);
+        if (window.lucide) {
+          try {
+            lucide.createIcons();
+          } catch (e) {}
+        }
+      }
+
+      function renderDesktopTaskBadge(task, slotLabel) {
+        const levelColors = {
+          DISTRICT:
+            "bg-[#3b171a]/70 border-[#ff7b72]/40 text-[#ff7b72] hover:bg-[#3b171a]",
+          SUB_DISTRICT:
+            "bg-[#1f385c]/60 border-[#388bfd]/40 text-[#79c0ff] hover:bg-[#1f385c]",
+          VILLAGE:
+            "bg-[#113224]/70 border-[#238636]/40 text-[#7ee787] hover:bg-[#113224]",
+        };
+        const missionLabels = {
+          MISSION_4: "🏢",
+          MISSION_5: "🤝",
+          SELF_DEV: "🎓",
+        };
+        const hasImages = task.images && task.images.length > 0;
+        return `
+            <div onclick="openTaskModal('${task.id}')" title="${task.project || ""}" class="slot-btn-modern cursor-pointer border transition-all flex flex-col justify-between shadow-2xs ${levelColors[task.level] || "bg-[#1f385c]/60 border-[#388bfd]/40 text-[#79c0ff]"}">
+                <div class="truncate w-full font-semibold text-xs">${missionLabels[task.missionType] || "🏢"} ${task.project}</div>
+                <div class="text-[10px] opacity-80 flex justify-between items-center w-full mt-0.5">
+                    <span>${task.slot === "FULL_DAY" ? "ทั้งวัน" : slotLabel} ${hasImages ? "📷" : ""}</span>
+                </div>
+            </div>`;
+      }
+
+      function renderDesktopEmptySlot(dateStr, slot, slotLabel) {
+        return `
+            <div onclick="openTaskModal(null, '${dateStr}', '${slot}')" class="slot-btn-modern empty-slot-modern cursor-pointer text-center flex items-center justify-center transition">
+                <span>🟢 ${slotLabel} ว่าง</span>
+            </div>`;
+      }
+
+      function renderMobileTaskRow(task, slotTimeText) {
+        const levelColors = {
+          DISTRICT: "bg-[#3b171a]/70 border-[#ff7b72]/40 text-[#ff7b72]",
+          SUB_DISTRICT: "bg-[#1f385c]/60 border-[#388bfd]/40 text-[#79c0ff]",
+          VILLAGE: "bg-[#113224]/70 border-[#238636]/40 text-[#7ee787]",
+        };
+        const missionLabels = {
+          MISSION_4: "🏢 [ภารกิจ 4]",
+          MISSION_5: "🤝 [ภารกิจ 5]",
+          SELF_DEV: "🎓 [พัฒนาตน]",
+        };
+        const hasImages = task.images && task.images.length > 0;
+        return `
+            <div onclick="openTaskModal('${task.id}')" class="p-3 rounded-xl border flex items-center justify-between cursor-pointer ${levelColors[task.level] || "bg-[#1f385c]/60 border-[#388bfd]/40 text-[#79c0ff]"}">
+                <div class="overflow-hidden pr-2">
+                    <div class="text-[10px] opacity-75">${slotTimeText} ${hasImages ? "📷" : ""}</div>
+                    <div class="text-xs font-bold truncate">${missionLabels[task.missionType] || "🏢"} ${task.project}</div>
+                </div>
+                <i data-lucide="chevron-right" class="w-4 h-4 opacity-60 shrink-0"></i>
+            </div>`;
+      }
+
+      function renderMobileEmptyRow(dateStr, slot, slotTimeText) {
+        return `
+            <div onclick="openTaskModal(null, '${dateStr}', '${slot}')" class="p-3 rounded-xl border border-dashed border-[#323846] text-[#8b949e] flex items-center justify-between cursor-pointer hover:bg-[#1a1d23] transition">
+                <span class="text-xs">🟢 ${slotTimeText}</span>
+                <span class="text-[11px] text-[#79c0ff] font-semibold">+ เพิ่มงาน</span>
+            </div>`;
+      }
+
+      function updateStats(totalDaysInMonth, weekendCount) {
+        const currentMonthPrefix = `${currentYear}-${(currentMonth + 1).toString().padStart(2, "0")}`;
+        const monthTasks = tasks.filter(
+          (t) =>
+            (t.date && t.date.startsWith(currentMonthPrefix)) ||
+            (t.dateStart && t.dateStart.startsWith(currentMonthPrefix)),
+        );
+
+        if (document.getElementById("stat-district"))
+          document.getElementById("stat-district").innerText =
+            monthTasks.filter((t) => t.level === "DISTRICT").length;
+        if (document.getElementById("stat-subdistrict"))
+          document.getElementById("stat-subdistrict").innerText =
+            monthTasks.filter((t) => t.level === "SUB_DISTRICT").length;
+        if (document.getElementById("stat-village"))
+          document.getElementById("stat-village").innerText = monthTasks.filter(
+            (t) => t.level === "VILLAGE",
+          ).length;
+        if (document.getElementById("stat-holiday"))
+          document.getElementById("stat-holiday").innerText = weekendCount;
+
+        let takenSlots = 0;
+        monthTasks.forEach(
+          (t) => (takenSlots += t.slot === "FULL_DAY" ? 2 : 1),
+        );
+        const totalWorkSlots = (totalDaysInMonth - weekendCount) * 2;
+        if (document.getElementById("stat-empty"))
+          document.getElementById("stat-empty").innerText = Math.max(
+            0,
+            totalWorkSlots - takenSlots,
+          );
+
+        const incomplete = monthTasks.filter(
+          (t) =>
+            !t.project ||
+            (t.missionType !== "SELF_DEV" && !t.objective) ||
+            (!t.result && !t.benefit) ||
+            !t.approverName,
+        ).length;
+        if (document.getElementById("stat-incomplete"))
+          document.getElementById("stat-incomplete").innerText = incomplete;
+      }
+
+      function openTaskModal(taskId = null, date = null, slot = "MORNING") {
+        document.getElementById("task-form")?.reset();
+        const btnDel = document.getElementById("btn-delete");
+        if (btnDel) btnDel.classList.add("hidden");
+        tempImages = [];
+
+        if (taskId) {
+          const task = tasks.find((t) => t.id === taskId);
+          if (task) {
+            document.getElementById("modal-title").innerText =
+              "แก้ไขข้อมูลการปฏิบัติงาน";
+            document.getElementById("task-id").value = task.id;
+            document.getElementById("task-mission-type").value =
+              task.missionType || "MISSION_4";
+            document.getElementById("task-level").value =
+              task.level || "DISTRICT";
+            document.getElementById("task-fiscal-year").value =
+              task.fiscalYear || "2569";
+            document.getElementById("task-date").value =
+              task.date || task.dateStart || "";
+            document.getElementById("task-date-start").value =
+              task.dateStart || task.date || "";
+            document.getElementById("task-date-end").value =
+              task.dateEnd || task.date || "";
+            document.getElementById("task-slot").value = task.slot || "MORNING";
+            document.getElementById("task-time-start").value =
+              task.timeStart || "08:30";
+            document.getElementById("task-time-end").value =
+              task.timeEnd || "16:30";
+            document.getElementById("task-province").value =
+              task.province || "ตรัง";
+            document.getElementById("task-district").value =
+              task.district || "เมืองตรัง";
+            document.getElementById("task-subdistrict").value =
+              task.subdistrict || "";
+            document.getElementById("task-village").value = task.village || "";
+            document.getElementById("task-project").value = task.project || "";
+            document.getElementById("task-objective").value =
+              task.objective || "";
+            document.getElementById("task-mission").value = task.mission || "";
+            document.getElementById("task-result").value = task.result || "";
+            document.getElementById("task-approver-name").value =
+              task.approverName || "";
+            document.getElementById("task-approver-pos").value =
+              task.approverPos || "";
+            if (task.images && Array.isArray(task.images))
+              tempImages = [...task.images];
+            if (btnDel) btnDel.classList.remove("hidden");
+          }
+        } else {
+          document.getElementById("modal-title").innerText =
+            "เพิ่มข้อมูลการปฏิบัติงาน";
+          document.getElementById("task-id").value = "";
+          document.getElementById("task-mission-type").value = "MISSION_4";
+          if (date) {
+            document.getElementById("task-date").value = date;
+            document.getElementById("task-date-start").value = date;
+            document.getElementById("task-date-end").value = date;
+          }
+          document.getElementById("task-slot").value = slot;
+          updateTimeInputs();
+        }
+
+        toggleMissionFields();
+        document.getElementById("task-modal")?.classList.remove("hidden");
+      }
+
+      function closeTaskModal() {
+        document.getElementById("task-modal")?.classList.add("hidden");
+      }
+
+      function updateTimeInputs() {
+        const slot = document.getElementById("task-slot")?.value;
+        const tStart = document.getElementById("task-time-start");
+        const tEnd = document.getElementById("task-time-end");
+        if (!tStart || !tEnd) return;
+        if (slot === "MORNING") {
+          tStart.value = "08:30";
+          tEnd.value = "12:00";
+        } else if (slot === "AFTERNOON") {
+          tStart.value = "13:00";
+          tEnd.value = "16:30";
+        } else {
+          tStart.value = "08:30";
+          tEnd.value = "16:30";
+        }
+      }
+
+      async function saveTask(e) {
+        e.preventDefault();
+        const project = document.getElementById("task-project").value.trim();
+        if (!project) {
+          alert("กรุณากรอกชื่อโครงการหรือกิจกรรมก่อนบันทึก");
+          document.getElementById("task-project").focus();
+          return;
+        }
+
+        const id =
+          document.getElementById("task-id").value || Date.now().toString();
+        const missionType = document.getElementById("task-mission-type").value;
+        let finalDate = document.getElementById("task-date").value;
+        if (missionType === "SELF_DEV")
+          finalDate = document.getElementById("task-date-start").value;
+
+        const taskData = {
+          id,
+          missionType,
+          level: document.getElementById("task-level").value,
+          fiscalYear: document.getElementById("task-fiscal-year").value,
+          date: finalDate,
+          dateStart: document.getElementById("task-date-start").value,
+          dateEnd: document.getElementById("task-date-end").value,
+          slot: document.getElementById("task-slot").value,
+          timeStart: document.getElementById("task-time-start").value,
+          timeEnd: document.getElementById("task-time-end").value,
+          province: document.getElementById("task-province").value,
+          district: document.getElementById("task-district").value,
+          subdistrict: document.getElementById("task-subdistrict").value,
+          village: document.getElementById("task-village").value,
+          project,
+          objective: document.getElementById("task-objective").value,
+          mission: document.getElementById("task-mission").value,
+          result: document.getElementById("task-result").value,
+          approverName: document.getElementById("task-approver-name").value,
+          approverPos: document.getElementById("task-approver-pos").value,
+          images: tempImages,
+        };
+
+        await saveTaskToCloud(taskData);
+        closeTaskModal();
+        showToast("ซิงค์ข้อมูลลง Cloud เรียบร้อยแล้ว");
+      }
+
+      async function deleteTask() {
+        const id = document.getElementById("task-id").value;
+        if (confirm("คุณต้องการลบงานนี้ใช่หรือไม่?")) {
+          await deleteTaskFromCloud(id);
+          closeTaskModal();
+          showToast("ลบรายการงานเรียบร้อยแล้ว");
+        }
+      }
+
+      function openHolidayModal() {
+        const monthStr = (currentMonth + 1).toString().padStart(2, "0");
+        const picker = document.getElementById("holiday-picker");
+        if (picker) picker.value = `${currentYear}-${monthStr}-01`;
+        renderHolidayList();
+        document.getElementById("holiday-modal")?.classList.remove("hidden");
+      }
+
+      function closeHolidayModal() {
+        document.getElementById("holiday-modal")?.classList.add("hidden");
+      }
+
+      async function addHolidayFromPicker() {
+        const val = document.getElementById("holiday-picker")?.value;
+        if (!val) return alert("กรุณาเลือกวันที่ก่อนบันทึก");
+        if (!holidays.includes(val)) {
+          await saveHolidayToCloud(val);
+          renderHolidayList();
+          showToast("เพิ่มวันหยุดเรียบร้อยแล้ว");
+        }
+      }
+
+      async function removeHoliday(dateStr) {
+        if (
+          confirm(
+            `ต้องการยกเลิกวันหยุดวันที่ ${formatThaiDate(dateStr)} ใช่หรือไม่?`,
+          )
+        ) {
+          await deleteHolidayFromCloud(dateStr);
+          renderHolidayList();
+          showToast("ยกเลิกวันหยุดเรียบร้อยแล้ว");
+        }
+      }
+
+      function renderHolidayList() {
+        const container = document.getElementById("holiday-list-items");
+        if (!container) return;
+        container.innerHTML = "";
+        const currentMonthPrefix = `${currentYear}-${(currentMonth + 1).toString().padStart(2, "0")}`;
+        const monthHolidays = holidays
+          .filter((h) => h.startsWith(currentMonthPrefix))
+          .sort();
+
+        if (monthHolidays.length === 0) {
+          container.innerHTML = `<div class="text-xs text-[#8b949e] text-center py-2">ไม่มีวันหยุดนักขัตฤกษ์ในเดือนนี้</div>`;
+          return;
+        }
+
+        monthHolidays.forEach((h) => {
+          container.innerHTML += `
+            <div class="flex items-center justify-between p-2 rounded bg-[#121417] border border-[#323846] text-xs">
+                <span class="font-medium text-[#e1e4e8]">🛑 ${formatThaiDate(h)}</span>
+                <button onclick="removeHoliday('${h}')" class="text-[#ff7b72] font-bold px-2 py-0.5 rounded hover:bg-[#3b171a]/50">ลบออก</button>
+            </div>`;
+        });
+      }
+
+      function toggleTaskAccordion(id) {
+        const content = document.getElementById(`acc-content-${id}`);
+        const icon = document.getElementById(`acc-icon-${id}`);
+        if (content) {
+          if (content.classList.contains("hidden")) {
+            content.classList.remove("hidden");
+            if (icon) icon.style.transform = "rotate(180deg)";
+          } else {
+            content.classList.add("hidden");
+            if (icon) icon.style.transform = "rotate(0deg)";
+          }
+        }
+      }
+
+      function renderReadinessList() {
+        const container = document.getElementById("readiness-list");
+        if (!container) return;
+        container.innerHTML = "";
+        const currentMonthPrefix = `${currentYear}-${(currentMonth + 1).toString().padStart(2, "0")}`;
+        const monthTasks = tasks
+          .filter(
+            (t) =>
+              (t.date && t.date.startsWith(currentMonthPrefix)) ||
+              (t.dateStart && t.dateStart.startsWith(currentMonthPrefix)),
+          )
+          .sort((a, b) =>
+            (a.date || a.dateStart).localeCompare(b.date || b.dateStart),
+          );
+
+        let readyCount = 0;
+        if (monthTasks.length === 0) {
+          container.innerHTML = `<div class="text-center py-12 text-[#8b949e] text-xs">ไม่มีรายการงานในเดือนนี้</div>`;
+          return;
+        }
+
+        const levelBadges = {
+          DISTRICT: {
+            text: "🏢 ระดับอำเภอ",
+            class: "bg-[#3b171a]/50 text-[#ff7b72] border-[#ff7b72]/30",
+          },
+          SUB_DISTRICT: {
+            text: "🏘️ ระดับตำบล",
+            class: "bg-[#1f385c]/50 text-[#79c0ff] border-[#388bfd]/30",
+          },
+          VILLAGE: {
+            text: "🏠 ระดับหมู่บ้าน",
+            class: "bg-[#113224]/50 text-[#7ee787] border-[#238636]/30",
+          },
+        };
+
+        monthTasks.forEach((t) => {
+          const isReady =
+            t.project &&
+            (t.missionType === "SELF_DEV" || t.objective) &&
+            t.result &&
+            t.approverName;
+          if (isReady) readyCount++;
+          const lvlInfo = levelBadges[t.level] || levelBadges.SUB_DISTRICT;
+
+          // สร้างรายการฟิลด์ตามประเภทภารกิจที่ผู้ใช้กรอกเข้ามาจริงๆ
+          let fields = [
+            { label: "ปีงบประมาณ", value: t.fiscalYear || "2569" },
+            {
+              label: "วันที่ปฏิบัติงาน",
+              value: formatThaiDate(t.date || t.dateStart),
+            },
+          ];
+
+          if (t.missionType === "SELF_DEV") {
+            fields.push({
+              label: "ช่วงวันที่ปฏิบัติงาน",
+              value: `${formatThaiDate(t.dateStart)} ถึง ${formatThaiDate(t.dateEnd)}`,
+            });
+          }
+
+          fields.push({
+            label: "เวลามา - เวลากลับ",
+            value: `${t.timeStart || "08:30"} - ${t.timeEnd || "16:30"}`,
+          });
+
+          if (t.missionType !== "SELF_DEV") {
+            fields.push({
+              label: "สถานที่ปฏิบัติงาน",
+              value:
+                `${t.province || ""} ${t.district || ""} ${t.subdistrict || ""} ${t.village || ""}`.trim(),
+            });
+          }
+
+          fields.push({
+            label:
+              t.missionType === "SELF_DEV"
+                ? "ชื่อหลักสูตร/กิจกรรม"
+                : t.missionType === "MISSION_5"
+                  ? "ชื่อกิจกรรม"
+                  : "ชื่อโครงการ/กิจกรรม",
+            value: t.project,
+          });
+
+          if (t.missionType !== "SELF_DEV") {
+            fields.push({
+              label: "วัตถุประสงค์",
+              value: t.objective,
+            });
+          }
+
+          if (t.missionType === "MISSION_4") {
+            fields.push({
+              label: "ภารกิจของบัณฑิตอาสา",
+              value: t.mission,
+            });
+          }
+
+          if (t.missionType !== "SELF_DEV") {
+            fields.push({
+              label: "ผลการดำเนินงาน",
+              value: t.result,
+            });
+          }
+
+          fields.push({
+            label: "ผู้รับรองการปฏิบัติงาน",
+            value: t.approverName
+              ? `${t.approverName} (${t.approverPos || ""})`
+              : "",
+          });
+
+          container.innerHTML += `
+            <div class="border border-[#282d37] rounded-2xl overflow-hidden bg-[#1a1d23] shadow-md transition mb-3">
+                <div onclick="toggleTaskAccordion('${t.id}')" class="p-4 bg-[#16191f]/80 hover:bg-[#222630] cursor-pointer space-y-2 transition">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-md border ${lvlInfo.class}">${lvlInfo.text}</span>
+                        <div class="flex items-center gap-1.5">
+                            ${isReady ? '<span class="text-[11px] bg-[#113224]/80 text-[#7ee787] font-bold border border-[#238636]/40 px-3 py-0.5 rounded-full">✓ พร้อมลง MPP</span>' : '<span class="text-[11px] bg-[#3b171a]/80 text-[#ff7b72] font-bold border border-[#ff7b72]/40 px-3 py-0.5 rounded-full">ขาดข้อมูล</span>'}
+                            <i data-lucide="chevron-down" id="acc-icon-${t.id}" class="w-4 h-4 text-[#8b949e] transition-transform"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-baseline gap-2 text-xs font-semibold text-[#e1e4e8]">
+                        <span class="text-[#7ee787] shrink-0 font-bold bg-[#113224]/50 px-2 py-0.5 rounded border border-[#238636]/30">${formatThaiDate(t.date || t.dateStart)}</span>
+                        <span class="truncate font-medium text-[#c9d1d9]">${t.project}</span>
+                    </div>
+                </div>
+                <div id="acc-content-${t.id}" class="hidden p-3.5 border-t border-[#282d37] bg-[#1a1d23] space-y-2">
+                    ${fields
+                      .map(
+                        (f) => `
+                        <div class="flex items-center justify-between p-3 rounded-xl bg-[#121417] border border-[#282d37] gap-2">
+                            <div class="min-w-0 flex-1">
+                                <div class="text-[10px] font-bold text-[#8b949e] leading-none mb-1">${f.label}</div>
+                                <div class="text-xs text-[#e1e4e8] font-medium truncate">${f.value || '<span class="text-[#ff7b72] font-normal">ยังไม่ได้กรอก</span>'}</div>
+                            </div>
+                            <button onclick="copyField('${(f.value || "").replace(/'/g, "\\'")}', '${f.label}')" class="bg-[#21262d] hover:bg-[#238636] hover:text-white text-[#c9d1d9] text-[11px] px-3 py-1.5 rounded-lg border border-[#323846] transition shrink-0 font-semibold active:scale-95 shadow-xs">คัดลอก</button>
+                        </div>`,
+                      )
+                      .join("")}
+                </div>
+            </div>`;
+        });
+
+        const elReadinessSummary = document.getElementById("readiness-summary");
+        if (elReadinessSummary)
+          elReadinessSummary.innerText = `พร้อม ${readyCount} / ทั้งหมด ${monthTasks.length}`;
+        if (window.lucide) {
+          try {
+            lucide.createIcons();
+          } catch (e) {}
+        }
+      }
+    </script>
   </body>
 </html>

@@ -1,19 +1,189 @@
-@import url("https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap");
 
 * {
-  font-family: "Sarabun", sans-serif;
+  font-family:
+    "Prompt",
+    -apple-system,
+    sans-serif !important;
+  box-sizing: border-box;
 }
 
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+body {
+  background-color: #070a12 !important;
+  color: #e2e8f0 !important;
+  font-size: 15px !important;
+  margin: 0;
+  padding-bottom: 40px;
 }
 
-::-webkit-scrollbar-track {
-  background: #f1f5f9;
+main {
+  max-width: 1240px !important;
+  margin: 24px auto !important;
+  padding: 0 20px !important;
 }
 
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 9999px;
+/* Glassmorphism / Clean Dark Card Styling */
+.glass-card {
+  background: #0f172a !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid #1e293b !important;
+  border-radius: 20px !important;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Stats Cards Styling */
+#tab-dashboard > div:first-child {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)) !important;
+  gap: 16px !important;
+}
+
+#tab-dashboard > div:first-child > div {
+  background: #0f172a !important;
+  border: 1px solid #1e293b !important;
+  border-radius: 20px !important;
+  padding: 20px !important;
+  box-shadow: 0 4px 20px -3px rgba(0, 0, 0, 0.4) !important;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease;
+}
+
+#tab-dashboard > div:first-child > div:hover {
+  transform: translateY(-3px);
+  border-color: #334155;
+}
+
+#tab-dashboard > div:first-child > div > div:first-child {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #94a3b8 !important;
+  letter-spacing: 0.3px;
+}
+
+#tab-dashboard > div:first-child > div > div:last-child {
+  font-size: 32px !important;
+  font-weight: 700 !important;
+  margin-top: 8px !important;
+}
+
+/* Calendar Container & Grid - โทนสีมืดกลมกลืน */
+.calendar-wrapper {
+  background: #1e293b !important;
+  border: 1px solid #1e293b !important;
+  border-radius: 24px !important;
+  overflow: hidden !important;
+  box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.6) !important;
+}
+
+#calendar-grid-desktop {
+  display: grid !important;
+  grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+  gap: 1px !important;
+  background-color: #1e293b !important;
+}
+
+#calendar-grid-desktop > div {
+  width: 100% !important;
+  min-height: 160px !important;
+  padding: 10px !important;
+  background-color: #0b132b !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  transition: background-color 0.2s ease;
+  border: none !important;
+}
+
+#calendar-grid-desktop > div:hover {
+  background-color: #0f172a !important;
+}
+
+/* Day Numbers */
+#calendar-grid-desktop > div span.text-sm {
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  color: #f8fafc !important;
+}
+
+/* จัดระเบียบกล่องใส่ปุ่มเช้า-บ่ายในแต่ละวัน */
+#calendar-grid-desktop .space-y-1\.5 {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  flex: 1 !important;
+  justify-content: center !important;
+  margin-top: 4px !important;
+}
+
+/* Modern Task & Slot Buttons (ปรับแต่งสีการ์ดงานในโหมดมืดให้เด่นชัด) */
+.slot-btn-modern {
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  padding: 6px 10px !important;
+  border-radius: 10px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  min-height: 48px !important;
+  transition: all 0.2s ease !important;
+}
+
+/* Empty Slot Styling (ช่องว่าง เช้า/บ่าย) */
+.empty-slot-modern {
+  background-color: #0f172a !important;
+  border: 1px dashed #334155 !important;
+  color: #94a3b8 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 10px !important;
+  min-height: 44px !important;
+  width: 100% !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+}
+
+.empty-slot-modern:hover {
+  background-color: #1e293b !important;
+  border-color: #10b981 !important;
+  color: #34d399 !important;
+}
+
+/* กล่องวันหยุดพักผ่อนในปฏิทิน */
+#calendar-grid-desktop div[onclick*="openTaskModal"] {
+  background-color: #0f172a !important;
+  border: 1px dashed #334155 !important;
+  color: #94a3b8 !important;
+}
+#calendar-grid-desktop div[onclick*="openTaskModal"]:hover {
+  background-color: #1e293b !important;
+  color: #cbd5e1 !important;
+}
+
+/* Form & Inputs ในโหมดมืด */
+select,
+input,
+textarea {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border: 1px solid #334155 !important;
+  border-radius: 12px !important;
+  padding: 10px 14px !important;
+}
+
+select option {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+}
+
+select:focus,
+input:focus,
+textarea:focus {
+  border-color: #10b981 !important;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
 }
