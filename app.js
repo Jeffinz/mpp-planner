@@ -828,14 +828,32 @@ function renderReadinessList() {
     return;
   }
 
+  // Mapping ระดับงานสำหรับแสดงผลแทนป้ายภารกิจ
+  const levelBadges = {
+    DISTRICT: {
+      text: "🏢 ระดับอำเภอ",
+      class: "bg-red-50 text-red-700 border-red-200",
+    },
+    SUB_DISTRICT: {
+      text: "🏘️ ระดับตำบล",
+      class: "bg-blue-50 text-blue-700 border-blue-200",
+    },
+    VILLAGE: {
+      text: "🏠 ระดับหมู่บ้าน",
+      class: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    },
+  };
+
   monthTasks.forEach((t) => {
-    const missionType = t.missionType || "MISSION_4";
     const isReady =
       t.project &&
       (t.missionType === "SELF_DEV" || t.objective) &&
       t.result &&
       t.approverName;
     if (isReady) readyCount++;
+
+    // ดึงป้ายระดับงาน (ถ้าไม่มีให้ Default เป็นระดับตำบล)
+    const lvlInfo = levelBadges[t.level] || levelBadges.SUB_DISTRICT;
 
     let fields = [
       { label: "ปีงบประมาณ", value: t.fiscalYear || "2569" },
@@ -862,19 +880,19 @@ function renderReadinessList() {
 
     container.innerHTML += `
             <div class="border border-slate-200/90 rounded-2xl overflow-hidden bg-white shadow-xs transition mb-2">
-                <!-- Header Card (ปรับ Layout สำหรับมือถือโดยเฉพาะ) -->
+                <!-- Header Card (แสดงระดับงาน + วันที่ + สถานะ) -->
                 <div onclick="toggleTaskAccordion('${t.id}')" class="p-3 bg-slate-50/80 hover:bg-slate-100 cursor-pointer space-y-2 transition">
                     
-                    <!-- Row 1: Badges & Status -->
+                    <!-- Row 1: ระดับงาน & สถานะพร้อมลง MPP -->
                     <div class="flex items-center justify-between gap-2">
-                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-blue-100 text-blue-700 tracking-wide">${missionType}</span>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border ${lvlInfo.class}">${lvlInfo.text}</span>
                         <div class="flex items-center gap-1.5">
-                            ${isReady ? '<span class="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded-full">✓ พร้อมลง MPP</span>' : '<span class="text-[10px] bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full">ขาดข้อมูล</span>'}
+                            ${isReady ? '<span class="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-2.5 py-0.5 rounded-full">✓ พร้อมลง MPP</span>' : '<span class="text-[10px] bg-red-100 text-red-700 font-bold px-2.5 py-0.5 rounded-full">ขาดข้อมูล</span>'}
                             <i data-lucide="chevron-down" id="acc-icon-${t.id}" class="w-4 h-4 text-slate-400 transition-transform"></i>
                         </div>
                     </div>
 
-                    <!-- Row 2: Date & Title -->
+                    <!-- Row 2: วันที่ & ชื่อโครงการ -->
                     <div class="flex items-baseline gap-2 text-xs font-semibold text-slate-800">
                         <span class="text-blue-600 shrink-0 font-bold bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">${formatThaiDate(t.date || t.dateStart)}</span>
                         <span class="truncate font-medium text-slate-700">${t.project}</span>
