@@ -3,13 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Personal Work Planner v1.0.0 (Cloud Sync & GitHub Pages)</title>
+    <title>Personal Work Planner v1.1.0 (Auto-Lifecycle Management)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- Firebase SDK (v10 Modular via CDN) -->
+    <!-- Firebase SDK -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
       import {
@@ -19,6 +19,9 @@
         setDoc,
         deleteDoc,
         onSnapshot,
+        query,
+        where,
+        getDocs,
       } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
       // ⚠️ วาง firebaseConfig ของคุณตรงนี้
@@ -34,13 +37,15 @@
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app);
 
-      // Export Firebase Functions to Window Context
       window.db = db;
       window.fsCollection = collection;
       window.fsDoc = doc;
       window.fsSetDoc = setDoc;
       window.fsDeleteDoc = deleteDoc;
       window.fsOnSnapshot = onSnapshot;
+      window.fsQuery = query;
+      window.fsWhere = where;
+      window.fsGetDocs = getDocs;
     </script>
 
     <style>
@@ -79,12 +84,12 @@
               <h1 class="font-bold text-base sm:text-lg leading-tight">
                 Personal Work Planner
                 <span
-                  class="text-[10px] bg-blue-500 text-white px-2 py-0.5 rounded-full font-normal"
-                  >v1.0.0 Cloud Sync</span
+                  class="text-[10px] bg-emerald-500 text-white px-2 py-0.5 rounded-full font-normal"
+                  >v1.1.0 Optimized</span
                 >
               </h1>
               <p class="text-[10px] sm:text-xs text-slate-400">
-                ซิงค์ข้อมูล Realtime ผ่าน Firebase & GitHub Pages
+                ระบบจัดการงานบัณฑิตอาสา (ปีงบประมาณ 2569–2570)
               </p>
             </div>
           </div>
@@ -104,6 +109,13 @@
           >
             <i data-lucide="shield-check" class="w-4 h-4"></i> ตรวจความพร้อม
             (Web App)
+          </button>
+          <button
+            onclick="openSettingsModal()"
+            class="bg-slate-800 hover:bg-slate-700 p-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center justify-center border border-slate-700 text-slate-300 hover:text-white"
+            title="จัดการข้อมูลปีเก่า / ล้างข้อมูล"
+          >
+            <i data-lucide="settings" class="w-4 h-4"></i>
           </button>
         </div>
       </div>
@@ -239,15 +251,15 @@
                 <option value="10">พฤศจิกายน</option>
                 <option value="11">ธันวาคม</option>
               </select>
+
+              <!-- จำกัดช่วงปีงบประมาณเฉพาะปัจจุบัน + ถัดไป (2569–2570) -->
               <select
                 id="select-year"
                 onchange="onMonthYearChange()"
                 class="font-bold text-sm sm:text-lg text-slate-800 bg-slate-50 p-1 sm:p-1.5 rounded-lg border border-slate-200 cursor-pointer"
               >
-                <option value="2025">2568 (2025)</option>
-                <option value="2026">2569 (2026)</option>
-                <option value="2027">2570 (2027)</option>
-                <option value="2028">2571 (2028)</option>
+                <option value="2026">2569 (ปีปัจจุบัน)</option>
+                <option value="2027">2570 (ปีถัดไป)</option>
               </select>
             </div>
 
@@ -383,7 +395,6 @@
         >
           <input type="hidden" id="task-id" />
 
-          <!-- Dynamic Mission Selector -->
           <div
             class="bg-slate-900 text-white p-3 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2"
           >
@@ -420,7 +431,7 @@
             </select>
           </div>
 
-          <!-- 2. ข้อมูลเวลาและปีงบประมาณ -->
+          <!-- 2. ข้อมูลเวลาและปีงบประมาณ (จำกัดเฉพาะ 2569–2570) -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <label class="block font-semibold text-slate-700 mb-1"
@@ -432,12 +443,10 @@
                 required
               >
                 <option value="2569">2569</option>
-                <option value="2568">2568</option>
                 <option value="2570">2570</option>
               </select>
             </div>
 
-            <!-- Date Single (Mission 4/5) -->
             <div id="date-single-container">
               <label class="block font-semibold text-slate-700 mb-1"
                 >วันที่ปฏิบัติงาน *</label
@@ -450,7 +459,6 @@
             </div>
           </div>
 
-          <!-- Date Range (Self-Dev) -->
           <div
             id="date-range-container"
             class="hidden grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 bg-amber-50/50 p-3 rounded-xl border border-amber-200"
@@ -477,7 +485,6 @@
             </div>
           </div>
 
-          <!-- ช่วงเวลา Dropdown + เวลามา/เวลากลับ -->
           <div
             class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 bg-blue-50/50 p-3 rounded-xl border border-blue-100"
           >
@@ -898,6 +905,81 @@
       </div>
     </div>
 
+    <!-- MODAL: SETTINGS & DATA LIFECYCLE MANAGEMENT -->
+    <div
+      id="settings-modal"
+      class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex justify-center items-center z-50 p-3 sm:p-4"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-xl w-full max-w-md p-4 sm:p-6 space-y-4"
+      >
+        <div
+          class="flex justify-between items-center border-b border-slate-100 pb-3"
+        >
+          <h3
+            class="text-base sm:text-lg font-bold text-slate-800 flex items-center gap-2"
+          >
+            <i data-lucide="database" class="w-5 h-5 text-slate-600"></i>
+            จัดการวงจรข้อมูล (Data Lifecycle)
+          </h3>
+          <button
+            onclick="closeSettingsModal()"
+            class="text-slate-400 hover:text-slate-600"
+          >
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <div class="space-y-3 text-xs sm:text-sm">
+          <div
+            class="p-3 bg-blue-50 text-blue-800 rounded-xl border border-blue-200 space-y-1"
+          >
+            <div class="font-bold flex items-center gap-1">
+              <i data-lucide="info" class="w-4 h-4"></i> นโยบายเก็บข้อมูล 2
+              ปีงบประมาณ
+            </div>
+            <p class="text-xs text-blue-700">
+              ระบบตั้งค่าให้เก็บข้อมูลไว้ตรวจทานย้อนหลัง 2 ปีงบประมาณ
+              เพื่อประหยัดพื้นที่ Cloud ฟรีตลอดไป
+            </p>
+          </div>
+
+          <div class="pt-2 space-y-2">
+            <button
+              onclick="clearOldFiscalYearData('2568')"
+              class="w-full bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold p-3 rounded-xl border border-amber-200 transition flex items-center justify-between"
+            >
+              <span class="flex items-center gap-2"
+                ><i data-lucide="archive" class="w-4 h-4 text-amber-600"></i>
+                ลบข้อมูลปีงบประมาณเก่า (2568)</span
+              >
+              <i data-lucide="trash" class="w-4 h-4 text-amber-600"></i>
+            </button>
+
+            <button
+              onclick="clearAllCloudData()"
+              class="w-full bg-red-50 hover:bg-red-100 text-red-600 font-bold p-3 rounded-xl border border-red-200 transition flex items-center justify-between"
+            >
+              <span class="flex items-center gap-2"
+                ><i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                ล้างข้อมูลบน Cloud ทั้งหมด</span
+              >
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-slate-100 text-right">
+          <button
+            onclick="closeSettingsModal()"
+            class="bg-slate-100 text-slate-600 hover:bg-slate-200 px-4 py-2 rounded-lg font-medium transition text-xs"
+          >
+            ปิด
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- MODAL: HOLIDAY MANAGEMENT -->
     <div
       id="holiday-modal"
@@ -950,7 +1032,7 @@
       </div>
     </div>
 
-    <!-- JAVASCRIPT LOGIC WITH FIREBASE SYNC -->
+    <!-- JAVASCRIPT LOGIC -->
     <script>
       const monthNamesThai = [
         "มกราคม",
@@ -974,13 +1056,11 @@
       let holidays = [];
       let tempImages = [];
 
-      // Wait for Firebase to initialize
       window.addEventListener("load", () => {
         document.getElementById("select-month").value = currentMonth;
         document.getElementById("select-year").value = currentYear;
         lucide.createIcons();
 
-        // Listen to Realtime Database Changes from Firebase
         if (window.db) {
           window.fsOnSnapshot(
             window.fsCollection(window.db, "tasks"),
@@ -1012,6 +1092,57 @@
           );
         }
       });
+
+      function openSettingsModal() {
+        document.getElementById("settings-modal").classList.remove("hidden");
+      }
+      function closeSettingsModal() {
+        document.getElementById("settings-modal").classList.add("hidden");
+      }
+
+      async function clearOldFiscalYearData(yearBE) {
+        if (
+          confirm(
+            `คุณต้องการลบข้อมูลเฉพาะปีงบประมาณ ${yearBE} ออกจาก Cloud เพื่อเคลียร์พื้นที่ใช่หรือไม่?`,
+          )
+        ) {
+          if (!window.db) return;
+          const q = window.fsQuery(
+            window.fsCollection(window.db, "tasks"),
+            window.fsWhere("fiscalYear", "==", yearBE),
+          );
+          const querySnapshot = await window.fsGetDocs(q);
+          let deletedCount = 0;
+          querySnapshot.forEach(async (docSnap) => {
+            await window.fsDeleteDoc(
+              window.fsDoc(window.db, "tasks", docSnap.id),
+            );
+            deletedCount++;
+          });
+          closeSettingsModal();
+          showToast(`ลบข้อมูลปีงบประมาณ ${yearBE} เรียบร้อยแล้ว`);
+        }
+      }
+
+      async function clearAllCloudData() {
+        if (
+          confirm(
+            "⚠️ เตือนภัย: คุณต้องการลบข้อมูลทั้งหมดบน Cloud ใช่หรือไม่? (ไม่สามารถกู้คืนได้)",
+          )
+        ) {
+          if (!window.db) return;
+          const querySnapshot = await window.fsGetDocs(
+            window.fsCollection(window.db, "tasks"),
+          );
+          querySnapshot.forEach(async (docSnap) => {
+            await window.fsDeleteDoc(
+              window.fsDoc(window.db, "tasks", docSnap.id),
+            );
+          });
+          closeSettingsModal();
+          showToast("ล้างข้อมูลทั้งหมดเรียบร้อยแล้ว");
+        }
+      }
 
       function formatThaiDate(dateStr) {
         if (!dateStr) return "";
@@ -1148,6 +1279,11 @@
           currentMonth = 11;
           currentYear--;
         }
+
+        // จำกัดกรอบไม่ให้กดย้อนหลัง/ล่วงหน้าเกินปี 2026–2027
+        if (currentYear < 2026) currentYear = 2026;
+        if (currentYear > 2027) currentYear = 2027;
+
         document.getElementById("select-month").value = currentMonth;
         document.getElementById("select-year").value = currentYear;
         renderCalendar();
