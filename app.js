@@ -40,7 +40,6 @@ const monthNamesThai = [
 ];
 const dayNamesThaiShort = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
 
-// ดึงเวลาจริงจากระบบเครื่องผู้ใช้
 const today = new Date();
 let currentYear = today.getFullYear();
 let currentMonth = today.getMonth();
@@ -49,12 +48,11 @@ let tasks = [];
 let holidays = [];
 let tempImages = [];
 
-// Init Event Listeners & Realtime Sync
 window.addEventListener("load", () => {
   document.getElementById("select-month").value = currentMonth;
   document.getElementById("select-year").value = currentYear;
 
-  // Bind functions to window context for HTML onclick events
+  // Bind functions to window context
   window.switchTab = switchTab;
   window.onMonthYearChange = onMonthYearChange;
   window.changeMonth = changeMonth;
@@ -78,9 +76,19 @@ window.addEventListener("load", () => {
   window.copyField = copyField;
   window.toggleTaskAccordion = toggleTaskAccordion;
 
-  lucide.createIcons();
+  // บังคับวาดตารางทันทีโดยไม่ต้องรอไอคอน
+  renderCalendar();
 
-  // Realtime Listener
+  // Safety Icon Render
+  if (window.lucide) {
+    try {
+      lucide.createIcons();
+    } catch (e) {
+      console.warn(e);
+    }
+  }
+
+  // Realtime Sync
   onSnapshot(collection(db, "tasks"), (snapshot) => {
     tasks = [];
     snapshot.forEach((docSnap) => tasks.push(docSnap.data()));
@@ -133,11 +141,7 @@ function closeSettingsModal() {
 }
 
 async function clearOldFiscalYearData(yearBE) {
-  if (
-    confirm(
-      `คุณต้องการลบข้อมูลเฉพาะปีงบประมาณ ${yearBE} ออกจาก Cloud ใช่หรือไม่?`,
-    )
-  ) {
+  if (confirm(`ลบข้อมูลปีงบประมาณ ${yearBE} ออกจาก Cloud ใช่หรือไม่?`)) {
     const q = query(collection(db, "tasks"), where("fiscalYear", "==", yearBE));
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach(async (docSnap) => {
@@ -149,7 +153,7 @@ async function clearOldFiscalYearData(yearBE) {
 }
 
 async function clearAllCloudData() {
-  if (confirm("⚠️ เตือนภัย: คุณต้องการลบข้อมูลทั้งหมดบน Cloud ใช่หรือไม่?")) {
+  if (confirm("⚠️ ต้องการลบข้อมูลทั้งหมดบน Cloud ใช่หรือไม่?")) {
     const querySnapshot = await getDocs(collection(db, "tasks"));
     querySnapshot.forEach(async (docSnap) => {
       await deleteDoc(doc(db, "tasks", docSnap.id));
@@ -217,7 +221,11 @@ function renderImagePreviews() {
             </div>
         `;
   });
-  lucide.createIcons();
+  if (window.lucide) {
+    try {
+      lucide.createIcons();
+    } catch (e) {}
+  }
 }
 
 function removeTempImage(index) {
@@ -403,6 +411,8 @@ function renderCalendar() {
   const gridDesktop = document.getElementById("calendar-grid-desktop");
   const listMobile = document.getElementById("calendar-list-mobile");
 
+  if (!gridDesktop || !listMobile) return;
+
   gridDesktop.innerHTML = "";
   listMobile.innerHTML = "";
 
@@ -521,7 +531,11 @@ function renderCalendar() {
   }
 
   updateStats(totalDays, weekendCount);
-  lucide.createIcons();
+  if (window.lucide) {
+    try {
+      lucide.createIcons();
+    } catch (e) {}
+  }
 }
 
 function renderDesktopTaskBadge(task, slotLabel) {
@@ -808,6 +822,41 @@ async function removeHoliday(dateStr) {
   }
 }
 
+function renderHolidayList() {
+  const container = document.getElementById("holiday-list-items");
+  container.innerHTML = "";
+  const currentMonthPrefix = `${currentYear}-${(currentMonth + 1).toString().padStart(2, "0")}`;
+  const monthHolidays = holidays
+    .filter((h) => h.startsWith(currentMonthPrefix))
+    .sort();
+
+  if (monthHolidays.length === 0) {
+    container.innerHTML = `<div class="text-xs text-slate-400 text-center py-2">ไม่มีวันหยุดนักขัตฤกษ์ในเดือนนี้</div>`;
+    return;
+  }
+
+  monthHolidays.forEach((h) => {
+    container.innerHTML += `
+            <div class="flex items-center justify-between p-2 rounded bg-slate-50 border text-xs">
+                <span class="font-medium text-slate-700">🛑 ${formatThaiDate(h)}</span>
+                <button onclick="removeHoliday('${h}')" class="text-red-600 font-bold px-2 py-0.5 rounded">ลบออก</button>
+            </div>
+        `;
+  });
+}
+
+function toggleTaskAccordion(id) {
+  const content = document.getElementById(`acc-content-${id}`);
+  const icon = document.getElementById(`acc-icon-${id}`);
+  if (content.classList.contains("hidden")) {
+    content.classList.remove("hidden");
+    if (icon) icon.style.transform = "rotate(180deg)";
+  } else {
+    content.classList.add("hidden");
+    if (icon) icon.style.transform = "rotate(0deg)";
+  }
+}
+
 function renderReadinessList() {
   const container = document.getElementById("readiness-list");
   container.innerHTML = "";
@@ -828,7 +877,6 @@ function renderReadinessList() {
     return;
   }
 
-  // Mapping ระดับงานสำหรับแสดงผลแทนป้ายภารกิจ
   const levelBadges = {
     DISTRICT: {
       text: "🏢 ระดับอำเภอ",
@@ -852,7 +900,6 @@ function renderReadinessList() {
       t.approverName;
     if (isReady) readyCount++;
 
-    // ดึงป้ายระดับงาน (ถ้าไม่มีให้ Default เป็นระดับตำบล)
     const lvlInfo = levelBadges[t.level] || levelBadges.SUB_DISTRICT;
 
     let fields = [
@@ -880,10 +927,7 @@ function renderReadinessList() {
 
     container.innerHTML += `
             <div class="border border-slate-200/90 rounded-2xl overflow-hidden bg-white shadow-xs transition mb-2">
-                <!-- Header Card (แสดงระดับงาน + วันที่ + สถานะ) -->
                 <div onclick="toggleTaskAccordion('${t.id}')" class="p-3 bg-slate-50/80 hover:bg-slate-100 cursor-pointer space-y-2 transition">
-                    
-                    <!-- Row 1: ระดับงาน & สถานะพร้อมลง MPP -->
                     <div class="flex items-center justify-between gap-2">
                         <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border ${lvlInfo.class}">${lvlInfo.text}</span>
                         <div class="flex items-center gap-1.5">
@@ -892,15 +936,12 @@ function renderReadinessList() {
                         </div>
                     </div>
 
-                    <!-- Row 2: วันที่ & ชื่อโครงการ -->
                     <div class="flex items-baseline gap-2 text-xs font-semibold text-slate-800">
                         <span class="text-blue-600 shrink-0 font-bold bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">${formatThaiDate(t.date || t.dateStart)}</span>
                         <span class="truncate font-medium text-slate-700">${t.project}</span>
                     </div>
-
                 </div>
 
-                <!-- Content ด้านในเมื่อกดขยาย -->
                 <div id="acc-content-${t.id}" class="hidden p-2.5 border-t border-slate-100 bg-white space-y-1.5">
                     ${fields
                       .map(
@@ -924,5 +965,9 @@ function renderReadinessList() {
 
   document.getElementById("readiness-summary").innerText =
     `พร้อม ${readyCount} / ทั้งหมด ${monthTasks.length}`;
-  lucide.createIcons();
+  if (window.lucide) {
+    try {
+      lucide.createIcons();
+    } catch (e) {}
+  }
 }
