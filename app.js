@@ -808,41 +808,6 @@ async function removeHoliday(dateStr) {
   }
 }
 
-function renderHolidayList() {
-  const container = document.getElementById("holiday-list-items");
-  container.innerHTML = "";
-  const currentMonthPrefix = `${currentYear}-${(currentMonth + 1).toString().padStart(2, "0")}`;
-  const monthHolidays = holidays
-    .filter((h) => h.startsWith(currentMonthPrefix))
-    .sort();
-
-  if (monthHolidays.length === 0) {
-    container.innerHTML = `<div class="text-xs text-slate-400 text-center py-2">ไม่มีวันหยุดนักขัตฤกษ์ในเดือนนี้</div>`;
-    return;
-  }
-
-  monthHolidays.forEach((h) => {
-    container.innerHTML += `
-            <div class="flex items-center justify-between p-2 rounded bg-slate-50 border text-xs">
-                <span class="font-medium text-slate-700">🛑 ${formatThaiDate(h)}</span>
-                <button onclick="removeHoliday('${h}')" class="text-red-600 font-bold px-2 py-0.5 rounded">ลบออก</button>
-            </div>
-        `;
-  });
-}
-
-function toggleTaskAccordion(id) {
-  const content = document.getElementById(`acc-content-${id}`);
-  const icon = document.getElementById(`acc-icon-${id}`);
-  if (content.classList.contains("hidden")) {
-    content.classList.remove("hidden");
-    icon.style.transform = "rotate(180deg)";
-  } else {
-    content.classList.add("hidden");
-    icon.style.transform = "rotate(0deg)";
-  }
-}
-
 function renderReadinessList() {
   const container = document.getElementById("readiness-list");
   container.innerHTML = "";
@@ -872,7 +837,6 @@ function renderReadinessList() {
       t.approverName;
     if (isReady) readyCount++;
 
-    // จัดกลุ่มข้อมูลสำหรับก็อปปี้ลง MPP
     let fields = [
       { label: "ปีงบประมาณ", value: t.fiscalYear || "2569" },
       {
@@ -897,31 +861,38 @@ function renderReadinessList() {
     ];
 
     container.innerHTML += `
-            <div class="border border-slate-200/80 rounded-2xl overflow-hidden bg-white shadow-sm transition">
-                <!-- Header Card (พับ-คลี่) -->
-                <div onclick="toggleTaskAccordion('${t.id}')" class="p-3.5 bg-slate-50/70 hover:bg-slate-100/80 cursor-pointer flex items-center justify-between gap-2 transition">
-                    <div class="flex items-center gap-2 overflow-hidden">
-                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 shrink-0">${missionType}</span>
-                        <span class="text-xs font-bold text-slate-800 shrink-0">${formatThaiDate(t.date || t.dateStart)}</span>
-                        <span class="text-xs text-slate-600 truncate">— ${t.project}</span>
+            <div class="border border-slate-200/90 rounded-2xl overflow-hidden bg-white shadow-xs transition mb-2">
+                <!-- Header Card (ปรับ Layout สำหรับมือถือโดยเฉพาะ) -->
+                <div onclick="toggleTaskAccordion('${t.id}')" class="p-3 bg-slate-50/80 hover:bg-slate-100 cursor-pointer space-y-2 transition">
+                    
+                    <!-- Row 1: Badges & Status -->
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-blue-100 text-blue-700 tracking-wide">${missionType}</span>
+                        <div class="flex items-center gap-1.5">
+                            ${isReady ? '<span class="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded-full">✓ พร้อมลง MPP</span>' : '<span class="text-[10px] bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full">ขาดข้อมูล</span>'}
+                            <i data-lucide="chevron-down" id="acc-icon-${t.id}" class="w-4 h-4 text-slate-400 transition-transform"></i>
+                        </div>
                     </div>
-                    <div class="flex items-center gap-1.5 shrink-0">
-                        ${isReady ? '<span class="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-2.5 py-0.5 rounded-full">พร้อมลง MPP</span>' : '<span class="text-[10px] bg-red-100 text-red-700 font-bold px-2.5 py-0.5 rounded-full">ขาดข้อมูล</span>'}
-                        <i data-lucide="chevron-down" id="acc-icon-${t.id}" class="w-4 h-4 text-slate-400 transition-transform"></i>
+
+                    <!-- Row 2: Date & Title -->
+                    <div class="flex items-baseline gap-2 text-xs font-semibold text-slate-800">
+                        <span class="text-blue-600 shrink-0 font-bold bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">${formatThaiDate(t.date || t.dateStart)}</span>
+                        <span class="truncate font-medium text-slate-700">${t.project}</span>
                     </div>
+
                 </div>
 
-                <!-- Content ด้านในเมื่อกดขยาย (Mobile-Optimized Compact List) -->
-                <div id="acc-content-${t.id}" class="hidden p-3 border-t border-slate-100 bg-white space-y-1.5">
+                <!-- Content ด้านในเมื่อกดขยาย -->
+                <div id="acc-content-${t.id}" class="hidden p-2.5 border-t border-slate-100 bg-white space-y-1.5">
                     ${fields
                       .map(
                         (f) => `
-                        <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50/60 hover:bg-slate-100/50 transition border border-slate-100/80 gap-3">
+                        <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100 gap-2">
                             <div class="min-w-0 flex-1">
-                                <div class="text-[10px] font-semibold text-slate-400 leading-tight">${f.label}</div>
-                                <div class="text-xs text-slate-800 font-medium truncate mt-0.5">${f.value || '<span class="text-red-400 font-normal">ยังไม่ได้กรอก</span>'}</div>
+                                <div class="text-[9px] font-bold text-slate-400 leading-none mb-1">${f.label}</div>
+                                <div class="text-xs text-slate-800 font-medium truncate">${f.value || '<span class="text-red-400 font-normal">ยังไม่ได้กรอก</span>'}</div>
                             </div>
-                            <button onclick="copyField('${(f.value || "").replace(/'/g, "\\'")}', '${f.label}')" class="bg-white hover:bg-blue-600 hover:text-white text-slate-600 text-[11px] px-3 py-1 rounded-lg border border-slate-200 shadow-2xs transition shrink-0 font-medium active:scale-95">
+                            <button onclick="copyField('${(f.value || "").replace(/'/g, "\\'")}', '${f.label}')" class="bg-white hover:bg-blue-600 hover:text-white text-slate-600 text-[11px] px-2.5 py-1 rounded-lg border border-slate-200 shadow-2xs transition shrink-0 font-semibold active:scale-95">
                                 คัดลอก
                             </button>
                         </div>
