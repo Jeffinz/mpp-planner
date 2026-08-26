@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Personal Work Planner v1.2.1 Fixed</title>
+    <title>Personal Work Planner v1.2.4 Fixed</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons CDN -->
@@ -41,7 +41,7 @@
                 Personal Work Planner
                 <span
                   class="text-[10px] bg-emerald-500 text-white px-2 py-0.5 rounded-full font-normal"
-                  >v1.2.1</span
+                  >v1.2.4</span
                 >
               </h1>
               <p class="text-[10px] sm:text-xs text-slate-400">
@@ -53,7 +53,7 @@
         <div class="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
           <button
             onclick="switchTab('dashboard')"
-            class="nav-btn flex-1 sm:flex-initial w-1/2 sm:w-auto bg-slate-800 hover:bg-slate-700 px-2.5 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center justify-center gap-1 sm:gap-1.5 border border-slate-700 active-tab shrink-0"
+            class="nav-btn flex-1 sm:flex-initial w-1/2 sm:w-auto bg-slate-800 hover:bg-slate-700 px-2.5 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center justify-center gap-1 sm:gap-1.5 border border-slate-700 bg-slate-700 text-white shrink-0"
             id="btn-dashboard"
           >
             <i data-lucide="layout-dashboard" class="w-4 h-4 shrink-0"></i>
@@ -81,7 +81,7 @@
     <main class="max-w-7xl mx-auto mt-4 sm:mt-6 px-2 sm:px-4">
       <!-- TAB 1: DASHBOARD & CALENDAR -->
       <div id="tab-dashboard" class="space-y-4 sm:space-y-6">
-        <!-- Summary Stats Cards -->
+        <!-- Summary Stats Cards Dashboard (คืนค่า ID ครบถ้วน) -->
         <div
           class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 sm:gap-3"
         >
@@ -543,131 +543,6 @@
               รายละเอียดภารกิจ
             </div>
 
-            <div id="field-volunteer-type-container" class="hidden">
-              <label class="block font-semibold text-slate-700 mb-1"
-                >ประเภทจิตอาสา *</label
-              >
-              <select
-                id="task-volunteer-type"
-                class="w-full p-2 border border-slate-300 rounded-lg"
-              >
-                <option value="จิตอาสาพัฒนา">จิตอาสาพัฒนา</option>
-                <option value="จิตอาสาภัยพิบัติ">จิตอาสาภัยพิบัติ</option>
-                <option value="จิตอาสาเฉพาะกิจ">จิตอาสาเฉพาะกิจ</option>
-                <option value="จิตอาสาอื่นๆ">จิตอาสาอื่นๆ</option>
-              </select>
-            </div>
-
-            <div id="field-dev-type-container" class="hidden">
-              <label class="block font-semibold text-slate-700 mb-1"
-                >ประเภทการพัฒนา *</label
-              >
-              <select
-                id="task-dev-type"
-                class="w-full p-2 border border-slate-300 rounded-lg"
-              >
-                <option value="อบรม">อบรม</option>
-                <option value="สัมมนา">สัมมนา</option>
-                <option value="ศึกษาดูงาน">ศึกษาดูงาน</option>
-                <option value="ออนไลน์">ออนไลน์</option>
-              </select>
-            </div>
-
-            <div
-              id="field-org-category-container"
-              class="space-y-3 bg-slate-50 p-3 rounded-xl border border-slate-200"
-            >
-              <div>
-                <label class="block font-semibold text-slate-700 mb-1"
-                  >ประเภทหน่วยงาน *</label
-                >
-                <select
-                  id="task-org-category"
-                  onchange="toggleOrgSubFields()"
-                  class="w-full p-2 border border-slate-300 rounded-lg bg-white"
-                >
-                  <option value="INTERNAL">หน่วยงานภายใน ศอ.บต.</option>
-                  <option value="EXTERNAL">หน่วยงานภายนอก</option>
-                </select>
-              </div>
-
-              <div id="org-internal-wrap">
-                <label class="block font-semibold text-slate-700 mb-1"
-                  >หน่วยงานภายใน ศอ.บต. *</label
-                >
-                <select
-                  id="task-org-internal"
-                  class="w-full p-2 border border-slate-300 rounded-lg bg-white"
-                >
-                  <option value="สลธ.">สลธ. (สำนักงานเลขาธิการ)</option>
-                  <option value="กบย.">
-                    กบย. (กองบริหารยุทธศาสตร์การพัฒนาจังหวัดชายแดนภาคใต้)
-                  </option>
-                  <option value="กสพ.">
-                    กสพ. (กองส่งเสริมและสนับสนุนงานพัฒนาฝ่ายพลเรือน)
-                  </option>
-                  <option value="กสม.">
-                    กสม. (กองส่งเสริมและสนับสนุนงานพัฒนาเพื่อความมั่นคง)
-                  </option>
-                  <option value="กปพ.">
-                    กปพ. (กองประสานงานโครงการอันเนื่องมาจากพระราชดำริฯ)
-                  </option>
-                  <option value="กปค.">
-                    กปค. (กองพัฒนาสังคมเพื่อความมั่นคง)
-                  </option>
-                  <option value="คปท.">
-                    คปท. (ศูนย์ประสานงานและบริหารการศึกษาจังหวัดชายแดนภาคใต้)
-                  </option>
-                  <option value="กตส.">กตส. (กลุ่มตรวจสอบภายใน)</option>
-                  <option value="กพร.">กพร. (กลุ่มพัฒนาระบบบริหาร)</option>
-                  <option value="กปร.">กปร. (กลุ่มงานประสานราชการ)</option>
-                </select>
-              </div>
-
-              <div id="org-external-wrap" class="hidden space-y-3">
-                <div>
-                  <label class="block font-semibold text-slate-700 mb-1"
-                    >หน่วยงานภายนอก (กระทรวง) *</label
-                  >
-                  <select
-                    id="task-org-external"
-                    class="w-full p-2 border border-slate-300 rounded-lg bg-white"
-                  >
-                    <option value="สำนักนายกรัฐมนตรี">สำนักนายกรัฐมนตรี</option>
-                    <option value="กระทรวงกลาโหม">กระทรวงกลาโหม</option>
-                    <option value="กระทรวงการคลัง">กระทรวงการคลัง</option>
-                    <option value="กระทรวงมหาดไทย">กระทรวงมหาดไทย</option>
-                    <option value="กระทรวงศึกษาธิการ">กระทรวงศึกษาธิการ</option>
-                    <option value="กระทรวงสาธารณสุข">กระทรวงสาธารณสุข</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label class="block font-semibold text-slate-700 mb-1"
-                    >หน่วยงานในพื้นที่ *</label
-                  >
-                  <input
-                    type="text"
-                    id="task-org-local"
-                    class="w-full p-2 border border-slate-300 rounded-lg bg-white"
-                    placeholder="เช่น อบต.ทับเที่ยง"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div id="field-dev-organizer-container" class="hidden">
-              <label class="block font-semibold text-slate-700 mb-1"
-                >หน่วยงานที่จัด *</label
-              >
-              <input
-                type="text"
-                id="task-organizer"
-                class="w-full p-2 border border-slate-300 rounded-lg"
-                placeholder="--หน่วยงานที่จัด--"
-              />
-            </div>
-
             <div>
               <label
                 class="block font-semibold text-slate-700 mb-1"
@@ -695,35 +570,12 @@
               ></textarea>
             </div>
 
-            <div id="field-location-container" class="hidden">
-              <label class="block font-semibold text-slate-700 mb-1"
-                >สถานที่ *</label
-              >
-              <input
-                type="text"
-                id="task-location"
-                class="w-full p-2 border border-slate-300 rounded-lg"
-                placeholder="เช่น ศาลาประชาคม โรงแรม..."
-              />
-            </div>
-
             <div id="field-mission-container">
               <label class="block font-semibold text-slate-700 mb-1"
                 >ภารกิจของบัณฑิตอาสา *</label
               >
               <textarea
                 id="task-mission"
-                rows="2"
-                class="w-full p-2 border border-slate-300 rounded-lg"
-              ></textarea>
-            </div>
-
-            <div id="field-benefit-container" class="hidden">
-              <label class="block font-semibold text-slate-700 mb-1"
-                >ประโยชน์ที่ได้รับ *</label
-              >
-              <textarea
-                id="task-benefit"
                 rows="2"
                 class="w-full p-2 border border-slate-300 rounded-lg"
               ></textarea>
@@ -740,55 +592,6 @@
                 rows="2"
                 class="w-full p-2 border border-slate-300 rounded-lg"
               ></textarea>
-            </div>
-
-            <div id="field-link-container" class="hidden">
-              <label class="block font-semibold text-slate-700 mb-1"
-                >แนบลิงก์ประมวลกิจกรรม (URL)</label
-              >
-              <input
-                type="url"
-                id="task-link"
-                class="w-full p-2 border border-slate-300 rounded-lg"
-              />
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div id="field-participants-container">
-                <label class="block font-semibold text-slate-700 mb-1"
-                  >จำนวนผู้เข้าร่วมกิจกรรม *</label
-                >
-                <input
-                  type="number"
-                  id="task-participants"
-                  value="0"
-                  class="w-full p-2 border border-slate-300 rounded-lg"
-                />
-              </div>
-            </div>
-
-            <div class="space-y-2 pt-2 border-t border-slate-100">
-              <div class="flex justify-between items-center">
-                <label class="block font-bold text-slate-800"
-                  >📸 แนบรูปภาพกิจกรรม/เกียรติบัตร (สูงสุด 2 รูป)</label
-                >
-                <span
-                  class="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded font-semibold"
-                  >Auto 1080p Cloud Sync</span
-                >
-              </div>
-              <input
-                type="file"
-                id="image-input"
-                accept="image/*"
-                multiple
-                onchange="handleImageUpload(event)"
-                class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
-              />
-              <div
-                id="image-preview-container"
-                class="grid grid-cols-2 gap-3 pt-2"
-              ></div>
             </div>
           </div>
 
