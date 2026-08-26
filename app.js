@@ -859,7 +859,8 @@ function renderReadinessList() {
 
   let readyCount = 0;
   if (monthTasks.length === 0) {
-    container.innerHTML = `<div class="text-center py-8 text-slate-400">ไม่มีรายการงานในเดือนที่เลือก</div>`;
+    container.innerHTML = `<div class="text-center py-12 text-slate-400 text-xs">ไม่มีรายการงานในเดือนนี้</div>`;
+    return;
   }
 
   monthTasks.forEach((t) => {
@@ -867,187 +868,72 @@ function renderReadinessList() {
     const isReady =
       t.project &&
       (t.missionType === "SELF_DEV" || t.objective) &&
-      (t.result || t.benefit) &&
+      t.result &&
       t.approverName;
     if (isReady) readyCount++;
 
-    let fields = [];
-    if (missionType === "SELF_DEV") {
-      fields = [
-        { label: "1. ปีงบประมาณ", value: t.fiscalYear || "2569" },
-        { label: "2. ชื่อหลักสูตร/กิจกรรม", value: t.project },
-        { label: "3. เวลามา", value: t.timeStart },
-        { label: "4. เวลากลับ", value: t.timeEnd },
-        { label: "5. หน่วยงานที่จัด", value: t.organizer },
-        { label: "6. ประเภทการพัฒนา", value: t.devType || "อบรม" },
-        {
-          label: "7. วันที่เริ่ม",
-          value: formatThaiDate(t.dateStart || t.date),
-        },
-        {
-          label: "8. วันที่สิ้นสุด",
-          value: formatThaiDate(t.dateEnd || t.date),
-        },
-        { label: "9. สถานที่", value: t.location },
-        { label: "10. ประโยชน์ที่ได้รับ", value: t.benefit },
-        { label: "11. ชื่อนามสกุลผู้รับรอง", value: t.approverName },
-        { label: "12. ตำแหน่งผู้รับรอง", value: t.approverPos },
-      ];
-    } else if (missionType === "MISSION_5") {
-      const isInternal = t.orgCategory === "INTERNAL";
-      fields = [
-        { label: "1. ปีงบประมาณ", value: t.fiscalYear || "2569" },
-        { label: "2. วันที่ปฏิบัติงาน", value: formatThaiDate(t.date) },
-        { label: "3. เวลามา", value: t.timeStart },
-        { label: "4. เวลากลับ", value: t.timeEnd },
-        { label: "5. จังหวัด", value: t.province || "ตรัง" },
-        { label: "6. อำเภอ", value: t.district || "เมืองตรัง" },
-        { label: "7. ตำบล", value: t.subdistrict },
-        { label: "8. หมู่บ้าน", value: t.village },
-        { label: "9. ประเภทจิตอาสา", value: t.volunteerType || "จิตอาสาพัฒนา" },
-        {
-          label: "10. ประเภทหน่วยงาน",
-          value: isInternal ? "หน่วยงานภายใน ศอ.บต." : "หน่วยงานภายนอก",
-        },
-      ];
-      if (isInternal) {
-        fields.push({
-          label: "11. หน่วยงานภายใน ศอ.บต.",
-          value: t.orgInternal || "สลธ.",
-        });
-      } else {
-        fields.push(
-          {
-            label: "11. หน่วยงานภายนอก (กระทรวง)",
-            value: t.orgExternal || "กระทรวงมหาดไทย",
-          },
-          { label: "12. หน่วยงานในพื้นที่", value: t.orgLocal },
-        );
-      }
-      fields.push(
-        { label: `${isInternal ? 12 : 13}. ชื่อกิจกรรม`, value: t.project },
-        {
-          label: `${isInternal ? 13 : 14}. วัตถุประสงค์กิจกรรม`,
-          value: t.objective,
-        },
-        { label: `${isInternal ? 14 : 15}. สถานที่`, value: t.location },
-        {
-          label: `${isInternal ? 15 : 16}. ผลการดำเนินงานของกิจกรรม`,
-          value: t.result,
-        },
-        {
-          label: `${isInternal ? 16 : 17}. แนบลิงก์ประมวลกิจกรรม`,
-          value: t.link,
-        },
-        {
-          label: `${isInternal ? 17 : 18}. ชื่อนามสกุลผู้รับรอง`,
-          value: t.approverName,
-        },
-        {
-          label: `${isInternal ? 18 : 19}. ตำแหน่งผู้รับรอง`,
-          value: t.approverPos,
-        },
-      );
-    } else {
-      const isInternal = t.orgCategory === "INTERNAL";
-      fields = [
-        { label: "1. ปีงบประมาณ", value: t.fiscalYear || "2569" },
-        { label: "2. วันที่ปฏิบัติงาน", value: formatThaiDate(t.date) },
-        { label: "3. เวลามา", value: t.timeStart },
-        { label: "4. เวลากลับ", value: t.timeEnd },
-        { label: "5. จังหวัด", value: t.province || "ตรัง" },
-        { label: "6. อำเภอ", value: t.district || "เมืองตรัง" },
-        { label: "7. ตำบล", value: t.subdistrict },
-        { label: "8. หมู่บ้าน", value: t.village },
-        {
-          label: "9. ประเภทหน่วยงาน",
-          value: isInternal ? "หน่วยงานภายใน ศอ.บต." : "หน่วยงานภายนอก",
-        },
-      ];
-      if (isInternal) {
-        fields.push({
-          label: "10. หน่วยงานภายใน ศอ.บต.",
-          value: t.orgInternal || "สลธ.",
-        });
-      } else {
-        fields.push(
-          {
-            label: "10. หน่วยงานภายนอก (กระทรวง)",
-            value: t.orgExternal || "กระทรวงมหาดไทย",
-          },
-          { label: "11. หน่วยงานในพื้นที่", value: t.orgLocal },
-        );
-      }
-      fields.push(
-        {
-          label: `${isInternal ? 11 : 12}. ชื่อโครงการ/กิจกรรม`,
-          value: t.project,
-        },
-        {
-          label: `${isInternal ? 12 : 13}. วัตถุประสงค์ของโครงการ/กิจกรรม`,
-          value: t.objective,
-        },
-        {
-          label: `${isInternal ? 13 : 14}. ภารกิจของบัณฑิตอาสา`,
-          value: t.mission,
-        },
-        {
-          label: `${isInternal ? 14 : 15}. จำนวนผู้เข้าร่วมกิจกรรม`,
-          value: `${t.participants} คน`,
-        },
-        {
-          label: `${isInternal ? 15 : 16}. ผลการดำเนินงานของกิจกรรม`,
-          value: t.result,
-        },
-        {
-          label: `${isInternal ? 16 : 17}. ชื่อนามสกุลผู้รับรอง`,
-          value: t.approverName,
-        },
-        {
-          label: `${isInternal ? 17 : 18}. ตำแหน่งผู้รับรอง`,
-          value: t.approverPos,
-        },
-      );
-    }
+    // จัดกลุ่มข้อมูลสำหรับก็อปปี้ลง MPP
+    let fields = [
+      { label: "ปีงบประมาณ", value: t.fiscalYear || "2569" },
+      {
+        label: "วันที่ปฏิบัติงาน",
+        value: formatThaiDate(t.date || t.dateStart),
+      },
+      { label: "เวลามา - เวลากลับ", value: `${t.timeStart} - ${t.timeEnd}` },
+      {
+        label: "สถานที่ปฏิบัติงาน",
+        value:
+          `${t.province || ""} ${t.district || ""} ${t.subdistrict || ""} ${t.village || ""}`.trim(),
+      },
+      { label: "ชื่อโครงการ / กิจกรรม", value: t.project },
+      { label: "วัตถุประสงค์", value: t.objective },
+      { label: "ผลการดำเนินงาน", value: t.result },
+      {
+        label: "ผู้รับรองการปฏิบัติงาน",
+        value: t.approverName
+          ? `${t.approverName} (${t.approverPos || ""})`
+          : "",
+      },
+    ];
 
     container.innerHTML += `
-            <div class="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm">
-                <div onclick="toggleTaskAccordion('${t.id}')" class="p-3 sm:p-4 bg-slate-50 hover:bg-slate-100 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-2 transition">
-                    <div class="flex items-center gap-2 sm:gap-3 overflow-hidden">
-                        <span class="text-xs font-bold px-2 py-1 rounded bg-blue-100 text-blue-700">${t.missionType}</span>
-                        <span class="text-xs sm:text-sm font-bold text-slate-800">${formatThaiDate(t.date || t.dateStart)}</span>
-                        <span class="text-xs sm:text-sm text-slate-700 font-medium truncate">— ${t.project}</span>
+            <div class="border border-slate-200/80 rounded-2xl overflow-hidden bg-white shadow-sm transition">
+                <!-- Header Card (พับ-คลี่) -->
+                <div onclick="toggleTaskAccordion('${t.id}')" class="p-3.5 bg-slate-50/70 hover:bg-slate-100/80 cursor-pointer flex items-center justify-between gap-2 transition">
+                    <div class="flex items-center gap-2 overflow-hidden">
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 shrink-0">${missionType}</span>
+                        <span class="text-xs font-bold text-slate-800 shrink-0">${formatThaiDate(t.date || t.dateStart)}</span>
+                        <span class="text-xs text-slate-600 truncate">— ${t.project}</span>
                     </div>
-                    <div class="flex items-center gap-2">
-                        ${isReady ? '<span class="text-xs bg-emerald-100 text-emerald-700 font-bold px-2.5 py-1 rounded-full">✅ พร้อมลง MPP</span>' : '<span class="text-xs bg-red-100 text-red-700 font-bold px-2.5 py-1 rounded-full">🔴 ข้อมูลไม่ครบ</span>'}
-                        <i data-lucide="chevron-down" id="acc-icon-${t.id}" class="w-4 h-4 text-slate-400"></i>
+                    <div class="flex items-center gap-1.5 shrink-0">
+                        ${isReady ? '<span class="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-2.5 py-0.5 rounded-full">พร้อมลง MPP</span>' : '<span class="text-[10px] bg-red-100 text-red-700 font-bold px-2.5 py-0.5 rounded-full">ขาดข้อมูล</span>'}
+                        <i data-lucide="chevron-down" id="acc-icon-${t.id}" class="w-4 h-4 text-slate-400 transition-transform"></i>
                     </div>
                 </div>
 
-                <div id="acc-content-${t.id}" class="hidden p-3 sm:p-4 border-t border-slate-200 bg-white space-y-3">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        ${fields
-                          .map(
-                            (f) => `
-                            <div class="flex items-center justify-between p-2 rounded-lg border border-slate-100 bg-slate-50">
-                                <div class="overflow-hidden pr-2">
-                                    <div class="text-[10px] font-semibold text-slate-400">${f.label}</div>
-                                    <div class="text-xs text-slate-800 font-medium truncate">${f.value || '<span class="text-red-400">ยังไม่ได้กรอก</span>'}</div>
-                                </div>
-                                <button onclick="copyField('${(f.value || "").replace(/'/g, "\\'")}', '${f.label}')" class="bg-white hover:bg-slate-200 text-slate-700 text-xs px-2.5 py-1.5 rounded border shadow-sm transition shrink-0">
-                                    คัดลอก
-                                </button>
+                <!-- Content ด้านในเมื่อกดขยาย (Mobile-Optimized Compact List) -->
+                <div id="acc-content-${t.id}" class="hidden p-3 border-t border-slate-100 bg-white space-y-1.5">
+                    ${fields
+                      .map(
+                        (f) => `
+                        <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50/60 hover:bg-slate-100/50 transition border border-slate-100/80 gap-3">
+                            <div class="min-w-0 flex-1">
+                                <div class="text-[10px] font-semibold text-slate-400 leading-tight">${f.label}</div>
+                                <div class="text-xs text-slate-800 font-medium truncate mt-0.5">${f.value || '<span class="text-red-400 font-normal">ยังไม่ได้กรอก</span>'}</div>
                             </div>
-                        `,
-                          )
-                          .join("")}
-                    </div>
+                            <button onclick="copyField('${(f.value || "").replace(/'/g, "\\'")}', '${f.label}')" class="bg-white hover:bg-blue-600 hover:text-white text-slate-600 text-[11px] px-3 py-1 rounded-lg border border-slate-200 shadow-2xs transition shrink-0 font-medium active:scale-95">
+                                คัดลอก
+                            </button>
+                        </div>
+                    `,
+                      )
+                      .join("")}
                 </div>
             </div>
         `;
   });
 
   document.getElementById("readiness-summary").innerText =
-    `พร้อม ${readyCount} / ทั้งหมด ${monthTasks.length} รายการ`;
+    `พร้อม ${readyCount} / ทั้งหมด ${monthTasks.length}`;
   lucide.createIcons();
 }
