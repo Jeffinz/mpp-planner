@@ -1,0 +1,1989 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Personal Work Planner v1.0.0 (Cloud Sync & GitHub Pages)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Firebase SDK (v10 Modular via CDN) -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+      import {
+        getFirestore,
+        collection,
+        doc,
+        setDoc,
+        deleteDoc,
+        onSnapshot,
+      } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+      // ⚠️ วาง firebaseConfig ของคุณตรงนี้
+      const firebaseConfig = {
+        apiKey: "AIzaSyDRaSrfpxCwBMHAFlqoCJBvzw5paakUQcI",
+        authDomain: "mpp-planner.firebaseapp.com",
+        projectId: "mpp-planner",
+        storageBucket: "mpp-planner.firebasestorage.app",
+        messagingSenderId: "413077415177",
+        appId: "1:413077415177:web:26b2bb1aa1926ec3031fd8",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      // Export Firebase Functions to Window Context
+      window.db = db;
+      window.fsCollection = collection;
+      window.fsDoc = doc;
+      window.fsSetDoc = setDoc;
+      window.fsDeleteDoc = deleteDoc;
+      window.fsOnSnapshot = onSnapshot;
+    </script>
+
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap");
+      * {
+        font-family: "Sarabun", sans-serif;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-100 text-slate-800 min-h-screen pb-12">
+    <!-- Toast Notification -->
+    <div
+      id="toast"
+      class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-xl flex items-center gap-2 text-sm z-50 transition-opacity duration-300 opacity-0 pointer-events-none"
+    >
+      <i data-lucide="check-circle-2" class="text-emerald-400 w-4 h-4"></i>
+      <span id="toast-message">ข้อความแจ้งเตือน</span>
+    </div>
+
+    <!-- Header / Navbar -->
+    <header
+      class="bg-slate-900 text-white p-3 sm:p-4 shadow-lg sticky top-0 z-50"
+    >
+      <div
+        class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3"
+      >
+        <div
+          class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start"
+        >
+          <div class="flex items-center gap-2.5">
+            <i
+              data-lucide="cloud-lightning"
+              class="text-emerald-400 w-6 h-6 sm:w-7 sm:h-7 animate-pulse"
+            ></i>
+            <div>
+              <h1 class="font-bold text-base sm:text-lg leading-tight">
+                Personal Work Planner
+                <span
+                  class="text-[10px] bg-blue-500 text-white px-2 py-0.5 rounded-full font-normal"
+                  >v1.0.0 Cloud Sync</span
+                >
+              </h1>
+              <p class="text-[10px] sm:text-xs text-slate-400">
+                ซิงค์ข้อมูล Realtime ผ่าน Firebase & GitHub Pages
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
+          <button
+            onclick="switchTab('dashboard')"
+            class="nav-btn flex-1 sm:flex-none bg-slate-800 hover:bg-slate-700 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center justify-center gap-1.5 border border-slate-700 active-tab"
+            id="btn-dashboard"
+          >
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i> ปฏิทิน
+          </button>
+          <button
+            onclick="switchTab('readiness')"
+            class="nav-btn flex-1 sm:flex-none bg-slate-800 hover:bg-slate-700 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center justify-center gap-1.5 border border-slate-700"
+            id="btn-readiness"
+          >
+            <i data-lucide="shield-check" class="w-4 h-4"></i> ตรวจความพร้อม
+            (Web App)
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto mt-4 sm:mt-6 px-2 sm:px-4">
+      <!-- TAB 1: DASHBOARD & CALENDAR -->
+      <div id="tab-dashboard" class="space-y-4 sm:space-y-6">
+        <!-- Summary Stats Cards -->
+        <div
+          class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 sm:gap-3"
+        >
+          <div
+            class="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm"
+          >
+            <div
+              class="text-[11px] sm:text-xs font-semibold text-slate-500 mb-0.5"
+            >
+              🏢 อำเภอ
+            </div>
+            <div
+              class="text-xl sm:text-2xl font-bold text-red-600"
+              id="stat-district"
+            >
+              0
+            </div>
+          </div>
+          <div
+            class="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm"
+          >
+            <div
+              class="text-[11px] sm:text-xs font-semibold text-slate-500 mb-0.5"
+            >
+              🏘️ ตำบล
+            </div>
+            <div
+              class="text-xl sm:text-2xl font-bold text-blue-600"
+              id="stat-subdistrict"
+            >
+              0
+            </div>
+          </div>
+          <div
+            class="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm"
+          >
+            <div
+              class="text-[11px] sm:text-xs font-semibold text-slate-500 mb-0.5"
+            >
+              🏠 หมู่บ้าน
+            </div>
+            <div
+              class="text-xl sm:text-2xl font-bold text-emerald-600"
+              id="stat-village"
+            >
+              0
+            </div>
+          </div>
+          <div
+            class="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm"
+          >
+            <div
+              class="text-[11px] sm:text-xs font-semibold text-slate-500 mb-0.5"
+            >
+              🛑 วันหยุดรวม
+            </div>
+            <div
+              class="text-xl sm:text-2xl font-bold text-slate-600"
+              id="stat-holiday"
+            >
+              0
+            </div>
+          </div>
+          <div
+            class="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm"
+          >
+            <div
+              class="text-[11px] sm:text-xs font-semibold text-slate-500 mb-0.5"
+            >
+              🟢 Slot ว่าง
+            </div>
+            <div
+              class="text-xl sm:text-2xl font-bold text-amber-500"
+              id="stat-empty"
+            >
+              0
+            </div>
+          </div>
+          <div
+            class="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm bg-red-50/50"
+          >
+            <div
+              class="text-[11px] sm:text-xs font-semibold text-red-600 mb-0.5"
+            >
+              ⚠️ ข้อมูลไม่ครบ
+            </div>
+            <div
+              class="text-xl sm:text-2xl font-bold text-red-600"
+              id="stat-incomplete"
+            >
+              0
+            </div>
+          </div>
+        </div>
+
+        <!-- Calendar Control Header -->
+        <div
+          class="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-3"
+        >
+          <div class="flex items-center justify-between w-full md:w-auto gap-2">
+            <button
+              onclick="changeMonth(-1)"
+              class="p-1.5 sm:p-2 hover:bg-slate-100 rounded-lg border border-slate-200 transition"
+            >
+              <i data-lucide="chevron-left" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+            </button>
+
+            <div class="flex items-center gap-1.5 sm:gap-2">
+              <select
+                id="select-month"
+                onchange="onMonthYearChange()"
+                class="font-bold text-sm sm:text-lg text-slate-800 bg-slate-50 p-1 sm:p-1.5 rounded-lg border border-slate-200 cursor-pointer"
+              >
+                <option value="0">มกราคม</option>
+                <option value="1">กุมภาพันธ์</option>
+                <option value="2">มีนาคม</option>
+                <option value="3">เมษายน</option>
+                <option value="4">พฤษภาคม</option>
+                <option value="5">มิถุนายน</option>
+                <option value="6">กรกฎาคม</option>
+                <option value="7">สิงหาคม</option>
+                <option value="8">กันยายน</option>
+                <option value="9">ตุลาคม</option>
+                <option value="10">พฤศจิกายน</option>
+                <option value="11">ธันวาคม</option>
+              </select>
+              <select
+                id="select-year"
+                onchange="onMonthYearChange()"
+                class="font-bold text-sm sm:text-lg text-slate-800 bg-slate-50 p-1 sm:p-1.5 rounded-lg border border-slate-200 cursor-pointer"
+              >
+                <option value="2025">2568 (2025)</option>
+                <option value="2026">2569 (2026)</option>
+                <option value="2027">2570 (2027)</option>
+                <option value="2028">2571 (2028)</option>
+              </select>
+            </div>
+
+            <button
+              onclick="changeMonth(1)"
+              class="p-1.5 sm:p-2 hover:bg-slate-100 rounded-lg border border-slate-200 transition"
+            >
+              <i data-lucide="chevron-right" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+            </button>
+          </div>
+
+          <div class="flex gap-2 w-full md:w-auto justify-end">
+            <button
+              onclick="openHolidayModal()"
+              class="flex-1 md:flex-none bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition flex items-center justify-center gap-1"
+            >
+              <i data-lucide="ban" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+              จัดการวันหยุด
+            </button>
+            <button
+              onclick="openTaskModal()"
+              class="flex-1 md:flex-none bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition flex items-center justify-center gap-1"
+            >
+              <i data-lucide="plus" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+              เพิ่มงานใหม่
+            </button>
+          </div>
+        </div>
+
+        <!-- DESKTOP GRID CALENDAR -->
+        <div
+          class="hidden md:block bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
+        >
+          <div
+            class="grid grid-cols-7 bg-slate-50 border-b border-slate-200 text-center font-semibold text-sm py-2 text-slate-600"
+          >
+            <div class="text-red-500">อาทิตย์</div>
+            <div>จันทร์</div>
+            <div>อังคาร</div>
+            <div>พุธ</div>
+            <div>พฤหัสบดี</div>
+            <div>ศุกร์</div>
+            <div class="text-red-500">เสาร์</div>
+          </div>
+          <div
+            class="grid grid-cols-7 gap-px bg-slate-200"
+            id="calendar-grid-desktop"
+          ></div>
+        </div>
+
+        <!-- MOBILE AGENDA LIST CALENDAR -->
+        <div
+          class="block md:hidden bg-white rounded-xl border border-slate-200 shadow-sm p-3 space-y-3"
+        >
+          <div
+            class="text-xs font-bold text-slate-500 pb-2 border-b border-slate-100 flex justify-between items-center"
+          >
+            <span>📱 รายการงานประจำเดือน (Agenda List)</span>
+            <span class="text-[10px] text-slate-400">เรียงตามวันที่</span>
+          </div>
+          <div class="space-y-3" id="calendar-list-mobile"></div>
+        </div>
+      </div>
+
+      <!-- TAB 2: WEB APP READINESS & FIELD-BY-FIELD COPY -->
+      <div id="tab-readiness" class="hidden space-y-4 sm:space-y-6">
+        <div
+          class="bg-white p-4 sm:p-6 rounded-xl border border-slate-200 shadow-sm"
+        >
+          <div
+            class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-slate-100 gap-2"
+          >
+            <div>
+              <h2 class="text-lg sm:text-xl font-bold text-slate-800">
+                ตรวจความพร้อม & กดคัดลอกรายช่องเข้า Web App
+              </h2>
+              <p class="text-xs sm:text-sm text-slate-500">
+                รองรับ ภารกิจ 4, ภารกิจ 5 และ การพัฒนาตนเอง
+              </p>
+            </div>
+            <div class="text-left sm:text-right">
+              <div class="text-[11px] sm:text-xs text-slate-500">
+                สถานะความพร้อมเดือนนี้
+              </div>
+              <div
+                class="text-base sm:text-lg font-bold text-slate-800"
+                id="readiness-summary"
+              >
+                พร้อม 0 / ทั้งหมด 0 รายการ
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-3" id="readiness-list"></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- MODAL: ADD/EDIT TASK -->
+    <div
+      id="task-modal"
+      class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex justify-center items-center z-50 p-2 sm:p-4"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-xl w-full max-w-3xl max-h-[95vh] flex flex-col"
+      >
+        <div
+          class="p-4 sm:p-5 border-b border-slate-100 flex justify-between items-center bg-white rounded-t-2xl"
+        >
+          <div>
+            <h3
+              class="text-base sm:text-lg font-bold text-slate-800"
+              id="modal-title"
+            >
+              จัดการข้อมูลการปฏิบัติงาน
+            </h3>
+            <p class="text-xs text-emerald-600 font-medium">
+              ข้อมูลจะบันทึกซิงค์ขึ้น Cloud ทันที
+            </p>
+          </div>
+          <button
+            onclick="closeTaskModal()"
+            class="text-slate-400 hover:text-slate-600"
+          >
+            <i data-lucide="x" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+          </button>
+        </div>
+
+        <form
+          id="task-form"
+          onsubmit="saveTask(event)"
+          class="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1 text-xs sm:text-sm"
+        >
+          <input type="hidden" id="task-id" />
+
+          <!-- Dynamic Mission Selector -->
+          <div
+            class="bg-slate-900 text-white p-3 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+          >
+            <span class="font-bold flex items-center gap-1.5"
+              ><i data-lucide="layers" class="w-4 h-4 text-emerald-400"></i>
+              เลือกประเภทงาน/ภารกิจ MPP *</span
+            >
+            <select
+              id="task-mission-type"
+              onchange="toggleMissionFields()"
+              class="p-2 rounded-lg bg-slate-800 text-white font-bold border border-slate-700 focus:outline-none text-xs sm:text-sm cursor-pointer"
+            >
+              <option value="MISSION_4">ภารกิจ 4 สนับสนุน ศอ.บต.</option>
+              <option value="MISSION_5">ภารกิจ 5 จิตอาสา</option>
+              <option value="SELF_DEV">การพัฒนาตนเอง</option>
+            </select>
+          </div>
+
+          <!-- 1. ระดับงาน -->
+          <div
+            class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2"
+          >
+            <label class="block font-bold text-slate-700"
+              >ระดับงาน (สำหรับ Personal Planner) *</label
+            >
+            <select
+              id="task-level"
+              class="w-full p-2 border border-slate-300 rounded-lg bg-white"
+              required
+            >
+              <option value="DISTRICT">🏢 งานระดับอำเภอ</option>
+              <option value="SUB_DISTRICT">🏘️ งานระดับตำบล</option>
+              <option value="VILLAGE">🏠 งานระดับหมู่บ้าน</option>
+            </select>
+          </div>
+
+          <!-- 2. ข้อมูลเวลาและปีงบประมาณ -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1"
+                >ปีงบประมาณ *</label
+              >
+              <select
+                id="task-fiscal-year"
+                class="w-full p-2 border border-slate-300 rounded-lg"
+                required
+              >
+                <option value="2569">2569</option>
+                <option value="2568">2568</option>
+                <option value="2570">2570</option>
+              </select>
+            </div>
+
+            <!-- Date Single (Mission 4/5) -->
+            <div id="date-single-container">
+              <label class="block font-semibold text-slate-700 mb-1"
+                >วันที่ปฏิบัติงาน *</label
+              >
+              <input
+                type="date"
+                id="task-date"
+                class="w-full p-2 border border-slate-300 rounded-lg"
+              />
+            </div>
+          </div>
+
+          <!-- Date Range (Self-Dev) -->
+          <div
+            id="date-range-container"
+            class="hidden grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 bg-amber-50/50 p-3 rounded-xl border border-amber-200"
+          >
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1"
+                >วันที่เริ่ม *</label
+              >
+              <input
+                type="date"
+                id="task-date-start"
+                class="w-full p-2 border border-slate-300 rounded-lg"
+              />
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1"
+                >วันที่สิ้นสุด *</label
+              >
+              <input
+                type="date"
+                id="task-date-end"
+                class="w-full p-2 border border-slate-300 rounded-lg"
+              />
+            </div>
+          </div>
+
+          <!-- ช่วงเวลา Dropdown + เวลามา/เวลากลับ -->
+          <div
+            class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 bg-blue-50/50 p-3 rounded-xl border border-blue-100"
+          >
+            <div>
+              <label class="block font-semibold text-blue-900 mb-1"
+                >ช่วงเวลา (เลือกเร็ว)</label
+              >
+              <select
+                id="task-slot"
+                class="w-full p-2 border border-blue-300 rounded-lg bg-white"
+                onchange="updateTimeInputs()"
+                required
+              >
+                <option value="MORNING">เช้า (08:30–12:00)</option>
+                <option value="AFTERNOON">บ่าย (13:00–16:30)</option>
+                <option value="FULL_DAY">ทั้งวัน (08:30–16:30)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1"
+                >เวลามา *</label
+              >
+              <input
+                type="text"
+                id="task-time-start"
+                value="08:30"
+                class="w-full p-2 border border-slate-300 rounded-lg"
+                required
+              />
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1"
+                >เวลากลับ *</label
+              >
+              <input
+                type="text"
+                id="task-time-end"
+                value="16:30"
+                class="w-full p-2 border border-slate-300 rounded-lg"
+                required
+              />
+            </div>
+          </div>
+
+          <!-- 3. สถานที่ปฏิบัติงานจริง -->
+          <div
+            id="field-address-container"
+            class="space-y-2 pt-2 border-t border-slate-100"
+          >
+            <div class="font-bold text-slate-800 flex items-center gap-1.5">
+              <i data-lucide="map-pin" class="w-4 h-4 text-red-500"></i>
+              สถานที่ปฏิบัติงานจริง
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1"
+                  >จังหวัด *</label
+                >
+                <input
+                  type="text"
+                  id="task-province"
+                  value="ตรัง"
+                  class="w-full p-2 border border-slate-300 rounded-lg"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1"
+                  >อำเภอ *</label
+                >
+                <input
+                  type="text"
+                  id="task-district"
+                  value="เมืองตรัง"
+                  class="w-full p-2 border border-slate-300 rounded-lg"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1"
+                  >ตำบล *</label
+                >
+                <input
+                  type="text"
+                  id="task-subdistrict"
+                  placeholder="ต.ทับเที่ยง"
+                  class="w-full p-2 border border-slate-300 rounded-lg"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1"
+                  >หมู่บ้าน *</label
+                >
+                <input
+                  type="text"
+                  id="task-village"
+                  placeholder="หมู่ที่ 1"
+                  class="w-full p-2 border border-slate-300 rounded-lg"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Dynamic Section: DETAILS -->
+          <div class="space-y-3 pt-2 border-t border-slate-100">
+            <div
+              id="mission-header"
+              class="p-2 bg-emerald-50 text-emerald-800 font-bold rounded-lg border border-emerald-200"
+            >
+              รายละเอียดภารกิจ
+            </div>
+
+            <div id="field-volunteer-type-container" class="hidden">
+              <label class="block font-semibold text-slate-700 mb-1"
+                >ประเภทจิตอาสา *</label
+              >
+              <select
+                id="task-volunteer-type"
+                class="w-full p-2 border border-slate-300 rounded-lg"
+              >
+                <option value="จิตอาสาพัฒนา">จิตอาสาพัฒนา</option>
+                <option value="จิตอาสาภัยพิบัติ">จิตอาสาภัยพิบัติ</option>
+                <option value="จิตอาสาเฉพาะกิจ">จิตอาสาเฉพาะกิจ</option>
+                <option value="จิตอาสาอื่นๆ">จิตอาสาอื่นๆ</option>
+              </select>
+            </div>
+
+            <div id="field-dev-type-container" class="hidden">
+              <label class="block font-semibold text-slate-700 mb-1"
+                >ประเภทการพัฒนา *</label
+              >
+              <select
+                id="task-dev-type"
+                class="w-full p-2 border border-slate-300 rounded-lg"
+              >
+                <option value="อบรม">อบรม</option>
+                <option value="สัมมนา">สัมมนา</option>
+                <option value="ศึกษาดูงาน">ศึกษาดูงาน</option>
+                <option value="ออนไลน์">ออนไลน์</option>
+              </select>
+            </div>
+
+            <div
+              id="field-org-category-container"
+              class="space-y-3 bg-slate-50 p-3 rounded-xl border border-slate-200"
+            >
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1"
+                  >ประเภทหน่วยงาน *</label
+                >
+                <select
+                  id="task-org-category"
+                  onchange="toggleOrgSubFields()"
+                  class="w-full p-2 border border-slate-300 rounded-lg bg-white"
+                >
+                  <option value="INTERNAL">หน่วยงานภายใน ศอ.บต.</option>
+                  <option value="EXTERNAL">หน่วยงานภายนอก</option>
+                </select>
+              </div>
+
+              <div id="org-internal-wrap">
+                <label class="block font-semibold text-slate-700 mb-1"
+                  >หน่วยงานภายใน ศอ.บต. *</label
+                >
+                <select
+                  id="task-org-internal"
+                  class="w-full p-2 border border-slate-300 rounded-lg bg-white"
+                >
+                  <option value="สลธ.">สลธ. (สำนักงานเลขาธิการ)</option>
+                  <option value="กบย.">
+                    กบย. (กองบริหารยุทธศาสตร์การพัฒนาจังหวัดชายแดนภาคใต้)
+                  </option>
+                  <option value="กสพ.">
+                    กสพ. (กองส่งเสริมและสนับสนุนงานพัฒนาฝ่ายพลเรือน)
+                  </option>
+                  <option value="กสม.">
+                    กสม. (กองส่งเสริมและสนับสนุนงานพัฒนาเพื่อความมั่นคง)
+                  </option>
+                  <option value="กปพ.">
+                    กปพ. (กองประสานงานโครงการอันเนื่องมาจากพระราชดำริฯ)
+                  </option>
+                  <option value="กปค.">
+                    กปค. (กองพัฒนาสังคมเพื่อความมั่นคง)
+                  </option>
+                  <option value="คปท.">
+                    คปท. (ศูนย์ประสานงานและบริหารการศึกษาจังหวัดชายแดนภาคใต้)
+                  </option>
+                  <option value="กตส.">กตส. (กลุ่มตรวจสอบภายใน)</option>
+                  <option value="กพร.">กพร. (กลุ่มพัฒนาระบบบริหาร)</option>
+                  <option value="กปร.">กปร. (กลุ่มงานประสานราชการ)</option>
+                </select>
+              </div>
+
+              <div id="org-external-wrap" class="hidden space-y-3">
+                <div>
+                  <label class="block font-semibold text-slate-700 mb-1"
+                    >หน่วยงานภายนอก (กระทรวง) *</label
+                  >
+                  <select
+                    id="task-org-external"
+                    class="w-full p-2 border border-slate-300 rounded-lg bg-white"
+                  >
+                    <option value="สำนักนายกรัฐมนตรี">สำนักนายกรัฐมนตรี</option>
+                    <option value="กระทรวงกลาโหม">กระทรวงกลาโหม</option>
+                    <option value="กระทรวงการคลัง">กระทรวงการคลัง</option>
+                    <option value="กระทรวงมหาดไทย">กระทรวงมหาดไทย</option>
+                    <option value="กระทรวงศึกษาธิการ">กระทรวงศึกษาธิการ</option>
+                    <option value="กระทรวงสาธารณสุข">กระทรวงสาธารณสุข</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block font-semibold text-slate-700 mb-1"
+                    >หน่วยงานในพื้นที่ *</label
+                  >
+                  <input
+                    type="text"
+                    id="task-org-local"
+                    class="w-full p-2 border border-slate-300 rounded-lg bg-white"
+                    placeholder="เช่น อบต.ทับเที่ยง"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div id="field-dev-organizer-container" class="hidden">
+              <label class="block font-semibold text-slate-700 mb-1"
+                >หน่วยงานที่จัด *</label
+              >
+              <input
+                type="text"
+                id="task-organizer"
+                class="w-full p-2 border border-slate-300 rounded-lg"
+                placeholder="--หน่วยงานที่จัด--"
+              />
+            </div>
+
+            <div>
+              <label
+                class="block font-semibold text-slate-700 mb-1"
+                id="lbl-project"
+                >ชื่อโครงการ/กิจกรรม *</label
+              >
+              <input
+                type="text"
+                id="task-project"
+                class="w-full p-2 border border-slate-300 rounded-lg"
+                required
+              />
+            </div>
+
+            <div id="field-objective-container">
+              <label
+                class="block font-semibold text-slate-700 mb-1"
+                id="lbl-objective"
+                >วัตถุประสงค์ของโครงการ/กิจกรรม *</label
+              >
+              <textarea
+                id="task-objective"
+                rows="2"
+                class="w-full p-2 border border-slate-300 rounded-lg"
+              ></textarea>
+            </div>
+
+            <div id="field-location-container" class="hidden">
+              <label class="block font-semibold text-slate-700 mb-1"
+                >สถานที่ *</label
+              >
+              <input
+                type="text"
+                id="task-location"
+                class="w-full p-2 border border-slate-300 rounded-lg"
+                placeholder="เช่น ศาลาประชาคม โรงแรม..."
+              />
+            </div>
+
+            <div id="field-mission-container">
+              <label class="block font-semibold text-slate-700 mb-1"
+                >ภารกิจของบัณฑิตอาสา *</label
+              >
+              <textarea
+                id="task-mission"
+                rows="2"
+                class="w-full p-2 border border-slate-300 rounded-lg"
+              ></textarea>
+            </div>
+
+            <div id="field-benefit-container" class="hidden">
+              <label class="block font-semibold text-slate-700 mb-1"
+                >ประโยชน์ที่ได้รับ *</label
+              >
+              <textarea
+                id="task-benefit"
+                rows="2"
+                class="w-full p-2 border border-slate-300 rounded-lg"
+              ></textarea>
+            </div>
+
+            <div id="field-result-container">
+              <label
+                class="block font-semibold text-slate-700 mb-1"
+                id="lbl-result"
+                >ผลการดำเนินงานของกิจกรรม *</label
+              >
+              <textarea
+                id="task-result"
+                rows="2"
+                class="w-full p-2 border border-slate-300 rounded-lg"
+              ></textarea>
+            </div>
+
+            <div id="field-link-container" class="hidden">
+              <label class="block font-semibold text-slate-700 mb-1"
+                >แนบลิงก์ประมวลกิจกรรม (URL)</label
+              >
+              <input
+                type="url"
+                id="task-link"
+                class="w-full p-2 border border-slate-300 rounded-lg"
+              />
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div id="field-participants-container">
+                <label class="block font-semibold text-slate-700 mb-1"
+                  >จำนวนผู้เข้าร่วมกิจกรรม *</label
+                >
+                <input
+                  type="number"
+                  id="task-participants"
+                  value="0"
+                  class="w-full p-2 border border-slate-300 rounded-lg"
+                />
+              </div>
+            </div>
+
+            <!-- IMAGE ATTACHMENT SECTION -->
+            <div class="space-y-2 pt-2 border-t border-slate-100">
+              <div class="flex justify-between items-center">
+                <label class="block font-bold text-slate-800"
+                  >📸 แนบรูปภาพกิจกรรม/เกียรติบัตร (สูงสุด 2 รูป)</label
+                >
+                <span
+                  class="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded font-semibold"
+                  >Auto 1080p Cloud Sync</span
+                >
+              </div>
+              <input
+                type="file"
+                id="image-input"
+                accept="image/*"
+                multiple
+                onchange="handleImageUpload(event)"
+                class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
+              />
+              <div
+                id="image-preview-container"
+                class="grid grid-cols-2 gap-3 pt-2"
+              ></div>
+            </div>
+          </div>
+
+          <!-- 5. ผู้รับรองการปฏิบัติงาน -->
+          <div class="space-y-2 pt-2 border-t border-slate-100">
+            <div class="font-bold text-slate-800">ผู้รับรองการปฏิบัติงาน</div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1"
+                  >ชื่อ-นามสกุลผู้รับรอง *</label
+                >
+                <input
+                  type="text"
+                  id="task-approver-name"
+                  class="w-full p-2 border border-slate-300 rounded-lg"
+                  placeholder="--ชื่อ-นามสกุลผู้รับรอง--"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1"
+                  >ตำแหน่งผู้รับรอง *</label
+                >
+                <input
+                  type="text"
+                  id="task-approver-pos"
+                  class="w-full p-2 border border-slate-300 rounded-lg"
+                  placeholder="--ตำแหน่งผู้รับรอง--"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="pt-4 flex justify-between gap-3 border-t border-slate-100"
+          >
+            <button
+              type="button"
+              onclick="deleteTask()"
+              id="btn-delete"
+              class="bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2 rounded-lg font-medium transition hidden"
+            >
+              ลบงานนี้
+            </button>
+            <div class="flex gap-2 ml-auto">
+              <button
+                type="button"
+                onclick="closeTaskModal()"
+                class="bg-slate-100 text-slate-600 hover:bg-slate-200 px-4 py-2 rounded-lg font-medium transition"
+              >
+                ยกเลิก
+              </button>
+              <button
+                type="submit"
+                class="bg-emerald-600 text-white hover:bg-emerald-700 px-6 py-2 rounded-lg font-medium transition flex items-center gap-1.5"
+              >
+                <i data-lucide="save" class="w-4 h-4"></i> บันทึกข้อมูล
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL: HOLIDAY MANAGEMENT -->
+    <div
+      id="holiday-modal"
+      class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex justify-center items-center z-50 p-3 sm:p-4"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-xl w-full max-w-md p-4 sm:p-6 space-y-3 sm:space-y-4"
+      >
+        <div
+          class="flex justify-between items-center border-b border-slate-100 pb-3"
+        >
+          <h3 class="text-base sm:text-lg font-bold text-slate-800">
+            จัดการวันหยุดนักขัตฤกษ์ / พิเศษ
+          </h3>
+          <button
+            onclick="closeHolidayModal()"
+            class="text-slate-400 hover:text-slate-600"
+          >
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1"
+            >เลือกวันที่ต้องการเพิ่มเป็นวันหยุด</label
+          >
+          <input
+            type="date"
+            id="holiday-picker"
+            class="w-full p-2 border border-slate-300 rounded-lg text-xs sm:text-sm"
+          />
+        </div>
+
+        <button
+          onclick="addHolidayFromPicker()"
+          class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-xs sm:text-sm font-medium transition"
+        >
+          บันทึกเป็นวันหยุด
+        </button>
+
+        <div class="border-t border-slate-100 pt-3 space-y-2">
+          <div class="text-xs font-bold text-slate-600">
+            รายการวันหยุดพิเศษที่บันทึกไว้ในเดือนนี้:
+          </div>
+          <div
+            id="holiday-list-items"
+            class="space-y-1.5 max-h-40 overflow-y-auto"
+          ></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC WITH FIREBASE SYNC -->
+    <script>
+      const monthNamesThai = [
+        "มกราคม",
+        "กุมภาพันธ์",
+        "มีนาคม",
+        "เมษายน",
+        "พฤษภาคม",
+        "มิถุนายน",
+        "กรกฎาคม",
+        "สิงหาคม",
+        "กันยายน",
+        "ตุลาคม",
+        "พฤศจิกายน",
+        "ธันวาคม",
+      ];
+      const dayNamesThaiShort = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
+
+      let currentYear = 2026;
+      let currentMonth = 7;
+      let tasks = [];
+      let holidays = [];
+      let tempImages = [];
+
+      // Wait for Firebase to initialize
+      window.addEventListener("load", () => {
+        document.getElementById("select-month").value = currentMonth;
+        document.getElementById("select-year").value = currentYear;
+        lucide.createIcons();
+
+        // Listen to Realtime Database Changes from Firebase
+        if (window.db) {
+          window.fsOnSnapshot(
+            window.fsCollection(window.db, "tasks"),
+            (snapshot) => {
+              tasks = [];
+              snapshot.forEach((doc) => {
+                tasks.push(doc.data());
+              });
+              renderCalendar();
+              if (
+                !document
+                  .getElementById("tab-readiness")
+                  .classList.contains("hidden")
+              ) {
+                renderReadinessList();
+              }
+            },
+          );
+
+          window.fsOnSnapshot(
+            window.fsCollection(window.db, "holidays"),
+            (snapshot) => {
+              holidays = [];
+              snapshot.forEach((doc) => {
+                holidays.push(doc.data().date);
+              });
+              renderCalendar();
+            },
+          );
+        }
+      });
+
+      function formatThaiDate(dateStr) {
+        if (!dateStr) return "";
+        const parts = dateStr.split("-");
+        if (parts.length !== 3) return dateStr;
+        const yearBE = parseInt(parts[0]) + 543;
+        const monthText = monthNamesThai[parseInt(parts[1]) - 1];
+        const dayNum = parseInt(parts[2]);
+        return `${dayNum} ${monthText} ${yearBE}`;
+      }
+
+      async function saveTaskToCloud(taskData) {
+        if (!window.db) return;
+        await window.fsSetDoc(
+          window.fsDoc(window.db, "tasks", taskData.id),
+          taskData,
+        );
+      }
+
+      async function deleteTaskFromCloud(id) {
+        if (!window.db) return;
+        await window.fsDeleteDoc(window.fsDoc(window.db, "tasks", id));
+      }
+
+      async function saveHolidayToCloud(dateStr) {
+        if (!window.db) return;
+        await window.fsSetDoc(window.fsDoc(window.db, "holidays", dateStr), {
+          date: dateStr,
+        });
+      }
+
+      async function deleteHolidayFromCloud(dateStr) {
+        if (!window.db) return;
+        await window.fsDeleteDoc(window.fsDoc(window.db, "holidays", dateStr));
+      }
+
+      function handleImageUpload(e) {
+        const files = Array.from(e.target.files);
+        if (tempImages.length + files.length > 2) {
+          alert("แนบรูปภาพได้สูงสุดเพียง 2 รูปเท่านั้น");
+          return;
+        }
+
+        files.forEach((file) => {
+          const reader = new FileReader();
+          reader.onload = function (event) {
+            const img = new Image();
+            img.onload = function () {
+              const canvas = document.createElement("canvas");
+              let width = img.width;
+              let height = img.height;
+              const maxDimension = 1920;
+
+              if (width > height) {
+                if (width > maxDimension) {
+                  height = Math.round((height * maxDimension) / width);
+                  width = maxDimension;
+                }
+              } else {
+                if (height > maxDimension) {
+                  width = Math.round((width * maxDimension) / height);
+                  height = maxDimension;
+                }
+              }
+
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext("2d");
+              ctx.drawImage(img, 0, 0, width, height);
+
+              const compressedBase64 = canvas.toDataURL("image/jpeg", 0.7);
+              tempImages.push(compressedBase64);
+              renderImagePreviews();
+            };
+            img.src = event.target.result;
+          };
+          reader.readAsDataURL(file);
+        });
+        e.target.value = "";
+      }
+
+      function renderImagePreviews() {
+        const container = document.getElementById("image-preview-container");
+        container.innerHTML = "";
+        tempImages.forEach((imgBase64, index) => {
+          container.innerHTML += `
+                    <div class="relative group border rounded-xl overflow-hidden bg-slate-100 aspect-video flex items-center justify-center">
+                        <img src="${imgBase64}" class="object-cover w-full h-full">
+                        <button type="button" onclick="removeTempImage(${index})" class="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 shadow hover:bg-red-700 transition">
+                            <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                `;
+        });
+        lucide.createIcons();
+      }
+
+      function removeTempImage(index) {
+        tempImages.splice(index, 1);
+        renderImagePreviews();
+      }
+
+      function showToast(msg) {
+        const toast = document.getElementById("toast");
+        document.getElementById("toast-message").innerText = msg;
+        toast.classList.remove("opacity-0", "pointer-events-none");
+        setTimeout(() => {
+          toast.classList.add("opacity-0", "pointer-events-none");
+        }, 2000);
+      }
+
+      function copyField(text, fieldName) {
+        if (!text) {
+          alert(`ไม่มีข้อมูลในช่อง ${fieldName}`);
+          return;
+        }
+        navigator.clipboard.writeText(text).then(() => {
+          showToast(`คัดลอก "${fieldName}" แล้ว`);
+        });
+      }
+
+      function onMonthYearChange() {
+        currentMonth = parseInt(document.getElementById("select-month").value);
+        currentYear = parseInt(document.getElementById("select-year").value);
+        renderCalendar();
+      }
+
+      function changeMonth(delta) {
+        currentMonth += delta;
+        if (currentMonth > 11) {
+          currentMonth = 0;
+          currentYear++;
+        } else if (currentMonth < 0) {
+          currentMonth = 11;
+          currentYear--;
+        }
+        document.getElementById("select-month").value = currentMonth;
+        document.getElementById("select-year").value = currentYear;
+        renderCalendar();
+      }
+
+      function switchTab(tab) {
+        document
+          .querySelectorAll(".nav-btn")
+          .forEach((btn) => btn.classList.remove("bg-slate-700", "text-white"));
+        if (tab === "dashboard") {
+          document.getElementById("tab-dashboard").classList.remove("hidden");
+          document.getElementById("tab-readiness").classList.add("hidden");
+          document
+            .getElementById("btn-dashboard")
+            .classList.add("bg-slate-700");
+          renderCalendar();
+        } else {
+          document.getElementById("tab-dashboard").classList.add("hidden");
+          document.getElementById("tab-readiness").classList.remove("hidden");
+          document
+            .getElementById("btn-readiness")
+            .classList.add("bg-slate-700");
+          renderReadinessList();
+        }
+      }
+
+      function toggleOrgSubFields() {
+        const category = document.getElementById("task-org-category").value;
+        const internalWrap = document.getElementById("org-internal-wrap");
+        const externalWrap = document.getElementById("org-external-wrap");
+
+        if (category === "INTERNAL") {
+          internalWrap.classList.remove("hidden");
+          externalWrap.classList.add("hidden");
+        } else {
+          internalWrap.classList.add("hidden");
+          externalWrap.classList.remove("hidden");
+        }
+      }
+
+      function toggleMissionFields() {
+        const type = document.getElementById("task-mission-type").value;
+        const header = document.getElementById("mission-header");
+
+        const volType = document.getElementById(
+          "field-volunteer-type-container",
+        );
+        const devType = document.getElementById("field-dev-type-container");
+        const location = document.getElementById("field-location-container");
+        const mission = document.getElementById("field-mission-container");
+        const benefit = document.getElementById("field-benefit-container");
+        const result = document.getElementById("field-result-container");
+        const link = document.getElementById("field-link-container");
+        const partContainer = document.getElementById(
+          "field-participants-container",
+        );
+        const addressContainer = document.getElementById(
+          "field-address-container",
+        );
+
+        const dateSingle = document.getElementById("date-single-container");
+        const dateRange = document.getElementById("date-range-container");
+
+        const orgCategoryContainer = document.getElementById(
+          "field-org-category-container",
+        );
+        const devOrganizerContainer = document.getElementById(
+          "field-dev-organizer-container",
+        );
+        const objectiveContainer = document.getElementById(
+          "field-objective-container",
+        );
+
+        if (type === "SELF_DEV") {
+          header.innerText = "รายละเอียดการพัฒนาตนเอง";
+          header.className =
+            "p-2 bg-amber-50 text-amber-800 font-bold rounded-lg border border-amber-200";
+          devType.classList.remove("hidden");
+          location.classList.remove("hidden");
+          benefit.classList.remove("hidden");
+          dateRange.classList.remove("hidden");
+          devOrganizerContainer.classList.remove("hidden");
+
+          objectiveContainer.classList.add("hidden");
+          volType.classList.add("hidden");
+          mission.classList.add("hidden");
+          result.classList.add("hidden");
+          link.classList.add("hidden");
+          partContainer.classList.add("hidden");
+          addressContainer.classList.add("hidden");
+          dateSingle.classList.add("hidden");
+          orgCategoryContainer.classList.add("hidden");
+
+          document.getElementById("lbl-project").innerText =
+            "ชื่อหลักสูตร/กิจกรรม *";
+        } else if (type === "MISSION_5") {
+          header.innerText = "รายละเอียดภารกิจ: จิตอาสา";
+          header.className =
+            "p-2 bg-blue-50 text-blue-800 font-bold rounded-lg border border-blue-200";
+          objectiveContainer.classList.remove("hidden");
+          volType.classList.remove("hidden");
+          location.classList.remove("hidden");
+          link.classList.remove("hidden");
+          result.classList.remove("hidden");
+          dateSingle.classList.remove("hidden");
+          addressContainer.classList.remove("hidden");
+          orgCategoryContainer.classList.remove("hidden");
+
+          devType.classList.add("hidden");
+          mission.classList.add("hidden");
+          benefit.classList.add("hidden");
+          partContainer.classList.add("hidden");
+          dateRange.classList.add("hidden");
+          devOrganizerContainer.classList.add("hidden");
+
+          document.getElementById("lbl-project").innerText = "ชื่อกิจกรรม *";
+          document.getElementById("lbl-objective").innerText =
+            "วัตถุประสงค์กิจกรรม *";
+          document.getElementById("lbl-result").innerText =
+            "ผลการดำเนินงานของกิจกรรม *";
+          toggleOrgSubFields();
+        } else {
+          header.innerText = "รายละเอียดภารกิจ: สนับสนุน ศอ.บต.";
+          header.className =
+            "p-2 bg-emerald-50 text-emerald-800 font-bold rounded-lg border border-emerald-200";
+          objectiveContainer.classList.remove("hidden");
+          mission.classList.remove("hidden");
+          result.classList.remove("hidden");
+          partContainer.classList.remove("hidden");
+          dateSingle.classList.remove("hidden");
+          addressContainer.classList.remove("hidden");
+          orgCategoryContainer.classList.remove("hidden");
+
+          volType.classList.add("hidden");
+          devType.classList.add("hidden");
+          location.classList.add("hidden");
+          benefit.classList.add("hidden");
+          link.classList.add("hidden");
+          dateRange.classList.add("hidden");
+          devOrganizerContainer.classList.add("hidden");
+
+          document.getElementById("lbl-project").innerText =
+            "ชื่อโครงการ/กิจกรรม *";
+          document.getElementById("lbl-objective").innerText =
+            "วัตถุประสงค์ของโครงการ/กิจกรรม *";
+          document.getElementById("lbl-result").innerText =
+            "ผลการดำเนินงานของกิจกรรม *";
+          toggleOrgSubFields();
+        }
+      }
+
+      function renderCalendar() {
+        const gridDesktop = document.getElementById("calendar-grid-desktop");
+        const listMobile = document.getElementById("calendar-list-mobile");
+
+        gridDesktop.innerHTML = "";
+        listMobile.innerHTML = "";
+
+        const firstDay = new Date(currentYear, currentMonth, 1);
+        const startDayOffset = firstDay.getDay();
+        const totalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+        for (let i = 0; i < startDayOffset; i++) {
+          gridDesktop.innerHTML += `<div class="bg-slate-50 border border-slate-100 min-h-[120px]"></div>`;
+        }
+
+        let weekendCount = 0;
+
+        for (let day = 1; day <= totalDays; day++) {
+          const dateObj = new Date(currentYear, currentMonth, day);
+          const dayOfWeek = dateObj.getDay();
+          const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+          const monthStr = (currentMonth + 1).toString().padStart(2, "0");
+          const dayStr = day.toString().padStart(2, "0");
+          const dateStr = `${currentYear}-${monthStr}-${dayStr}`;
+
+          const isStatutoryHoliday = holidays.includes(dateStr);
+          if (isWeekend || isStatutoryHoliday) weekendCount++;
+
+          const dayTasks = tasks.filter(
+            (t) =>
+              t.date === dateStr ||
+              (t.dateStart && t.dateStart <= dateStr && t.dateEnd >= dateStr),
+          );
+          const morningTasks = dayTasks.filter(
+            (t) => t.slot === "MORNING" || t.slot === "FULL_DAY",
+          );
+          const afternoonTasks = dayTasks.filter(
+            (t) => t.slot === "AFTERNOON" || t.slot === "FULL_DAY",
+          );
+
+          let desktopHtml = `
+                    <div class="bg-white p-1.5 border border-slate-100 min-h-[130px] flex flex-col justify-between ${isWeekend || isStatutoryHoliday ? "bg-slate-100/70" : ""}">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs font-bold ${isWeekend || isStatutoryHoliday ? "text-red-500" : "text-slate-700"}">${day}</span>
+                            ${isStatutoryHoliday ? `<button onclick="removeHoliday('${dateStr}')" class="text-[9px] bg-red-100 text-red-600 px-1 rounded font-medium">หยุด ✕</button>` : ""}
+                            ${isWeekend && !isStatutoryHoliday ? '<span class="text-[9px] bg-slate-200 text-slate-600 px-1 rounded">เสาร์-อาทิตย์</span>' : ""}
+                        </div>
+                `;
+
+          if ((isWeekend || isStatutoryHoliday) && dayTasks.length === 0) {
+            desktopHtml += `
+                        <div onclick="openTaskModal(null, '${dateStr}', 'MORNING')" class="flex-1 bg-slate-200/50 hover:bg-slate-200/80 rounded flex flex-col items-center justify-center text-xs text-slate-400 font-medium cursor-pointer transition">
+                            <span>🛑 วันหยุด</span>
+                        </div>
+                    `;
+          } else {
+            desktopHtml += `<div class="space-y-1 flex-1 flex flex-col">`;
+            if (morningTasks.length > 0) {
+              desktopHtml += renderDesktopTaskBadge(morningTasks[0], "เช้า");
+            } else {
+              desktopHtml += renderDesktopEmptySlot(dateStr, "MORNING", "เช้า");
+            }
+
+            if (
+              morningTasks.length > 0 &&
+              morningTasks[0].slot === "FULL_DAY"
+            ) {
+              // Covered
+            } else if (afternoonTasks.length > 0) {
+              desktopHtml += renderDesktopTaskBadge(afternoonTasks[0], "บ่าย");
+            } else {
+              desktopHtml += renderDesktopEmptySlot(
+                dateStr,
+                "AFTERNOON",
+                "บ่าย",
+              );
+            }
+            desktopHtml += `</div>`;
+          }
+          desktopHtml += `</div>`;
+          gridDesktop.innerHTML += desktopHtml;
+
+          let mobileCardHtml = `
+                    <div class="border border-slate-200 rounded-xl p-3 ${isWeekend || isStatutoryHoliday ? "bg-slate-50/80" : "bg-white"} space-y-2">
+                        <div class="flex justify-between items-center border-b border-slate-100 pb-1.5">
+                            <span class="font-bold text-sm ${isWeekend || isStatutoryHoliday ? "text-red-600" : "text-slate-800"}">${day} ${monthNamesThai[currentMonth]}</span>
+                        </div>
+                `;
+
+          if ((isWeekend || isStatutoryHoliday) && dayTasks.length === 0) {
+            mobileCardHtml += `<div onclick="openTaskModal(null, '${dateStr}', 'MORNING')" class="py-2 text-center text-xs text-slate-400 bg-slate-100/60 rounded-lg cursor-pointer">🛑 วันหยุดพักผ่อน</div>`;
+          } else {
+            mobileCardHtml += `<div class="space-y-1.5">`;
+            if (morningTasks.length > 0) {
+              mobileCardHtml += renderMobileTaskRow(
+                morningTasks[0],
+                "เช้า (08:30–12:00)",
+              );
+            } else {
+              mobileCardHtml += renderMobileEmptyRow(
+                dateStr,
+                "MORNING",
+                "เช้า (08:30–12:00)",
+              );
+            }
+
+            if (
+              morningTasks.length > 0 &&
+              morningTasks[0].slot === "FULL_DAY"
+            ) {
+              // Covered
+            } else if (afternoonTasks.length > 0) {
+              mobileCardHtml += renderMobileTaskRow(
+                afternoonTasks[0],
+                "บ่าย (13:00–16:30)",
+              );
+            } else {
+              mobileCardHtml += renderMobileEmptyRow(
+                dateStr,
+                "AFTERNOON",
+                "บ่าย (13:00–16:30)",
+              );
+            }
+            mobileCardHtml += `</div>`;
+          }
+
+          mobileCardHtml += `</div>`;
+          listMobile.innerHTML += mobileCardHtml;
+        }
+
+        updateStats(totalDays, weekendCount);
+        lucide.createIcons();
+      }
+
+      function renderDesktopTaskBadge(task, slotLabel) {
+        const levelColors = {
+          DISTRICT: "bg-red-50 border-red-200 text-red-700",
+          SUB_DISTRICT: "bg-blue-50 border-blue-200 text-blue-700",
+          VILLAGE: "bg-emerald-50 border-emerald-200 text-emerald-700",
+        };
+        const missionLabels = {
+          MISSION_4: "🏢",
+          MISSION_5: "🤝",
+          SELF_DEV: "🎓",
+        };
+        const hasImages = task.images && task.images.length > 0;
+
+        return `
+                <div onclick="openTaskModal('${task.id}')" class="cursor-pointer border text-[11px] p-1 rounded transition flex-1 flex flex-col justify-between ${levelColors[task.level]}">
+                    <div class="font-bold truncate">${missionLabels[task.missionType]} ${task.project}</div>
+                    <div class="text-[9px] opacity-75 flex justify-between items-center mt-1">
+                        <span>${task.slot === "FULL_DAY" ? "ทั้งวัน" : slotLabel} ${hasImages ? "📷" : ""}</span>
+                    </div>
+                </div>
+            `;
+      }
+
+      function renderDesktopEmptySlot(dateStr, slot, slotLabel) {
+        return `
+                <div onclick="openTaskModal(null, '${dateStr}', '${slot}')" class="border border-dashed border-slate-200 rounded p-1 text-[10px] text-slate-400 hover:border-emerald-400 cursor-pointer text-center flex-1 flex items-center justify-center">
+                    <span>🟢 ${slotLabel} ว่าง</span>
+                </div>
+            `;
+      }
+
+      function renderMobileTaskRow(task, slotTimeText) {
+        const levelColors = {
+          DISTRICT: "bg-red-50 border-red-200 text-red-700",
+          SUB_DISTRICT: "bg-blue-50 border-blue-200 text-blue-700",
+          VILLAGE: "bg-emerald-50 border-emerald-200 text-emerald-700",
+        };
+        const missionLabels = {
+          MISSION_4: "🏢 [ภารกิจ 4]",
+          MISSION_5: "🤝 [ภารกิจ 5]",
+          SELF_DEV: "🎓 [พัฒนาตน]",
+        };
+        const hasImages = task.images && task.images.length > 0;
+
+        return `
+                <div onclick="openTaskModal('${task.id}')" class="p-2 rounded-lg border flex items-center justify-between cursor-pointer ${levelColors[task.level]}">
+                    <div class="overflow-hidden pr-2">
+                        <div class="text-[10px] opacity-75">${slotTimeText} ${hasImages ? "📷" : ""}</div>
+                        <div class="text-xs font-bold truncate">${missionLabels[task.missionType]} ${task.project}</div>
+                    </div>
+                </div>
+            `;
+      }
+
+      function renderMobileEmptyRow(dateStr, slot, slotTimeText) {
+        return `
+                <div onclick="openTaskModal(null, '${dateStr}', '${slot}')" class="p-2 rounded-lg border border-dashed text-slate-400 flex items-center justify-between cursor-pointer">
+                    <span class="text-xs">🟢 ${slotTimeText}</span>
+                    <span class="text-[11px] text-emerald-600">+ เพิ่มงาน</span>
+                </div>
+            `;
+      }
+
+      function updateStats(totalDaysInMonth, weekendCount) {
+        const currentMonthPrefix = `${currentYear}-${(currentMonth + 1).toString().padStart(2, "0")}`;
+        const monthTasks = tasks.filter(
+          (t) =>
+            (t.date && t.date.startsWith(currentMonthPrefix)) ||
+            (t.dateStart && t.dateStart.startsWith(currentMonthPrefix)),
+        );
+
+        document.getElementById("stat-district").innerText = monthTasks.filter(
+          (t) => t.level === "DISTRICT",
+        ).length;
+        document.getElementById("stat-subdistrict").innerText =
+          monthTasks.filter((t) => t.level === "SUB_DISTRICT").length;
+        document.getElementById("stat-village").innerText = monthTasks.filter(
+          (t) => t.level === "VILLAGE",
+        ).length;
+        document.getElementById("stat-holiday").innerText = weekendCount;
+
+        let takenSlots = 0;
+        monthTasks.forEach(
+          (t) => (takenSlots += t.slot === "FULL_DAY" ? 2 : 1),
+        );
+        const totalWorkSlots = (totalDaysInMonth - weekendCount) * 2;
+        document.getElementById("stat-empty").innerText = Math.max(
+          0,
+          totalWorkSlots - takenSlots,
+        );
+
+        const incomplete = monthTasks.filter(
+          (t) =>
+            !t.project ||
+            (t.missionType !== "SELF_DEV" && !t.objective) ||
+            (!t.result && !t.benefit) ||
+            !t.approverName,
+        ).length;
+        document.getElementById("stat-incomplete").innerText = incomplete;
+      }
+
+      function openTaskModal(taskId = null, date = null, slot = "MORNING") {
+        document.getElementById("task-form").reset();
+        document.getElementById("btn-delete").classList.add("hidden");
+        tempImages = [];
+
+        if (taskId) {
+          const task = tasks.find((t) => t.id === taskId);
+          document.getElementById("modal-title").innerText =
+            "แก้ไขข้อมูลการปฏิบัติงาน";
+          document.getElementById("task-id").value = task.id;
+          document.getElementById("task-mission-type").value =
+            task.missionType || "MISSION_4";
+          document.getElementById("task-level").value =
+            task.level || "DISTRICT";
+          document.getElementById("task-fiscal-year").value =
+            task.fiscalYear || "2569";
+          document.getElementById("task-date").value =
+            task.date || task.dateStart || "";
+          document.getElementById("task-date-start").value =
+            task.dateStart || task.date || "";
+          document.getElementById("task-date-end").value =
+            task.dateEnd || task.date || "";
+          document.getElementById("task-slot").value = task.slot || "MORNING";
+          document.getElementById("task-time-start").value =
+            task.timeStart || "08:30";
+          document.getElementById("task-time-end").value =
+            task.timeEnd || "16:30";
+          document.getElementById("task-province").value =
+            task.province || "ตรัง";
+          document.getElementById("task-district").value =
+            task.district || "เมืองตรัง";
+          document.getElementById("task-subdistrict").value =
+            task.subdistrict || "";
+          document.getElementById("task-village").value = task.village || "";
+          document.getElementById("task-volunteer-type").value =
+            task.volunteerType || "จิตอาสาพัฒนา";
+          document.getElementById("task-dev-type").value =
+            task.devType || "อบรม";
+
+          document.getElementById("task-org-category").value =
+            task.orgCategory || "INTERNAL";
+          document.getElementById("task-org-internal").value =
+            task.orgInternal || "สลธ.";
+          document.getElementById("task-org-external").value =
+            task.orgExternal || "กระทรวงมหาดไทย";
+          document.getElementById("task-org-local").value = task.orgLocal || "";
+
+          document.getElementById("task-organizer").value =
+            task.organizer || "";
+          document.getElementById("task-project").value = task.project || "";
+          document.getElementById("task-objective").value =
+            task.objective || "";
+          document.getElementById("task-location").value = task.location || "";
+          document.getElementById("task-mission").value = task.mission || "";
+          document.getElementById("task-benefit").value = task.benefit || "";
+          document.getElementById("task-participants").value =
+            task.participants || 0;
+          document.getElementById("task-result").value = task.result || "";
+          document.getElementById("task-link").value = task.link || "";
+          document.getElementById("task-approver-name").value =
+            task.approverName || "";
+          document.getElementById("task-approver-pos").value =
+            task.approverPos || "";
+
+          if (task.images && Array.isArray(task.images)) {
+            tempImages = [...task.images];
+          }
+
+          document.getElementById("btn-delete").classList.remove("hidden");
+        } else {
+          document.getElementById("modal-title").innerText =
+            "เพิ่มข้อมูลการปฏิบัติงาน";
+          document.getElementById("task-id").value = "";
+          document.getElementById("task-mission-type").value = "MISSION_4";
+          if (date) {
+            document.getElementById("task-date").value = date;
+            document.getElementById("task-date-start").value = date;
+            document.getElementById("task-date-end").value = date;
+          }
+          document.getElementById("task-slot").value = slot;
+          updateTimeInputs();
+        }
+
+        renderImagePreviews();
+        toggleMissionFields();
+        document.getElementById("task-modal").classList.remove("hidden");
+      }
+
+      function closeTaskModal() {
+        document.getElementById("task-modal").classList.add("hidden");
+      }
+
+      function updateTimeInputs() {
+        const slot = document.getElementById("task-slot").value;
+        if (slot === "MORNING") {
+          document.getElementById("task-time-start").value = "08:30";
+          document.getElementById("task-time-end").value = "12:00";
+        } else if (slot === "AFTERNOON") {
+          document.getElementById("task-time-start").value = "13:00";
+          document.getElementById("task-time-end").value = "16:30";
+        } else {
+          document.getElementById("task-time-start").value = "08:30";
+          document.getElementById("task-time-end").value = "16:30";
+        }
+      }
+
+      async function saveTask(e) {
+        e.preventDefault();
+        const id =
+          document.getElementById("task-id").value || Date.now().toString();
+        const missionType = document.getElementById("task-mission-type").value;
+
+        let finalDate = document.getElementById("task-date").value;
+        if (missionType === "SELF_DEV") {
+          finalDate = document.getElementById("task-date-start").value;
+        }
+
+        const taskData = {
+          id,
+          missionType,
+          level: document.getElementById("task-level").value,
+          fiscalYear: document.getElementById("task-fiscal-year").value,
+          date: finalDate,
+          dateStart: document.getElementById("task-date-start").value,
+          dateEnd: document.getElementById("task-date-end").value,
+          slot: document.getElementById("task-slot").value,
+          timeStart: document.getElementById("task-time-start").value,
+          timeEnd: document.getElementById("task-time-end").value,
+          province: document.getElementById("task-province").value,
+          district: document.getElementById("task-district").value,
+          subdistrict: document.getElementById("task-subdistrict").value,
+          village: document.getElementById("task-village").value,
+          volunteerType: document.getElementById("task-volunteer-type").value,
+          devType: document.getElementById("task-dev-type").value,
+          orgCategory: document.getElementById("task-org-category").value,
+          orgInternal: document.getElementById("task-org-internal").value,
+          orgExternal: document.getElementById("task-org-external").value,
+          orgLocal: document.getElementById("task-org-local").value,
+          organizer: document.getElementById("task-organizer").value,
+          project: document.getElementById("task-project").value,
+          objective: document.getElementById("task-objective").value,
+          location: document.getElementById("task-location").value,
+          mission: document.getElementById("task-mission").value,
+          benefit: document.getElementById("task-benefit").value,
+          participants: document.getElementById("task-participants").value,
+          result: document.getElementById("task-result").value,
+          link: document.getElementById("task-link").value,
+          approverName: document.getElementById("task-approver-name").value,
+          approverPos: document.getElementById("task-approver-pos").value,
+          images: tempImages,
+        };
+
+        await saveTaskToCloud(taskData);
+        closeTaskModal();
+        showToast("ซิงค์ข้อมูลลง Cloud เรียบร้อยแล้ว");
+      }
+
+      async function deleteTask() {
+        const id = document.getElementById("task-id").value;
+        if (confirm("คุณต้องการลบงานนี้ใช่หรือไม่?")) {
+          await deleteTaskFromCloud(id);
+          closeTaskModal();
+          showToast("ลบรายการงานเรียบร้อยแล้ว");
+        }
+      }
+
+      function openHolidayModal() {
+        const monthStr = (currentMonth + 1).toString().padStart(2, "0");
+        document.getElementById("holiday-picker").value =
+          `${currentYear}-${monthStr}-01`;
+        renderHolidayList();
+        document.getElementById("holiday-modal").classList.remove("hidden");
+      }
+
+      function closeHolidayModal() {
+        document.getElementById("holiday-modal").classList.add("hidden");
+      }
+
+      async function addHolidayFromPicker() {
+        const val = document.getElementById("holiday-picker").value;
+        if (!val) return alert("กรุณาเลือกวันที่ก่อนบันทึก");
+        if (!holidays.includes(val)) {
+          await saveHolidayToCloud(val);
+          renderHolidayList();
+          showToast("เพิ่มวันหยุดเรียบร้อยแล้ว");
+        }
+      }
+
+      async function removeHoliday(dateStr) {
+        if (
+          confirm(
+            `ต้องการยกเลิกวันหยุดวันที่ ${formatThaiDate(dateStr)} ใช่หรือไม่?`,
+          )
+        ) {
+          await deleteHolidayFromCloud(dateStr);
+          renderHolidayList();
+          showToast("ยกเลิกวันหยุดเรียบร้อยแล้ว");
+        }
+      }
+
+      function renderHolidayList() {
+        const container = document.getElementById("holiday-list-items");
+        container.innerHTML = "";
+        const currentMonthPrefix = `${currentYear}-${(currentMonth + 1).toString().padStart(2, "0")}`;
+        const monthHolidays = holidays
+          .filter((h) => h.startsWith(currentMonthPrefix))
+          .sort();
+
+        if (monthHolidays.length === 0) {
+          container.innerHTML = `<div class="text-xs text-slate-400 text-center py-2">ไม่มีวันหยุดนักขัตฤกษ์ในเดือนนี้</div>`;
+          return;
+        }
+
+        monthHolidays.forEach((h) => {
+          container.innerHTML += `
+                    <div class="flex items-center justify-between p-2 rounded bg-slate-50 border text-xs">
+                        <span class="font-medium text-slate-700">🛑 ${formatThaiDate(h)}</span>
+                        <button onclick="removeHoliday('${h}')" class="text-red-600 font-bold px-2 py-0.5 rounded">ลบออก</button>
+                    </div>
+                `;
+        });
+      }
+
+      function toggleTaskAccordion(id) {
+        const content = document.getElementById(`acc-content-${id}`);
+        const icon = document.getElementById(`acc-icon-${id}`);
+        if (content.classList.contains("hidden")) {
+          content.classList.remove("hidden");
+          icon.style.transform = "rotate(180deg)";
+        } else {
+          content.classList.add("hidden");
+          icon.style.transform = "rotate(0deg)";
+        }
+      }
+
+      function renderReadinessList() {
+        const container = document.getElementById("readiness-list");
+        container.innerHTML = "";
+        const currentMonthPrefix = `${currentYear}-${(currentMonth + 1).toString().padStart(2, "0")}`;
+        const monthTasks = tasks
+          .filter(
+            (t) =>
+              (t.date && t.date.startsWith(currentMonthPrefix)) ||
+              (t.dateStart && t.dateStart.startsWith(currentMonthPrefix)),
+          )
+          .sort((a, b) =>
+            (a.date || a.dateStart).localeCompare(b.date || b.dateStart),
+          );
+
+        let readyCount = 0;
+        if (monthTasks.length === 0) {
+          container.innerHTML = `<div class="text-center py-8 text-slate-400">ไม่มีรายการงานในเดือนที่เลือก</div>`;
+        }
+
+        monthTasks.forEach((t) => {
+          const missionType = t.missionType || "MISSION_4";
+          const isReady =
+            t.project &&
+            (t.missionType === "SELF_DEV" || t.objective) &&
+            (t.result || t.benefit) &&
+            t.approverName;
+          if (isReady) readyCount++;
+
+          let fields = [];
+          if (missionType === "SELF_DEV") {
+            fields = [
+              { label: "1. ปีงบประมาณ", value: t.fiscalYear || "2569" },
+              { label: "2. ชื่อหลักสูตร/กิจกรรม", value: t.project },
+              { label: "3. เวลามา", value: t.timeStart },
+              { label: "4. เวลากลับ", value: t.timeEnd },
+              { label: "5. หน่วยงานที่จัด", value: t.organizer },
+              { label: "6. ประเภทการพัฒนา", value: t.devType || "อบรม" },
+              {
+                label: "7. วันที่เริ่ม",
+                value: formatThaiDate(t.dateStart || t.date),
+              },
+              {
+                label: "8. วันที่สิ้นสุด",
+                value: formatThaiDate(t.dateEnd || t.date),
+              },
+              { label: "9. สถานที่", value: t.location },
+              { label: "10. ประโยชน์ที่ได้รับ", value: t.benefit },
+              { label: "11. ชื่อนามสกุลผู้รับรอง", value: t.approverName },
+              { label: "12. ตำแหน่งผู้รับรอง", value: t.approverPos },
+            ];
+          } else if (missionType === "MISSION_5") {
+            const isInternal = t.orgCategory === "INTERNAL";
+            fields = [
+              { label: "1. ปีงบประมาณ", value: t.fiscalYear || "2569" },
+              { label: "2. วันที่ปฏิบัติงาน", value: formatThaiDate(t.date) },
+              { label: "3. เวลามา", value: t.timeStart },
+              { label: "4. เวลากลับ", value: t.timeEnd },
+              { label: "5. จังหวัด", value: t.province || "ตรัง" },
+              { label: "6. อำเภอ", value: t.district || "เมืองตรัง" },
+              { label: "7. ตำบล", value: t.subdistrict },
+              { label: "8. หมู่บ้าน", value: t.village },
+              {
+                label: "9. ประเภทจิตอาสา",
+                value: t.volunteerType || "จิตอาสาพัฒนา",
+              },
+              {
+                label: "10. ประเภทหน่วยงาน",
+                value: isInternal ? "หน่วยงานภายใน ศอ.บต." : "หน่วยงานภายนอก",
+              },
+            ];
+            if (isInternal) {
+              fields.push({
+                label: "11. หน่วยงานภายใน ศอ.บต.",
+                value: t.orgInternal || "สลธ.",
+              });
+            } else {
+              fields.push(
+                {
+                  label: "11. หน่วยงานภายนอก (กระทรวง)",
+                  value: t.orgExternal || "กระทรวงมหาดไทย",
+                },
+                { label: "12. หน่วยงานในพื้นที่", value: t.orgLocal },
+              );
+            }
+            fields.push(
+              {
+                label: `${isInternal ? 12 : 13}. ชื่อกิจกรรม`,
+                value: t.project,
+              },
+              {
+                label: `${isInternal ? 13 : 14}. วัตถุประสงค์กิจกรรม`,
+                value: t.objective,
+              },
+              { label: `${isInternal ? 14 : 15}. สถานที่`, value: t.location },
+              {
+                label: `${isInternal ? 15 : 16}. ผลการดำเนินงานของกิจกรรม`,
+                value: t.result,
+              },
+              {
+                label: `${isInternal ? 16 : 17}. แนบลิงก์ประมวลกิจกรรม`,
+                value: t.link,
+              },
+              {
+                label: `${isInternal ? 17 : 18}. ชื่อนามสกุลผู้รับรอง`,
+                value: t.approverName,
+              },
+              {
+                label: `${isInternal ? 18 : 19}. ตำแหน่งผู้รับรอง`,
+                value: t.approverPos,
+              },
+            );
+          } else {
+            const isInternal = t.orgCategory === "INTERNAL";
+            fields = [
+              { label: "1. ปีงบประมาณ", value: t.fiscalYear || "2569" },
+              { label: "2. วันที่ปฏิบัติงาน", value: formatThaiDate(t.date) },
+              { label: "3. เวลามา", value: t.timeStart },
+              { label: "4. เวลากลับ", value: t.timeEnd },
+              { label: "5. จังหวัด", value: t.province || "ตรัง" },
+              { label: "6. อำเภอ", value: t.district || "เมืองตรัง" },
+              { label: "7. ตำบล", value: t.subdistrict },
+              { label: "8. หมู่บ้าน", value: t.village },
+              {
+                label: "9. ประเภทหน่วยงาน",
+                value: isInternal ? "หน่วยงานภายใน ศอ.บต." : "หน่วยงานภายนอก",
+              },
+            ];
+            if (isInternal) {
+              fields.push({
+                label: "10. หน่วยงานภายใน ศอ.บต.",
+                value: t.orgInternal || "สลธ.",
+              });
+            } else {
+              fields.push(
+                {
+                  label: "10. หน่วยงานภายนอก (กระทรวง)",
+                  value: t.orgExternal || "กระทรวงมหาดไทย",
+                },
+                { label: "11. หน่วยงานในพื้นที่", value: t.orgLocal },
+              );
+            }
+            fields.push(
+              {
+                label: `${isInternal ? 11 : 12}. ชื่อโครงการ/กิจกรรม`,
+                value: t.project,
+              },
+              {
+                label: `${isInternal ? 12 : 13}. วัตถุประสงค์ของโครงการ/กิจกรรม`,
+                value: t.objective,
+              },
+              {
+                label: `${isInternal ? 13 : 14}. ภารกิจของบัณฑิตอาสา`,
+                value: t.mission,
+              },
+              {
+                label: `${isInternal ? 14 : 15}. จำนวนผู้เข้าร่วมกิจกรรม`,
+                value: `${t.participants} คน`,
+              },
+              {
+                label: `${isInternal ? 15 : 16}. ผลการดำเนินงานของกิจกรรม`,
+                value: t.result,
+              },
+              {
+                label: `${isInternal ? 16 : 17}. ชื่อนามสกุลผู้รับรอง`,
+                value: t.approverName,
+              },
+              {
+                label: `${isInternal ? 17 : 18}. ตำแหน่งผู้รับรอง`,
+                value: t.approverPos,
+              },
+            );
+          }
+
+          container.innerHTML += `
+                    <div class="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm">
+                        <div onclick="toggleTaskAccordion('${t.id}')" class="p-3 sm:p-4 bg-slate-50 hover:bg-slate-100 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-2 transition">
+                            <div class="flex items-center gap-2 sm:gap-3 overflow-hidden">
+                                <span class="text-xs font-bold px-2 py-1 rounded bg-blue-100 text-blue-700">${t.missionType}</span>
+                                <span class="text-xs sm:text-sm font-bold text-slate-800">${formatThaiDate(t.date || t.dateStart)}</span>
+                                <span class="text-xs sm:text-sm text-slate-700 font-medium truncate">— ${t.project}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                ${isReady ? '<span class="text-xs bg-emerald-100 text-emerald-700 font-bold px-2.5 py-1 rounded-full">✅ พร้อมลง MPP</span>' : '<span class="text-xs bg-red-100 text-red-700 font-bold px-2.5 py-1 rounded-full">🔴 ข้อมูลไม่ครบ</span>'}
+                                <i data-lucide="chevron-down" id="acc-icon-${t.id}" class="w-4 h-4 text-slate-400"></i>
+                            </div>
+                        </div>
+
+                        <div id="acc-content-${t.id}" class="hidden p-3 sm:p-4 border-t border-slate-200 bg-white space-y-3">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                ${fields
+                                  .map(
+                                    (f) => `
+                                    <div class="flex items-center justify-between p-2 rounded-lg border border-slate-100 bg-slate-50">
+                                        <div class="overflow-hidden pr-2">
+                                            <div class="text-[10px] font-semibold text-slate-400">${f.label}</div>
+                                            <div class="text-xs text-slate-800 font-medium truncate">${f.value || '<span class="text-red-400">ยังไม่ได้กรอก</span>'}</div>
+                                        </div>
+                                        <button onclick="copyField('${(f.value || "").replace(/'/g, "\\'")}', '${f.label}')" class="bg-white hover:bg-slate-200 text-slate-700 text-xs px-2.5 py-1.5 rounded border shadow-sm transition shrink-0">
+                                            คัดลอก
+                                        </button>
+                                    </div>
+                                `,
+                                  )
+                                  .join("")}
+                            </div>
+                        </div>
+                    </div>
+                `;
+        });
+
+        document.getElementById("readiness-summary").innerText =
+          `พร้อม ${readyCount} / ทั้งหมด ${monthTasks.length} รายการ`;
+        lucide.createIcons();
+      }
+    </script>
+  </body>
+</html>
