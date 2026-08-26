@@ -1,19 +1,146 @@
 @import url("https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap");
 
+/* --------------------------------------------------
+   1. GLOBAL RESETS & DARK THEME BASE
+-------------------------------------------------- */
 * {
   font-family: "Sarabun", sans-serif;
+  box-sizing: border-box;
 }
 
+body {
+  background-color: #0f172a !important; /* Dark Slate Background */
+  color: #f8fafc !important;
+}
+
+/* Scrollbar Customization */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
-
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #0f172a;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
 }
 
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 9999px;
+/* --------------------------------------------------
+   2. HEADER & NAVIGATION (FMInside Dark Style)
+-------------------------------------------------- */
+header {
+  background-color: #020617 !important; /* Black Slate */
+  border-bottom: 1px solid #1e293b !important;
+}
+
+.nav-btn {
+  background-color: #1e293b !important;
+  color: #94a3b8 !important;
+  border: 1px solid #334155 !important;
+}
+
+.nav-btn:hover {
+  background-color: #334155 !important;
+  color: #ffffff !important;
+}
+
+/* Active Nav State - Sport Yellow Highlight */
+.nav-btn.bg-slate-700,
+.nav-btn.active-tab {
+  background-color: #eab308 !important; /* Yellow Sport Accent */
+  color: #0f172a !important;
+  font-weight: 700 !important;
+  border-color: #eab308 !important;
+}
+
+/* --------------------------------------------------
+   3. CARDS, TABLES & DASHBOARD CONTAINERS
+-------------------------------------------------- */
+.bg-white {
+  background-color: #1e293b !important; /* Card background */
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+.bg-slate-50,
+.bg-slate-100 {
+  background-color: #0f172a !important; /* Inner container background */
+  color: #cbd5e1 !important;
+}
+
+/* Borders adjustment */
+.border-slate-100,
+.border-slate-200,
+.border-slate-300 {
+  border-color: #334155 !important;
+}
+
+/* Calendar Grid Lines */
+.bg-slate-200 {
+  background-color: #334155 !important;
+}
+
+/* Text Colors Adjustment for Dark Theme */
+.text-slate-800,
+.text-slate-700,
+.text-slate-900 {
+  color: #f8fafc !important;
+}
+.text-slate-600,
+.text-slate-500 {
+  color: #94a3b8 !important;
+}
+
+/* --------------------------------------------------
+   4. MODALS & POPUPS
+-------------------------------------------------- */
+#task-modal > div,
+#settings-modal > div,
+#holiday-modal > div {
+  background-color: #1e293b !important;
+  border: 1px solid #334155 !important;
+  color: #f8fafc !important;
+}
+
+/* Form Inputs in Dark Mode */
+input[type="text"],
+input[type="date"],
+input[type="url"],
+input[type="number"],
+select,
+textarea {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #eab308 !important;
+  outline: none !important;
+}
+
+/* --------------------------------------------------
+   5. BUTTONS & ACCENTS
+-------------------------------------------------- */
+.bg-blue-600 {
+  background-color: #eab308 !important; /* Convert main action to Sport Yellow */
+  color: #0f172a !important;
+  font-weight: 700;
+}
+.bg-blue-600:hover {
+  background-color: #ca8a04 !important;
+}
+
+.bg-emerald-600 {
+  background-color: #10b981 !important;
+  color: #ffffff !important;
+}
+.bg-emerald-600:hover {
+  background-color: #059669 !important;
 }
