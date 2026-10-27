@@ -142,6 +142,8 @@
                         <select id="task-slot" onchange="updateTimeInputs()" class="w-full form-input" required>
                             <option value="MORNING">เช้า</option>
                             <option value="AFTERNOON">บ่าย</option>
+                            <!-- เพิ่มตัวเลือกทั้งวันกลับมา -->
+                            <option value="FULL_DAY">ทั้งวัน</option>
                         </select>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
@@ -175,7 +177,7 @@
         </div>
     </div>
 
-    <!-- Modals for Settings & Holidays omitted for brevity but remain functional -->
+    <!-- Modals for Settings & Holidays -->
     <div id="settings-modal"
         class="fixed inset-0 bg-black/70 backdrop-blur-xs hidden flex justify-center items-center z-50 p-4">
         <div class="glass-card w-full max-w-sm p-6 space-y-4 shadow-2xl border border-[#323846]">
@@ -221,7 +223,6 @@
         let tasks = [];
         let holidays = [];
 
-        // --- Security Tool: Escape HTML to prevent XSS ---
         function escapeHTML(str) {
             if (!str) return "";
             return str.replace(/[&<>'"]/g, tag => ({
@@ -233,7 +234,6 @@
             document.getElementById("select-month").value = currentMonth;
             document.getElementById("select-year").value = currentYear;
 
-            // Global Bindings
             window.changeMonth = changeMonth;
             window.onMonthYearChange = onMonthYearChange;
             window.openTaskModal = openTaskModal;
@@ -320,7 +320,8 @@
             const slot = document.getElementById("task-slot").value;
             const s = document.getElementById("task-time-start"), e = document.getElementById("task-time-end");
             if (slot === "MORNING") { s.value = "08:30"; e.value = "12:00"; }
-            else { s.value = "13:00"; e.value = "16:30"; }
+            else if (slot === "AFTERNOON") { s.value = "13:00"; e.value = "16:30"; }
+            else { s.value = "08:30"; e.value = "16:30"; } // เพิ่มเวลาของ FULL_DAY
         }
 
         async function saveTask(e) {
@@ -351,17 +352,18 @@
             }
         }
 
-        // --- Holiday Logic ---
         function formatThaiDate(dateStr) {
             if (!dateStr) return "";
             const parts = dateStr.split("-");
             return `${parseInt(parts[2])} ${monthNamesThai[parseInt(parts[1]) - 1]} ${parseInt(parts[0]) + 543}`;
         }
+
         function openHolidayModal() {
             document.getElementById("holiday-picker").value = `${currentYear}-${(currentMonth + 1).toString().padStart(2, "0")}-01`;
             renderHolidayList();
             document.getElementById("holiday-modal").classList.remove("hidden");
         }
+
         async function addHolidayFromPicker() {
             const val = document.getElementById("holiday-picker").value;
             if (val && !holidays.includes(val)) {
@@ -370,16 +372,19 @@
                 showToast("บันทึกวันหยุดแล้ว");
             }
         }
+
         async function removeHoliday(dateStr) {
             if (confirm("ยกเลิกวันหยุด?")) {
                 await deleteDoc(doc(db, "holidays", dateStr));
                 renderHolidayList();
             }
         }
+
         async function toggleHolidayFromCalendar(dateStr) {
             if (holidays.includes(dateStr)) await removeHoliday(dateStr);
             else { await setDoc(doc(db, "holidays", dateStr), { date: dateStr }); showToast("บันทึกวันหยุดแล้ว"); }
         }
+
         function renderHolidayList() {
             const cont = document.getElementById("holiday-list-items");
             cont.innerHTML = "";
@@ -388,6 +393,7 @@
                 cont.innerHTML += `<div class="flex justify-between text-sm bg-[#121417] p-2 rounded"><span>🛑 ${formatThaiDate(h)}</span><button onclick="removeHoliday('${h}')" class="text-red-400">ลบ</button></div>`;
             });
         }
+
         async function clearAllCloudData() {
             if (confirm("⚠️ ล้างข้อมูลทั้งหมดจริงหรือ?")) {
                 const qs = await getDocs(collection(db, "tasks"));
@@ -397,7 +403,6 @@
             }
         }
 
-        // --- RENDER LOGIC (Supports Multiple Tasks Per Slot) ---
         function renderCalendar() {
             const gridDesktop = document.getElementById("calendar-grid-desktop");
             const listMobile = document.getElementById("calendar-list-mobile");
@@ -414,12 +419,13 @@
                 const dateStr = `${currentYear}-${(currentMonth + 1).toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
                 const isHoliday = holidays.includes(dateStr);
 
-                // Filter tasks for this day and sort by TimeStart
                 const dayTasks = tasks.filter(t => t.date === dateStr).sort((a, b) => a.timeStart.localeCompare(b.timeStart));
+
+                // คัดแยกงานตาม Slot (ดึง FULL_DAY ออกมาด้วย)
+                const fullDayTasks = dayTasks.filter(t => t.slot === "FULL_DAY");
                 const morningTasks = dayTasks.filter(t => t.slot === "MORNING");
                 const afternoonTasks = dayTasks.filter(t => t.slot === "AFTERNOON");
 
-                // === Desktop Render ===
                 let desktopHtml = `<div class="p-2 flex flex-col ${isWeekend || isHoliday ? "!bg-[#16181d]/90" : ""}">
                     <div class="flex justify-between items-center mb-1">
                         <span onclick="toggleHolidayFromCalendar('${dateStr}')" class="cursor-pointer text-sm font-bold ${isWeekend || isHoliday ? 'text-[#ff7b72]' : 'text-[#e1e4e8]'}">${day}</span>
@@ -433,24 +439,28 @@
 
                 desktopHtml += `<div class="flex flex-col gap-1 overflow-y-auto max-h-[120px] custom-scrollbar flex-1">`;
 
-                // Render All Morning Tasks
+                // 1. เรนเดอร์งาน "ทั้งวัน" (สีส้มทอง)
+                if (fullDayTasks.length > 0) {
+                    fullDayTasks.forEach(t => desktopHtml += renderTaskBadge(t, "bg-[#3d2c1e]/60 text-[#f0883e] border-[#89571e]/40"));
+                }
+
+                // 2. เรนเดอร์งาน "เช้า" (สีฟ้า)
                 if (morningTasks.length > 0) {
                     morningTasks.forEach(t => desktopHtml += renderTaskBadge(t, "bg-[#1f385c]/60 text-[#79c0ff] border-[#388bfd]/30"));
-                } else if (!isWeekend && !isHoliday) {
+                } else if (!isWeekend && !isHoliday && fullDayTasks.length === 0) {
                     desktopHtml += `<div onclick="openTaskModal(null, '${dateStr}', 'MORNING')" class="text-[10px] text-center border border-dashed border-[#323846] text-[#8b949e] py-1 rounded cursor-pointer hover:bg-[#1a1d23]">+ เช้าว่าง</div>`;
                 }
 
-                // Render All Afternoon Tasks
+                // 3. เรนเดอร์งาน "บ่าย" (สีเขียว)
                 if (afternoonTasks.length > 0) {
                     afternoonTasks.forEach(t => desktopHtml += renderTaskBadge(t, "bg-[#113224]/60 text-[#7ee787] border-[#238636]/30"));
-                } else if (!isWeekend && !isHoliday) {
+                } else if (!isWeekend && !isHoliday && fullDayTasks.length === 0) {
                     desktopHtml += `<div onclick="openTaskModal(null, '${dateStr}', 'AFTERNOON')" class="text-[10px] text-center border border-dashed border-[#323846] text-[#8b949e] py-1 rounded cursor-pointer hover:bg-[#1a1d23] mt-1">+ บ่ายว่าง</div>`;
                 }
 
                 desktopHtml += `</div></div>`;
                 gridDesktop.innerHTML += desktopHtml;
 
-                // === Mobile Render ===
                 if (dayTasks.length > 0) {
                     dayTasks.forEach(dt => listMobile.innerHTML += renderMobileRow(dt, dateStr));
                 } else if (isWeekend || isHoliday) {
@@ -462,7 +472,6 @@
             if (window.lucide) lucide.createIcons();
         }
 
-        // Helper components
         function renderTaskBadge(task, colorClass) {
             return `
             <div onclick="openTaskModal('${task.id}')" title="${escapeHTML(task.project)}" class="cursor-pointer border rounded-md p-1.5 flex flex-col shadow-xs ${colorClass}">
@@ -472,8 +481,10 @@
         }
 
         function renderMobileRow(task, dateStr) {
-            const isMorning = task.slot === "MORNING";
-            const color = isMorning ? "bg-[#1f385c]/40 border-[#388bfd]/30 text-[#79c0ff]" : "bg-[#113224]/40 border-[#238636]/30 text-[#7ee787]";
+            let color = "bg-[#3d2c1e]/40 border-[#89571e]/30 text-[#f0883e]"; // สีสำหรับ FULL_DAY
+            if (task.slot === "MORNING") color = "bg-[#1f385c]/40 border-[#388bfd]/30 text-[#79c0ff]";
+            else if (task.slot === "AFTERNOON") color = "bg-[#113224]/40 border-[#238636]/30 text-[#7ee787]";
+
             return `
             <div onclick="openTaskModal('${task.id}')" class="p-3 rounded-xl border flex items-center justify-between cursor-pointer ${color}">
                 <div class="overflow-hidden pr-2">
