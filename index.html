@@ -3,498 +3,135 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Personal Work Planner - Simplified</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link rel="stylesheet" href="style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Work Planner</title>
+    <link rel="stylesheet" href="css/style.css" />
 </head>
 
-<body class="bg-[#121417] text-[#e1e4e8] min-h-screen pb-16">
-    <!-- Toast Notification -->
-    <div id="toast"
-        class="fixed bottom-6 right-6 bg-[#1a1d23] text-[#7ee787] border border-[#238636]/40 px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 text-sm z-50 transition-all duration-300 opacity-0 pointer-events-none backdrop-blur-md">
-        <i data-lucide="check-circle-2" class="text-[#7ee787] w-5 h-5"></i>
-        <span id="toast-message" class="font-medium text-[#e1e4e8]">แจ้งเตือน</span>
-    </div>
-
-    <!-- Header -->
-    <header class="bg-[#16191f]/80 backdrop-blur-md border-b border-[#282d37] sticky top-0 z-40 shadow-lg">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div class="flex items-center gap-3.5">
-                <div
-                    class="bg-gradient-to-tr from-[#238636] to-[#2ea043] text-white p-3 rounded-2xl shadow-md shadow-[#238636]/20">
-                    <i data-lucide="calendar" class="w-6 h-6"></i>
-                </div>
-                <div>
-                    <h1 class="font-bold text-lg text-[#e1e4e8] flex items-center gap-2.5">
-                        Work Planner
-                        <span
-                            class="text-[11px] bg-[#113224] text-[#7ee787] border border-[#238636]/40 px-2.5 py-0.5 rounded-full font-semibold">Lite
-                            Version</span>
-                    </h1>
-                    <p class="text-xs text-[#8b949e] mt-0.5">ระบบจัดการตารางงานแบบเรียบง่าย</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-2">
-                <button onclick="openHolidayModal()"
-                    class="p-2.5 rounded-xl bg-[#1a1d23] text-[#c9d1d9] hover:bg-[#222630] border border-[#323846] transition shrink-0"
-                    title="จัดการวันหยุด">
-                    <i data-lucide="ban" class="w-5 h-5"></i>
-                </button>
-                <button onclick="openSettingsModal()"
-                    class="p-2.5 rounded-xl bg-[#1a1d23] text-[#c9d1d9] hover:bg-[#222630] border border-[#323846] transition shrink-0"
-                    title="จัดการข้อมูล">
-                    <i data-lucide="settings" class="w-5 h-5"></i>
-                </button>
-            </div>
+<body>
+    <header class="top">
+        <div>
+            <h1>Work Planner</h1>
+            <p>ระบบจัดการตารางงานแบบเรียบง่าย</p>
+        </div>
+        <div class="actions">
+            <button id="btn-holidays" class="ghost" type="button">วันหยุด</button>
+            <button id="btn-settings" class="ghost" type="button">จัดการข้อมูล</button>
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto mt-6 px-6">
-        <div id="tab-dashboard" class="space-y-6">
-            <!-- Controls -->
-            <div class="glass-card p-4.5 flex flex-col md:flex-row justify-between items-center gap-4">
-                <div class="flex items-center justify-between w-full md:w-auto gap-3">
-                    <button onclick="changeMonth(-1)"
-                        class="p-2.5 hover:bg-[#222630] rounded-xl border border-[#323846] transition text-[#c9d1d9]">
-                        <i data-lucide="chevron-left" class="w-5 h-5"></i>
-                    </button>
-                    <div class="flex items-center gap-2.5">
-                        <select id="select-month" onchange="onMonthYearChange()"
-                            class="font-semibold text-base text-[#e1e4e8] bg-[#16191f] px-3.5 py-2 rounded-xl border border-[#323846] cursor-pointer">
-                            <option value="0">มกราคม</option>
-                            <option value="1">กุมภาพันธ์</option>
-                            <option value="2">มีนาคม</option>
-                            <option value="3">เมษายน</option>
-                            <option value="4">พฤษภาคม</option>
-                            <option value="5">มิถุนายน</option>
-                            <option value="6">กรกฎาคม</option>
-                            <option value="7">สิงหาคม</option>
-                            <option value="8">กันยายน</option>
-                            <option value="9">ตุลาคม</option>
-                            <option value="10">พฤศจิกายน</option>
-                            <option value="11">ธันวาคม</option>
-                        </select>
-                        <select id="select-year" onchange="onMonthYearChange()"
-                            class="font-semibold text-base text-[#e1e4e8] bg-[#16191f] px-3.5 py-2 rounded-xl border border-[#323846] cursor-pointer">
-                            <option value="2026">2569</option>
-                            <option value="2027">2570</option>
-                        </select>
-                    </div>
-                    <button onclick="changeMonth(1)"
-                        class="p-2.5 hover:bg-[#222630] rounded-xl border border-[#323846] transition text-[#c9d1d9]">
-                        <i data-lucide="chevron-right" class="w-5 h-5"></i>
-                    </button>
-                </div>
-                <button onclick="openTaskModal()"
-                    class="bg-[#238636] hover:bg-[#2ea043] text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2 shadow-md w-full md:w-auto">
-                    <i data-lucide="plus" class="w-4 h-4"></i> เพิ่มงานใหม่
-                </button>
+    <main>
+        <section class="toolbar">
+            <div class="month-nav">
+                <button id="btn-prev" class="icon" type="button" aria-label="เดือนก่อนหน้า">‹</button>
+                <select id="select-month" aria-label="เดือน">
+                    <option value="0">มกราคม</option>
+                    <option value="1">กุมภาพันธ์</option>
+                    <option value="2">มีนาคม</option>
+                    <option value="3">เมษายน</option>
+                    <option value="4">พฤษภาคม</option>
+                    <option value="5">มิถุนายน</option>
+                    <option value="6">กรกฎาคม</option>
+                    <option value="7">สิงหาคม</option>
+                    <option value="8">กันยายน</option>
+                    <option value="9">ตุลาคม</option>
+                    <option value="10">พฤศจิกายน</option>
+                    <option value="11">ธันวาคม</option>
+                </select>
+                <select id="select-year" aria-label="ปี"></select>
+                <button id="btn-next" class="icon" type="button" aria-label="เดือนถัดไป">›</button>
             </div>
+            <button id="btn-new" class="primary" type="button">เพิ่มงานใหม่</button>
+        </section>
 
-            <!-- Desktop Calendar -->
-            <div class="calendar-wrapper hidden md:block">
-                <div
-                    class="grid grid-cols-7 bg-[#282d37] border-b border-[#282d37] text-center font-semibold text-sm py-3.5 text-[#8b949e]">
-                    <div class="text-[#ff7b72]">อาทิตย์</div>
-                    <div>จันทร์</div>
-                    <div>อังคาร</div>
-                    <div>พุธ</div>
-                    <div>พฤหัสบดี</div>
-                    <div>ศุกร์</div>
-                    <div class="text-[#ff7b72]">เสาร์</div>
-                </div>
-                <div class="grid grid-cols-7 gap-px bg-[#282d37]" id="calendar-grid-desktop"></div>
+        <div class="calendar">
+            <div class="weekdays">
+                <div class="end">อาทิตย์</div>
+                <div>จันทร์</div>
+                <div>อังคาร</div>
+                <div>พุธ</div>
+                <div>พฤหัสบดี</div>
+                <div>ศุกร์</div>
+                <div class="end">เสาร์</div>
             </div>
-
-            <!-- Mobile Calendar List -->
-            <div class="block md:hidden glass-card p-5 space-y-3">
-                <div
-                    class="text-xs font-semibold text-[#8b949e] pb-3 border-b border-[#282d37] flex justify-between items-center">
-                    <span>📱 รายการงานประจำเดือน</span>
-                </div>
-                <div class="space-y-3" id="calendar-list-mobile"></div>
-            </div>
+            <div class="grid" id="grid"></div>
         </div>
+
+        <section class="list" id="list" aria-label="รายการงานประจำเดือน"></section>
     </main>
 
-    <!-- Task Modal (Simplified) -->
-    <div id="task-modal"
-        class="fixed inset-0 bg-black/70 backdrop-blur-xs hidden flex justify-center items-center z-50 p-4">
-        <div
-            class="glass-card w-full max-w-lg overflow-hidden text-[#e1e4e8] shadow-2xl border border-[#323846] flex flex-col">
-            <div class="p-5 border-b border-[#282d37] flex justify-between items-center bg-[#16191f]">
-                <h3 class="text-base font-bold" id="modal-title">ข้อมูลงาน</h3>
-                <button onclick="closeTaskModal()" class="text-[#8b949e] hover:text-[#e1e4e8] transition"><i
-                        data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <form id="task-form" onsubmit="saveTask(event)" class="p-6 space-y-5 bg-[#121417]">
+    <div class="toast" id="toast" role="status"><span id="toast-msg"></span></div>
+
+    <!-- Task modal -->
+    <div class="modal" id="task-modal" hidden>
+        <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+            <header class="sheet-head">
+                <h2 id="modal-title">เพิ่มงานใหม่</h2>
+                <button id="btn-close-task" class="icon" type="button" aria-label="ปิด">×</button>
+            </header>
+            <form id="task-form" class="sheet-body">
                 <input type="hidden" id="task-id" />
-
-                <div class="bg-[#1a1d23] p-4.5 rounded-2xl border border-[#282d37] space-y-4">
-                    <div>
-                        <label class="block font-semibold text-[#c9d1d9] mb-1.5 text-sm">วันที่ปฏิบัติงาน *</label>
-                        <input type="date" id="task-date" class="w-full form-input" required />
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-[#c9d1d9] mb-1.5 text-sm">ช่วงเวลา *</label>
-                        <select id="task-slot" onchange="updateTimeInputs()" class="w-full form-input" required>
-                            <option value="MORNING">เช้า</option>
-                            <option value="AFTERNOON">บ่าย</option>
-                            <!-- เพิ่มตัวเลือกทั้งวันกลับมา -->
-                            <option value="FULL_DAY">ทั้งวัน</option>
-                        </select>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block font-semibold text-[#c9d1d9] mb-1 text-sm">เวลาเริ่ม *</label>
-                            <input type="time" id="task-time-start" class="w-full form-input" required />
-                        </div>
-                        <div>
-                            <label class="block font-semibold text-[#c9d1d9] mb-1 text-sm">เวลาจบ *</label>
-                            <input type="time" id="task-time-end" class="w-full form-input" required />
-                        </div>
-                    </div>
+                <label>วันที่ปฏิบัติงาน
+                    <input type="date" id="task-date" lang="th-TH" required />
+                </label>
+                <label>ช่วงเวลา
+                    <select id="task-slot">
+                        <option value="MORNING">เช้า</option>
+                        <option value="AFTERNOON">บ่าย</option>
+                        <option value="FULL_DAY">ทั้งวัน</option>
+                    </select>
+                </label>
+                <div class="two">
+                    <label>เวลาเริ่ม
+                        <input type="time" id="task-time-start" required />
+                    </label>
+                    <label>เวลาจบ
+                        <input type="time" id="task-time-end" required />
+                    </label>
                 </div>
-
-                <div class="bg-[#1a1d23] p-4.5 rounded-2xl border border-[#282d37]">
-                    <label class="block font-semibold text-[#c9d1d9] mb-1.5 text-sm">ชื่องาน / กิจกรรม *</label>
-                    <textarea id="task-project" rows="2" class="w-full form-input" placeholder="กรอกรายละเอียดงาน..."
-                        required></textarea>
-                </div>
+                <label>ชื่องาน / กิจกรรม
+                    <textarea id="task-project" rows="2" placeholder="กรอกรายละเอียดงาน..." required></textarea>
+                </label>
             </form>
-            <div class="p-4 border-t border-[#282d37] bg-[#16191f] flex justify-between gap-3">
-                <button type="button" onclick="deleteTask()" id="btn-delete"
-                    class="bg-[#3b171a] text-[#ff7b72] hover:bg-[#5a2228] px-5 py-2.5 rounded-xl font-semibold transition hidden border border-[#ff7b72]/30 text-sm">ลบงานนี้</button>
-                <div class="flex gap-2.5 ml-auto">
-                    <button type="button" onclick="closeTaskModal()"
-                        class="bg-[#21262d] text-[#c9d1d9] hover:bg-[#30363d] px-5 py-2.5 rounded-xl font-semibold transition text-sm">ยกเลิก</button>
-                    <button type="button" onclick="document.getElementById('task-form').requestSubmit()"
-                        class="bg-[#238636] text-white hover:bg-[#2ea043] px-6 py-2.5 rounded-xl font-semibold transition flex items-center gap-2 shadow-md text-sm">บันทึก</button>
-                </div>
+            <footer class="sheet-foot">
+                <button id="btn-delete" class="danger" type="button" hidden>ลบงานนี้</button>
+                <span class="grow"></span>
+                <button id="btn-cancel" class="ghost" type="button">ยกเลิก</button>
+                <button class="primary" type="submit" form="task-form">บันทึก</button>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Settings modal -->
+    <div class="modal" id="settings-modal" hidden>
+        <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+            <header class="sheet-head">
+                <h2 id="settings-title">จัดการข้อมูล</h2>
+                <button id="settings-close" class="icon" type="button" aria-label="ปิด">×</button>
+            </header>
+            <div class="stack">
+                <button id="btn-clear-all" class="danger wide" type="button">ล้างข้อมูลงานทั้งหมด</button>
+                <p>วันหยุดพิเศษจะไม่ถูกลบ</p>
             </div>
         </div>
     </div>
 
-    <!-- Modals for Settings & Holidays -->
-    <div id="settings-modal"
-        class="fixed inset-0 bg-black/70 backdrop-blur-xs hidden flex justify-center items-center z-50 p-4">
-        <div class="glass-card w-full max-w-sm p-6 space-y-4 shadow-2xl border border-[#323846]">
-            <h3 class="font-bold border-b border-[#282d37] pb-3">จัดการข้อมูล (Settings)</h3>
-            <button onclick="clearAllCloudData()"
-                class="w-full bg-[#3b171a]/40 text-[#ff7b72] p-3 rounded-xl border border-[#ff7b72]/30">ล้างข้อมูลทั้งหมด</button>
-            <button onclick="closeSettingsModal()" class="w-full bg-[#21262d] p-3 rounded-xl">ปิด</button>
+    <!-- Holiday modal -->
+    <div class="modal" id="holiday-modal" hidden>
+        <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="holiday-title">
+            <header class="sheet-head">
+                <h2 id="holiday-title">จัดการวันหยุดพิเศษ</h2>
+                <button id="holiday-close" class="icon" type="button" aria-label="ปิด">×</button>
+            </header>
+            <div class="stack">
+                <input type="date" id="holiday-picker" lang="th-TH" aria-label="เลือกวันที่" />
+                <button id="holiday-add" class="primary wide" type="button">ตั้งเป็นวันหยุด</button>
+                <div id="holiday-list" class="list-box"></div>
+            </div>
         </div>
     </div>
 
-    <div id="holiday-modal"
-        class="fixed inset-0 bg-black/70 backdrop-blur-xs hidden flex justify-center items-center z-50 p-4">
-        <div class="glass-card w-full max-w-sm p-6 space-y-4 shadow-2xl border border-[#323846]">
-            <h3 class="font-bold border-b border-[#282d37] pb-3">จัดการวันหยุดพิเศษ</h3>
-            <input type="date" id="holiday-picker" class="w-full form-input" />
-            <button onclick="addHolidayFromPicker()"
-                class="w-full bg-[#238636] text-white p-2.5 rounded-xl">ตั้งเป็นวันหยุด</button>
-            <div id="holiday-list-items" class="space-y-2 mt-4 max-h-40 overflow-y-auto"></div>
-            <button onclick="closeHolidayModal()" class="w-full bg-[#21262d] p-2.5 rounded-xl mt-2">ปิด</button>
-        </div>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDRaSrfpxCwBMHAFlqoCJBvzw5paakUQcI",
-            authDomain: "mpp-planner.firebaseapp.com",
-            projectId: "mpp-planner",
-            storageBucket: "mpp-planner.firebasestorage.app",
-            messagingSenderId: "413077415177",
-            appId: "1:413077415177:web:26b2bb1aa1926ec3031fd8",
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        const monthNamesThai = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
-
-        let currentYear = new Date().getFullYear();
-        let currentMonth = new Date().getMonth();
-        let tasks = [];
-        let holidays = [];
-
-        function escapeHTML(str) {
-            if (!str) return "";
-            return str.replace(/[&<>'"]/g, tag => ({
-                '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
-            }[tag]));
-        }
-
-        window.addEventListener("load", () => {
-            document.getElementById("select-month").value = currentMonth;
-            document.getElementById("select-year").value = currentYear;
-
-            window.changeMonth = changeMonth;
-            window.onMonthYearChange = onMonthYearChange;
-            window.openTaskModal = openTaskModal;
-            window.closeTaskModal = closeTaskModal;
-            window.saveTask = saveTask;
-            window.deleteTask = deleteTask;
-            window.updateTimeInputs = updateTimeInputs;
-            window.openSettingsModal = () => document.getElementById("settings-modal").classList.remove("hidden");
-            window.closeSettingsModal = () => document.getElementById("settings-modal").classList.add("hidden");
-            window.clearAllCloudData = clearAllCloudData;
-            window.openHolidayModal = openHolidayModal;
-            window.closeHolidayModal = () => document.getElementById("holiday-modal").classList.add("hidden");
-            window.addHolidayFromPicker = addHolidayFromPicker;
-            window.removeHoliday = removeHoliday;
-            window.toggleHolidayFromCalendar = toggleHolidayFromCalendar;
-
-            renderCalendar();
-            if (window.lucide) lucide.createIcons();
-
-            onSnapshot(collection(db, "tasks"), (snapshot) => {
-                tasks = [];
-                snapshot.forEach(doc => tasks.push(doc.data()));
-                renderCalendar();
-            });
-
-            onSnapshot(collection(db, "holidays"), (snapshot) => {
-                holidays = [];
-                snapshot.forEach(doc => holidays.push(doc.data().date));
-                renderCalendar();
-            });
-        });
-
-        function showToast(msg) {
-            const t = document.getElementById("toast");
-            document.getElementById("toast-message").innerText = msg;
-            t.classList.remove("opacity-0", "pointer-events-none");
-            setTimeout(() => t.classList.add("opacity-0", "pointer-events-none"), 3000);
-        }
-
-        function changeMonth(delta) {
-            currentMonth += delta;
-            if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-            else if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-            document.getElementById("select-month").value = currentMonth;
-            document.getElementById("select-year").value = currentYear;
-            renderCalendar();
-        }
-        function onMonthYearChange() {
-            currentMonth = parseInt(document.getElementById("select-month").value);
-            currentYear = parseInt(document.getElementById("select-year").value);
-            renderCalendar();
-        }
-
-        function openTaskModal(taskId = null, date = null, slot = "MORNING") {
-            document.getElementById("task-form").reset();
-            const btnDel = document.getElementById("btn-delete");
-            btnDel.classList.add("hidden");
-
-            if (taskId) {
-                const t = tasks.find(x => x.id === taskId);
-                if (t) {
-                    document.getElementById("modal-title").innerText = "แก้ไขข้อมูลงาน";
-                    document.getElementById("task-id").value = t.id;
-                    document.getElementById("task-date").value = t.date;
-                    document.getElementById("task-slot").value = t.slot;
-                    document.getElementById("task-time-start").value = t.timeStart;
-                    document.getElementById("task-time-end").value = t.timeEnd;
-                    document.getElementById("task-project").value = t.project;
-                    btnDel.classList.remove("hidden");
-                }
-            } else {
-                document.getElementById("modal-title").innerText = "เพิ่มงานใหม่";
-                document.getElementById("task-id").value = "";
-                if (date) document.getElementById("task-date").value = date;
-                document.getElementById("task-slot").value = slot;
-                updateTimeInputs();
-            }
-            document.getElementById("task-modal").classList.remove("hidden");
-        }
-
-        function closeTaskModal() { document.getElementById("task-modal").classList.add("hidden"); }
-
-        function updateTimeInputs() {
-            const slot = document.getElementById("task-slot").value;
-            const s = document.getElementById("task-time-start"), e = document.getElementById("task-time-end");
-            if (slot === "MORNING") { s.value = "08:30"; e.value = "12:00"; }
-            else if (slot === "AFTERNOON") { s.value = "13:00"; e.value = "16:30"; }
-            else { s.value = "08:30"; e.value = "16:30"; } // เพิ่มเวลาของ FULL_DAY
-        }
-
-        async function saveTask(e) {
-            e.preventDefault();
-            const project = document.getElementById("task-project").value.trim();
-            if (!project) return alert("กรุณากรอกชื่องาน");
-
-            const taskData = {
-                id: document.getElementById("task-id").value || Date.now().toString(),
-                date: document.getElementById("task-date").value,
-                slot: document.getElementById("task-slot").value,
-                timeStart: document.getElementById("task-time-start").value,
-                timeEnd: document.getElementById("task-time-end").value,
-                project: project
-            };
-
-            await setDoc(doc(db, "tasks", taskData.id), taskData);
-            closeTaskModal();
-            showToast("บันทึกข้อมูลสำเร็จ");
-        }
-
-        async function deleteTask() {
-            const id = document.getElementById("task-id").value;
-            if (confirm("ลบงานนี้?")) {
-                await deleteDoc(doc(db, "tasks", id));
-                closeTaskModal();
-                showToast("ลบสำเร็จ");
-            }
-        }
-
-        function formatThaiDate(dateStr) {
-            if (!dateStr) return "";
-            const parts = dateStr.split("-");
-            return `${parseInt(parts[2])} ${monthNamesThai[parseInt(parts[1]) - 1]} ${parseInt(parts[0]) + 543}`;
-        }
-
-        function openHolidayModal() {
-            document.getElementById("holiday-picker").value = `${currentYear}-${(currentMonth + 1).toString().padStart(2, "0")}-01`;
-            renderHolidayList();
-            document.getElementById("holiday-modal").classList.remove("hidden");
-        }
-
-        async function addHolidayFromPicker() {
-            const val = document.getElementById("holiday-picker").value;
-            if (val && !holidays.includes(val)) {
-                await setDoc(doc(db, "holidays", val), { date: val });
-                renderHolidayList();
-                showToast("บันทึกวันหยุดแล้ว");
-            }
-        }
-
-        async function removeHoliday(dateStr) {
-            if (confirm("ยกเลิกวันหยุด?")) {
-                await deleteDoc(doc(db, "holidays", dateStr));
-                renderHolidayList();
-            }
-        }
-
-        async function toggleHolidayFromCalendar(dateStr) {
-            if (holidays.includes(dateStr)) await removeHoliday(dateStr);
-            else { await setDoc(doc(db, "holidays", dateStr), { date: dateStr }); showToast("บันทึกวันหยุดแล้ว"); }
-        }
-
-        function renderHolidayList() {
-            const cont = document.getElementById("holiday-list-items");
-            cont.innerHTML = "";
-            const m = `${currentYear}-${(currentMonth + 1).toString().padStart(2, "0")}`;
-            holidays.filter(h => h.startsWith(m)).sort().forEach(h => {
-                cont.innerHTML += `<div class="flex justify-between text-sm bg-[#121417] p-2 rounded"><span>🛑 ${formatThaiDate(h)}</span><button onclick="removeHoliday('${h}')" class="text-red-400">ลบ</button></div>`;
-            });
-        }
-
-        async function clearAllCloudData() {
-            if (confirm("⚠️ ล้างข้อมูลทั้งหมดจริงหรือ?")) {
-                const qs = await getDocs(collection(db, "tasks"));
-                qs.forEach(async (d) => await deleteDoc(doc(db, "tasks", d.id)));
-                window.closeSettingsModal();
-                showToast("ล้างข้อมูลแล้ว");
-            }
-        }
-
-        function renderCalendar() {
-            const gridDesktop = document.getElementById("calendar-grid-desktop");
-            const listMobile = document.getElementById("calendar-list-mobile");
-            gridDesktop.innerHTML = ""; listMobile.innerHTML = "";
-
-            const totalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
-            const startDay = new Date(currentYear, currentMonth, 1).getDay();
-
-            for (let i = 0; i < startDay; i++) gridDesktop.innerHTML += `<div class="bg-[#121417]/40 border-none"></div>`;
-
-            for (let day = 1; day <= totalDays; day++) {
-                const dateObj = new Date(currentYear, currentMonth, day);
-                const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
-                const dateStr = `${currentYear}-${(currentMonth + 1).toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
-                const isHoliday = holidays.includes(dateStr);
-
-                const dayTasks = tasks.filter(t => t.date === dateStr).sort((a, b) => a.timeStart.localeCompare(b.timeStart));
-
-                // คัดแยกงานตาม Slot (ดึง FULL_DAY ออกมาด้วย)
-                const fullDayTasks = dayTasks.filter(t => t.slot === "FULL_DAY");
-                const morningTasks = dayTasks.filter(t => t.slot === "MORNING");
-                const afternoonTasks = dayTasks.filter(t => t.slot === "AFTERNOON");
-
-                let desktopHtml = `<div class="p-2 flex flex-col ${isWeekend || isHoliday ? "!bg-[#16181d]/90" : ""}">
-                    <div class="flex justify-between items-center mb-1">
-                        <span onclick="toggleHolidayFromCalendar('${dateStr}')" class="cursor-pointer text-sm font-bold ${isWeekend || isHoliday ? 'text-[#ff7b72]' : 'text-[#e1e4e8]'}">${day}</span>
-                    </div>`;
-
-                if (isWeekend || isHoliday) {
-                    if (dayTasks.length === 0) {
-                        desktopHtml += `<div onclick="openTaskModal(null, '${dateStr}', 'MORNING')" class="flex-1 bg-[#121417]/50 rounded flex items-center justify-center text-[10px] text-[#8b949e] border border-dashed border-[#282d37] cursor-pointer">วันหยุดพักผ่อน</div>`;
-                    }
-                }
-
-                desktopHtml += `<div class="flex flex-col gap-1 overflow-y-auto max-h-[120px] custom-scrollbar flex-1">`;
-
-                // 1. เรนเดอร์งาน "ทั้งวัน" (สีส้มทอง)
-                if (fullDayTasks.length > 0) {
-                    fullDayTasks.forEach(t => desktopHtml += renderTaskBadge(t, "bg-[#3d2c1e]/60 text-[#f0883e] border-[#89571e]/40"));
-                }
-
-                // 2. เรนเดอร์งาน "เช้า" (สีฟ้า)
-                if (morningTasks.length > 0) {
-                    morningTasks.forEach(t => desktopHtml += renderTaskBadge(t, "bg-[#1f385c]/60 text-[#79c0ff] border-[#388bfd]/30"));
-                } else if (!isWeekend && !isHoliday && fullDayTasks.length === 0) {
-                    desktopHtml += `<div onclick="openTaskModal(null, '${dateStr}', 'MORNING')" class="text-[10px] text-center border border-dashed border-[#323846] text-[#8b949e] py-1 rounded cursor-pointer hover:bg-[#1a1d23]">+ เช้าว่าง</div>`;
-                }
-
-                // 3. เรนเดอร์งาน "บ่าย" (สีเขียว)
-                if (afternoonTasks.length > 0) {
-                    afternoonTasks.forEach(t => desktopHtml += renderTaskBadge(t, "bg-[#113224]/60 text-[#7ee787] border-[#238636]/30"));
-                } else if (!isWeekend && !isHoliday && fullDayTasks.length === 0) {
-                    desktopHtml += `<div onclick="openTaskModal(null, '${dateStr}', 'AFTERNOON')" class="text-[10px] text-center border border-dashed border-[#323846] text-[#8b949e] py-1 rounded cursor-pointer hover:bg-[#1a1d23] mt-1">+ บ่ายว่าง</div>`;
-                }
-
-                desktopHtml += `</div></div>`;
-                gridDesktop.innerHTML += desktopHtml;
-
-                if (dayTasks.length > 0) {
-                    dayTasks.forEach(dt => listMobile.innerHTML += renderMobileRow(dt, dateStr));
-                } else if (isWeekend || isHoliday) {
-                    listMobile.innerHTML += `<div class="p-3 rounded-xl bg-[#16181d] border border-[#282d37] text-xs text-[#8b949e]">🛑 ${formatThaiDate(dateStr)} (วันหยุด)</div>`;
-                } else {
-                    listMobile.innerHTML += `<div onclick="openTaskModal(null, '${dateStr}')" class="p-3 rounded-xl border border-dashed border-[#323846] text-[#8b949e] flex justify-between cursor-pointer"><span class="text-xs">🟢 ${formatThaiDate(dateStr)} (ว่าง)</span><span class="text-[#79c0ff] text-xs">+ เพิ่มงาน</span></div>`;
-                }
-            }
-            if (window.lucide) lucide.createIcons();
-        }
-
-        function renderTaskBadge(task, colorClass) {
-            return `
-            <div onclick="openTaskModal('${task.id}')" title="${escapeHTML(task.project)}" class="cursor-pointer border rounded-md p-1.5 flex flex-col shadow-xs ${colorClass}">
-                <span class="text-[9px] opacity-80 mb-0.5">🕒 ${task.timeStart} - ${task.timeEnd}</span>
-                <span class="truncate w-full font-semibold text-[10px] leading-tight">${escapeHTML(task.project)}</span>
-            </div>`;
-        }
-
-        function renderMobileRow(task, dateStr) {
-            let color = "bg-[#3d2c1e]/40 border-[#89571e]/30 text-[#f0883e]"; // สีสำหรับ FULL_DAY
-            if (task.slot === "MORNING") color = "bg-[#1f385c]/40 border-[#388bfd]/30 text-[#79c0ff]";
-            else if (task.slot === "AFTERNOON") color = "bg-[#113224]/40 border-[#238636]/30 text-[#7ee787]";
-
-            return `
-            <div onclick="openTaskModal('${task.id}')" class="p-3 rounded-xl border flex items-center justify-between cursor-pointer ${color}">
-                <div class="overflow-hidden pr-2">
-                    <div class="text-[10px] opacity-75">${formatThaiDate(dateStr)} | 🕒 ${task.timeStart} - ${task.timeEnd}</div>
-                    <div class="text-xs font-bold truncate mt-0.5">${escapeHTML(task.project)}</div>
-                </div>
-                <i data-lucide="chevron-right" class="w-4 h-4 opacity-60 shrink-0"></i>
-            </div>`;
-        }
-    </script>
+    <script type="module" src="js/app.js"></script>
 </body>
 
 </html>
