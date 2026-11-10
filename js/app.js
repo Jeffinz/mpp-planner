@@ -51,7 +51,9 @@ const state = {
   tasks: [],
   holidays: new Set(), // weekday holidays; doc id = "YYYY-MM-DD"
   workdays: new Set(), // weekend days the user has marked as working days
+  loaded: new Set(), // collections whose first snapshot (or error) has arrived
 };
+const COLLECTIONS = ["tasks", "holidays", "workdays"];
 
 // ---------- helpers ----------
 
@@ -132,6 +134,12 @@ async function persist(action, successMessage, onDone) {
 // ---------- rendering ----------
 
 function render() {
+  // Until every collection has answered once, an empty calendar would look like lost data.
+  const loading = !COLLECTIONS.every((name) => state.loaded.has(name));
+  $("loading").hidden = !loading;
+  document.querySelector(".calendar").hidden = loading;
+  $("list").hidden = loading;
+  if (loading) return;
   renderGrid();
   renderList();
   if ($("holiday-modal").open) renderHolidayList();
@@ -714,34 +722,39 @@ function bindEvents() {
 
 // Returns a function that stops all three listeners.
 function startRealtimeSync() {
-  const onError = (err) => {
+  const markLoaded = (name) => {
+    state.loaded.add(name);
+    render();
+  };
+  const onError = (name) => (err) => {
     console.error(err);
     toast("โหลดข้อมูลจาก Cloud ไม่สำเร็จ", "error");
+    markLoaded(name); // show the (empty) calendar and the error rather than loading forever
   };
   const stops = [];
   stops.push(onSnapshot(
     collection(db, "tasks"),
     (snapshot) => {
       state.tasks = snapshot.docs.map((d) => d.data());
-      render();
+      markLoaded("tasks");
     },
-    onError,
+    onError("tasks"),
   ));
   stops.push(onSnapshot(
     collection(db, "holidays"),
     (snapshot) => {
       state.holidays = new Set(snapshot.docs.map((d) => d.id));
-      render();
+      markLoaded("holidays");
     },
-    onError,
+    onError("holidays"),
   ));
   stops.push(onSnapshot(
     collection(db, "workdays"),
     (snapshot) => {
       state.workdays = new Set(snapshot.docs.map((d) => d.id));
-      render();
+      markLoaded("workdays");
     },
-    onError,
+    onError("workdays"),
   ));
   return () => stops.forEach((stop) => stop());
 }
@@ -756,6 +769,7 @@ function onAuthChange(user) {
   state.tasks = [];
   state.holidays = new Set();
   state.workdays = new Set();
+  state.loaded = new Set();
   document.querySelectorAll("dialog[open]").forEach((m) => m.close());
 
   $("signin").hidden = Boolean(user);

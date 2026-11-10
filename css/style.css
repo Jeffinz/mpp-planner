@@ -144,6 +144,8 @@ main { max-width: 1200px; margin: 0 auto; padding: var(--space-lg); }
 .accent { color: var(--accent); font-size: 0.85rem; }
 .grow { flex: 1; }
 
+.loading { text-align: center; padding: var(--space-lg); }
+
 /* Desktop calendar: hairline ledger grid */
 .calendar { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
 .weekdays, .grid { display: grid; grid-template-columns: repeat(7, 1fr); }
