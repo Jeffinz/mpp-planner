@@ -37,53 +37,53 @@ button { cursor: pointer; }
 select, input, textarea {
   background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: 4px;
-  padding: 0.5rem 0.7rem;
+  border-radius: var(--radius);
+  padding: var(--space-sm) 0.7rem;
 }
 
 .top {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 1.5rem 1.25rem 1rem;
+  padding: 1.5rem var(--space-lg) var(--space-md);
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  gap: 1rem;
+  gap: var(--space-md);
   border-bottom: 1px solid var(--line);
 }
-main { max-width: 1200px; margin: 0 auto; padding: 1.25rem; }
+main { max-width: 1200px; margin: 0 auto; padding: var(--space-lg); }
 .signin {
   max-width: 1200px;
   margin: 3rem auto;
-  padding: 0 1.25rem;
+  padding: 0 var(--space-lg);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 1rem;
+  gap: var(--space-md);
 }
-.actions { display: flex; gap: 0.5rem; }
+.actions { display: flex; gap: var(--space-sm); }
 
 .toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  gap: var(--space-md);
   flex-wrap: wrap;
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-md);
 }
-.month-nav { display: flex; align-items: center; gap: 0.5rem; }
+.month-nav { display: flex; align-items: center; gap: var(--space-sm); }
 
 .icon {
   width: 2.2rem;
   height: 2.2rem;
   background: transparent;
   border: 1px solid var(--line);
-  border-radius: 4px;
+  border-radius: var(--radius);
   font-size: 1.2rem;
   line-height: 1;
 }
 /* Thai BE date field: text input plus a button that opens the BE month popup. */
-.thai-date { display: flex; gap: 0.5rem; align-items: center; position: relative; }
+.thai-date { display: flex; gap: var(--space-sm); align-items: center; position: relative; }
 .thai-date input[type="text"] { flex: 1; min-width: 0; }
 .thai-date .icon { flex: none; font-size: 1rem; }
 
@@ -96,8 +96,8 @@ main { max-width: 1200px; margin: 0 auto; padding: 1.25rem; }
   padding: 0.6rem;
   background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: 6px;
-  box-shadow: 0 8px 24px rgb(0 0 0 / 0.4);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
 }
 .dp-head {
   display: flex;
@@ -111,7 +111,7 @@ main { max-width: 1200px; margin: 0 auto; padding: 1.25rem; }
   aspect-ratio: 1;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 4px;
+  border-radius: var(--radius);
   color: var(--text);
 }
 .dp-day:hover, .dp-day:focus-visible { border-color: var(--line); }
@@ -120,14 +120,14 @@ main { max-width: 1200px; margin: 0 auto; padding: 1.25rem; }
 .ghost {
   background: transparent;
   border: 1px solid var(--line);
-  border-radius: 4px;
-  padding: 0.5rem 0.9rem;
+  border-radius: var(--radius);
+  padding: var(--space-sm) 0.9rem;
 }
 .primary {
   background: var(--accent);
-  color: #16130a;
+  color: var(--on-accent);
   border: 0;
-  border-radius: 4px;
+  border-radius: var(--radius);
   padding: 0.55rem 1.1rem;
   font-weight: 600;
 }
@@ -135,8 +135,8 @@ main { max-width: 1200px; margin: 0 auto; padding: 1.25rem; }
   background: transparent;
   color: var(--danger);
   border: 1px solid color-mix(in srgb, var(--danger) 40%, transparent);
-  border-radius: 4px;
-  padding: 0.5rem 0.9rem;
+  border-radius: var(--radius);
+  padding: var(--space-sm) 0.9rem;
 }
 .wide { width: 100%; }
 .text-btn { background: none; border: 0; padding: 0; font-size: 0.85rem; color: var(--muted); }
@@ -145,7 +145,7 @@ main { max-width: 1200px; margin: 0 auto; padding: 1.25rem; }
 .grow { flex: 1; }
 
 /* Desktop calendar: hairline ledger grid */
-.calendar { border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.calendar { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
 .weekdays, .grid { display: grid; grid-template-columns: repeat(7, 1fr); }
 .weekdays {
   background: var(--paper);
@@ -161,15 +161,15 @@ main { max-width: 1200px; margin: 0 auto; padding: 1.25rem; }
 .cell {
   background: var(--ink);
   min-height: 150px;
-  padding: 0.5rem;
+  padding: var(--space-sm);
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
   min-width: 0;
 }
-.cell.pad { background: #101215; }
+.cell.pad { background: var(--pad-cell); }
 .cell.rest {
-  background: repeating-linear-gradient(135deg, var(--paper) 0 10px, #181b21 10px 20px);
+  background: repeating-linear-gradient(135deg, var(--paper) 0 10px, var(--rest-stripe) 10px 20px);
 }
 .daynum {
   background: none;
@@ -185,7 +185,7 @@ main { max-width: 1200px; margin: 0 auto; padding: 1.25rem; }
   font-size: 0.72rem;
   color: var(--muted);
   border: 1px dashed var(--line);
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   padding: 0.2rem 0.4rem;
 }
 
@@ -206,7 +206,7 @@ main { max-width: 1200px; margin: 0 auto; padding: 1.25rem; }
   background: color-mix(in srgb, currentColor 12%, transparent);
   border: 0;
   border-left: 3px solid currentColor;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   padding: 0.3rem 0.45rem;
   min-width: 0;
 }
@@ -227,23 +227,23 @@ main { max-width: 1200px; margin: 0 auto; padding: 1.25rem; }
   color: var(--muted);
   background: none;
   border: 1px dashed var(--line);
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   padding: 0.2rem;
 }
 
 /* Mobile list */
-.list { display: flex; flex-direction: column; gap: 0.5rem; }
+.list { display: flex; flex-direction: column; gap: var(--space-sm); }
 .row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  gap: var(--space-md);
   width: 100%;
   text-align: left;
   background: var(--paper);
   border: 1px solid var(--line);
   border-left: 3px solid currentColor;
-  border-radius: 4px;
+  border-radius: var(--radius);
   padding: 0.7rem 0.9rem;
 }
 .row small { display: block; color: var(--muted); font-size: 0.75rem; }
@@ -268,16 +268,16 @@ main { max-width: 1200px; margin: 0 auto; padding: 1.25rem; }
 .modal {
   position: fixed;
   inset: 0;
-  background: rgb(0 0 0 / 0.6);
+  background: var(--backdrop);
   display: grid;
   place-items: center;
-  padding: 1rem;
+  padding: var(--space-md);
   z-index: 50;
 }
 .sheet {
   background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: var(--radius-lg);
   width: min(480px, 100%);
   display: flex;
   flex-direction: column;
@@ -286,14 +286,14 @@ main { max-width: 1200px; margin: 0 auto; padding: 1.25rem; }
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 1.25rem;
+  padding: var(--space-md) var(--space-lg);
   border-bottom: 1px solid var(--line);
 }
 .sheet-body {
-  padding: 1.25rem;
+  padding: var(--space-lg);
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--space-md);
 }
 .sheet-body label,
 .stack label {
@@ -309,12 +309,12 @@ main { max-width: 1200px; margin: 0 auto; padding: 1.25rem; }
 .two { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
 .sheet-foot {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--space-sm);
   align-items: center;
-  padding: 1rem 1.25rem;
+  padding: var(--space-md) var(--space-lg);
   border-top: 1px solid var(--line);
 }
-.stack { display: flex; flex-direction: column; gap: 0.6rem; padding: 1.25rem; }
+.stack { display: flex; flex-direction: column; gap: 0.6rem; padding: var(--space-lg); }
 .stack p { margin: 0; }
 .list-box {
   display: flex;
@@ -327,22 +327,22 @@ main { max-width: 1200px; margin: 0 auto; padding: 1.25rem; }
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 0.7rem;
+  padding: var(--space-sm) 0.7rem;
   background: var(--ink);
-  border-radius: 4px;
+  border-radius: var(--radius);
   font-size: 0.9rem;
 }
 .muted { color: var(--muted); }
 
 .toast {
   position: fixed;
-  right: 1.25rem;
-  bottom: 1.25rem;
+  right: var(--space-lg);
+  bottom: var(--space-lg);
   background: var(--paper);
   border: 1px solid var(--line);
   border-left: 3px solid var(--afternoon);
-  padding: 0.7rem 1rem;
-  border-radius: 4px;
+  padding: 0.7rem var(--space-md);
+  border-radius: var(--radius);
   font-size: 0.9rem;
   opacity: 0;
   transform: translateY(8px);
