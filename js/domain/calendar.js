@@ -55,6 +55,19 @@ export const formatThaiShort = (iso) => {
   return `${d} ${MONTHS_SHORT[m - 1]} ${String(y + 543).slice(-2)}`;
 };
 
+// month is 0-based. Month heading in BE: (2026, 10) -> "พฤศจิกายน 2569".
+export const thaiMonthYear = (year, month) => `${MONTHS[month]} ${year + 543}`;
+
+// Cells for a Sunday-first month grid: null for each blank before day 1, then ISO dates.
+export function monthCells(year, month) {
+  const lead = new Date(year, month, 1).getDay();
+  const days = new Date(year, month + 1, 0).getDate();
+  return [
+    ...Array(lead).fill(null),
+    ...Array.from({ length: days }, (_, i) => ymd(year, month, i + 1)),
+  ];
+}
+
 // Text for a Thai date field, the inverse of parseThaiDate: "2026-11-10" -> "10/11/2569".
 export const formatThaiInput = (iso) => {
   const [y, m, d] = iso.split("-").map(Number);

@@ -82,20 +82,41 @@ main { max-width: 1200px; margin: 0 auto; padding: 1.25rem; }
   font-size: 1.2rem;
   line-height: 1;
 }
-/* Thai BE date field: text input plus a button that opens the browser's picker. */
-.thai-date { display: flex; gap: 0.4rem; align-items: center; position: relative; }
+/* Thai BE date field: text input plus a button that opens the BE month popup. */
+.thai-date { display: flex; gap: 0.5rem; align-items: center; position: relative; }
 .thai-date input[type="text"] { flex: 1; min-width: 0; }
-.thai-date .icon { flex: none; }
-/* Kept in the layout (not display:none) so showPicker() can anchor to it. */
-.thai-date .picker-proxy {
+.thai-date .icon { flex: none; font-size: 1rem; }
+
+.date-popup {
   position: absolute;
+  top: calc(100% + 0.3rem);
   right: 0;
-  bottom: 0;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
-  pointer-events: none;
+  z-index: 20;
+  width: min(18rem, 100%);
+  padding: 0.6rem;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.4);
 }
+.dp-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.4rem;
+}
+.dp-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.dp-weekday { text-align: center; font-size: 0.75rem; color: var(--muted); padding: 0.2rem 0; }
+.dp-day {
+  aspect-ratio: 1;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: var(--text);
+}
+.dp-day:hover, .dp-day:focus-visible { border-color: var(--line); }
+.dp-day.today { border-color: var(--muted); }
+.dp-day.selected { background: var(--accent); color: var(--ink); font-weight: 600; }
 .ghost {
   background: transparent;
   border: 1px solid var(--line);

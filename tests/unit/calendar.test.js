@@ -16,6 +16,8 @@ import {
   parseThaiDate,
   formatThaiShort,
   formatThaiInput,
+  monthCells,
+  thaiMonthYear,
 } from "../../js/domain/calendar.js";
 
 const task = (id, date, slot, timeStart = "08:30") => ({
@@ -202,4 +204,18 @@ test("formatThaiInput gives the dd/mm/BE text parseThaiDate reads back", () => {
   assert.equal(formatThaiInput("2026-11-10"), "10/11/2569");
   assert.equal(formatThaiInput("2027-01-05"), "05/01/2570");
   assert.equal(parseThaiDate(formatThaiInput("2024-02-29")), "2024-02-29");
+});
+
+test("monthCells pads to the first weekday, then lists every day", () => {
+  // November 2026 starts on a Sunday; February 2024 (leap) on a Thursday.
+  const nov = monthCells(2026, 10);
+  assert.equal(nov[0], "2026-11-01");
+  assert.equal(nov.length, 30);
+  const feb = monthCells(2024, 1);
+  assert.deepEqual(feb.slice(0, 5), [null, null, null, null, "2024-02-01"]);
+  assert.equal(feb.at(-1), "2024-02-29");
+});
+
+test("thaiMonthYear names the month with its BE year", () => {
+  assert.equal(thaiMonthYear(2026, 10), "พฤศจิกายน 2569");
 });

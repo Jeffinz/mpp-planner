@@ -70,6 +70,7 @@ function el(tag, props = {}, ...children) {
 }
 
 function showModal(id, open) {
+  if (!open) closeDatePicker({ restoreFocus: false });
   $(id).hidden = !open;
 }
 
@@ -106,12 +107,12 @@ function renderGrid() {
   const grid = $("grid");
   grid.replaceChildren();
 
-  const days = new Date(state.year, state.month + 1, 0).getDate();
-  const lead = new Date(state.year, state.month, 1).getDay();
-  for (let i = 0; i < lead; i++) grid.append(el("div", { class: "cell pad" }));
-
-  for (let d = 1; d <= days; d++) {
-    const iso = ymd(state.year, state.month, d);
+  for (const iso of calendar.monthCells(state.year, state.month)) {
+    if (!iso) {
+      grid.append(el("div", { class: "cell pad" }));
+      continue;
+    }
+    const d = Number(iso.slice(8));
     const rest = isRest(iso);
     const items = tasksOn(iso);
     const bySlot = (slot) => items.filter((t) => t.slot === slot);
@@ -318,19 +319,101 @@ function readThaiDate(id) {
   return iso;
 }
 
+// One popup month picker, shared by every Thai date field. It shows BE years,
+// which the browser's own date picker cannot.
+const WEEKDAYS_SHORT = ["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"];
+const picker = { node: null, input: null, button: null, year: 0, month: 0 };
+
+function closeDatePicker({ restoreFocus = true } = {}) {
+  if (!picker.node) return;
+  picker.node.remove();
+  picker.node = null;
+  if (restoreFocus) picker.button.focus();
+}
+
+function shiftPickerMonth(delta) {
+  const next = new Date(picker.year, picker.month + delta, 1);
+  picker.year = next.getFullYear();
+  picker.month = next.getMonth();
+  renderDatePicker();
+}
+
+function renderDatePicker() {
+  const selected = calendar.parseThaiDate(picker.input.value);
+  const todayIso = ymd(today.getFullYear(), today.getMonth(), today.getDate());
+  const days = calendar.monthCells(picker.year, picker.month).map((iso) => {
+    if (!iso) return el("span");
+    const classes = ["dp-day"];
+    if (iso === selected) classes.push("selected");
+    if (iso === todayIso) classes.push("today");
+    return el(
+      "button",
+      {
+        type: "button",
+        class: classes.join(" "),
+        "aria-label": thaiDate(iso),
+        "aria-pressed": String(iso === selected),
+        onclick: () => {
+          writeThaiDate(picker.input.id, iso);
+          closeDatePicker();
+        },
+      },
+      String(Number(iso.slice(8))),
+    );
+  });
+
+  picker.node.replaceChildren(
+    el(
+      "div",
+      { class: "dp-head" },
+      el("button", { type: "button", class: "icon", "aria-label": "เดือนก่อน", onclick: () => shiftPickerMonth(-1) }, "‹"),
+      el("strong", { "aria-live": "polite" }, calendar.thaiMonthYear(picker.year, picker.month)),
+      el("button", { type: "button", class: "icon", "aria-label": "เดือนถัดไป", onclick: () => shiftPickerMonth(1) }, "›"),
+    ),
+    el(
+      "div",
+      { class: "dp-grid" },
+      WEEKDAYS_SHORT.map((w) => el("span", { class: "dp-weekday" }, w)),
+      days,
+    ),
+  );
+}
+
+function openDatePicker(input, button) {
+  closeDatePicker({ restoreFocus: false });
+  const shown = calendar.parseThaiDate(input.value);
+  const [y, m] = shown ? shown.split("-").map(Number) : [state.year, state.month + 1];
+  Object.assign(picker, { input, button, year: y, month: m - 1 });
+  picker.node = el("div", {
+    class: "date-popup",
+    role: "dialog",
+    "aria-label": "เลือกวันที่",
+  });
+  button.parentElement.append(picker.node);
+  renderDatePicker();
+  (picker.node.querySelector(".dp-day.selected") ?? picker.node.querySelector(".dp-day")).focus();
+}
+
 function bindThaiDateFields() {
   for (const button of document.querySelectorAll("[data-pick]")) {
     const input = $(button.dataset.pick);
-    const proxy = button.parentElement.querySelector(".picker-proxy");
     input.addEventListener("input", () => input.setCustomValidity(""));
-    button.addEventListener("click", () => {
-      proxy.value = calendar.parseThaiDate(input.value) ?? "";
-      proxy.showPicker();
-    });
-    proxy.addEventListener("change", () => {
-      if (proxy.value) writeThaiDate(input.id, proxy.value);
-    });
+    button.addEventListener("click", () =>
+      picker.node && picker.input === input
+        ? closeDatePicker()
+        : openDatePicker(input, button),
+    );
   }
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && picker.node) {
+      e.stopPropagation();
+      closeDatePicker();
+    }
+  });
+  document.addEventListener("pointerdown", (e) => {
+    if (picker.node && !picker.node.parentElement.contains(e.target))
+      closeDatePicker({ restoreFocus: false });
+  });
 }
 
 // ---------- task modal ----------
