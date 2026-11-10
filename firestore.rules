@@ -4,7 +4,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function isOwner() {
-      return request.auth != null && request.auth.uid == "OWNER_UID_NOT_SET";
+      return request.auth != null && request.auth.uid == "fwFVnL8H3Fg0oxPsAaQvrtyFvPh2";
     }
     match /{collection}/{id} {
       allow read, write: if isOwner() && collection in ["tasks", "holidays", "workdays"];
