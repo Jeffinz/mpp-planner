@@ -34,6 +34,44 @@ export const thaiDate = (iso) => {
   return `${d} ${MONTHS[m - 1]} ${y + 543}`;
 };
 
+export const MONTHS_SHORT = [
+  "ม.ค.",
+  "ก.พ.",
+  "มี.ค.",
+  "เม.ย.",
+  "พ.ค.",
+  "มิ.ย.",
+  "ก.ค.",
+  "ส.ค.",
+  "ก.ย.",
+  "ต.ค.",
+  "พ.ย.",
+  "ธ.ค.",
+];
+
+// Compact Thai date for lists: "2026-11-10" -> "10 พ.ย. 69".
+export const formatThaiShort = (iso) => {
+  const [y, m, d] = iso.split("-").map(Number);
+  return `${d} ${MONTHS_SHORT[m - 1]} ${String(y + 543).slice(-2)}`;
+};
+
+// Reads what a Thai user types, "dd/mm/yyyy" in Buddhist Era (or "dd/mm/yy" as 25yy),
+// and returns the stored CE ISO date, or null if the input is not a real date.
+// Years below 2400 are refused: they are CE years typed by mistake.
+export function parseThaiDate(text) {
+  const match = /^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})$/.exec(text.trim());
+  if (!match) return null;
+  const [d, m] = [Number(match[1]), Number(match[2])];
+  const be = match[3].length === 2 ? 2500 + Number(match[3]) : Number(match[3]);
+  if (be < 2400) return null;
+  const y = be - 543;
+  // Date rolls 31/04 over to 1/05, so a round trip exposes impossible days.
+  const date = new Date(y, m - 1, d);
+  if (date.getFullYear() !== y || date.getMonth() !== m - 1 || date.getDate() !== d)
+    return null;
+  return ymd(y, m - 1, d);
+}
+
 export function isWeekend(iso) {
   const [y, m, d] = iso.split("-").map(Number);
   const weekday = new Date(y, m - 1, d).getDay();

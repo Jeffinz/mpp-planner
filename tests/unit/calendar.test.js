@@ -13,6 +13,8 @@ import {
   mergeTask,
   restBlockReason,
   yearOptions,
+  parseThaiDate,
+  formatThaiShort,
 } from "../../js/domain/calendar.js";
 
 const task = (id, date, slot, timeStart = "08:30") => ({
@@ -162,4 +164,35 @@ test("yearOptions spans last year to five years ahead", () => {
 test("yearOptions stretches to include the shown year", () => {
   assert.equal(yearOptions(2026, 2035).at(-1), 2035);
   assert.equal(yearOptions(2026, 2020)[0], 2020);
+});
+
+test("parseThaiDate reads dd/mm/BE into a CE ISO date", () => {
+  assert.equal(parseThaiDate("10/11/2569"), "2026-11-10");
+  assert.equal(parseThaiDate("1/1/2570"), "2027-01-01");
+  assert.equal(parseThaiDate(" 05/03/2569 "), "2026-03-05");
+});
+
+test("parseThaiDate reads a two-digit year as 25xx", () => {
+  assert.equal(parseThaiDate("10/11/69"), "2026-11-10");
+});
+
+test("parseThaiDate checks leap years on the CE year", () => {
+  // 2567 BE = 2024 CE, a leap year; 2569 BE = 2026 CE is not.
+  assert.equal(parseThaiDate("29/02/2567"), "2024-02-29");
+  assert.equal(parseThaiDate("29/02/2569"), null);
+});
+
+test("parseThaiDate rejects impossible, empty, and CE-looking input", () => {
+  assert.equal(parseThaiDate("31/04/2569"), null);
+  assert.equal(parseThaiDate("0/1/2569"), null);
+  assert.equal(parseThaiDate("1/13/2569"), null);
+  assert.equal(parseThaiDate(""), null);
+  assert.equal(parseThaiDate("abc"), null);
+  // A year below 2400 is almost certainly CE typed by mistake.
+  assert.equal(parseThaiDate("10/11/2026"), null);
+});
+
+test("formatThaiShort gives day, short month, and two-digit BE year", () => {
+  assert.equal(formatThaiShort("2026-11-10"), "10 พ.ย. 69");
+  assert.equal(formatThaiShort("2027-01-01"), "1 ม.ค. 70");
 });
