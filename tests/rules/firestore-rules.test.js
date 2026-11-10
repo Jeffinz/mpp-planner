@@ -7,7 +7,11 @@ import {
   assertSucceeds,
   assertFails,
 } from "@firebase/rules-unit-testing";
-import { doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, deleteDoc, setLogLevel } from "firebase/firestore";
+
+// Denied writes are the expected outcome here and assertFails checks each one;
+// silence the SDK so it does not log every denial as a stream error.
+setLogLevel("silent");
 
 const rules = readFileSync("firestore.rules", "utf8");
 // The rules file is the one place the owner uid lives; tests read it from there.

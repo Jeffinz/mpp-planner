@@ -14,13 +14,19 @@
             <h1>Work Planner</h1>
             <p>ระบบจัดการตารางงานแบบเรียบง่าย</p>
         </div>
-        <div class="actions">
+        <div class="actions" id="actions" hidden>
             <button id="btn-holidays" class="ghost" type="button">วันหยุด</button>
             <button id="btn-settings" class="ghost" type="button">จัดการข้อมูล</button>
+            <button id="btn-signout" class="ghost" type="button">ออกจากระบบ</button>
         </div>
     </header>
 
-    <main>
+    <section class="signin" id="signin" hidden>
+        <p>เข้าสู่ระบบด้วยบัญชี Google เพื่อดูและแก้ไขตารางงาน</p>
+        <button id="btn-signin" class="primary" type="button">เข้าสู่ระบบด้วย Google</button>
+    </section>
+
+    <main id="app" hidden>
         <section class="toolbar">
             <div class="month-nav">
                 <button id="btn-prev" class="icon" type="button" aria-label="เดือนก่อนหน้า">‹</button>

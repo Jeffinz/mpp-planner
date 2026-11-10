@@ -9,6 +9,13 @@ import {
   getDocs,
   writeBatch,
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged,
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { firebaseConfig } from "./firebase-config.js";
 import { chunk } from "./domain/chunk.js";
 import * as calendar from "./domain/calendar.js";
@@ -22,7 +29,9 @@ import {
   mergeTask,
 } from "./domain/calendar.js";
 
-const db = getFirestore(initializeApp(firebaseConfig));
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp);
+const auth = getAuth(firebaseApp);
 
 const today = new Date();
 const state = {
@@ -549,38 +558,74 @@ function bindEvents() {
   });
 }
 
+// Returns a function that stops all three listeners.
 function startRealtimeSync() {
   const onError = (err) => {
     console.error(err);
     toast("โหลดข้อมูลจาก Cloud ไม่สำเร็จ", "error");
   };
-  onSnapshot(
+  const stops = [];
+  stops.push(onSnapshot(
     collection(db, "tasks"),
     (snapshot) => {
       state.tasks = snapshot.docs.map((d) => d.data());
       render();
     },
     onError,
-  );
-  onSnapshot(
+  ));
+  stops.push(onSnapshot(
     collection(db, "holidays"),
     (snapshot) => {
       state.holidays = new Set(snapshot.docs.map((d) => d.id));
       render();
     },
     onError,
-  );
-  onSnapshot(
+  ));
+  stops.push(onSnapshot(
     collection(db, "workdays"),
     (snapshot) => {
       state.workdays = new Set(snapshot.docs.map((d) => d.id));
       render();
     },
     onError,
-  );
+  ));
+  return () => stops.forEach((stop) => stop());
+}
+
+// ---------- sign-in ----------
+
+// Firestore rules admit only the owner, so data loads only after sign-in.
+let stopSync = null;
+function onAuthChange(user) {
+  stopSync?.();
+  stopSync = null;
+  state.tasks = [];
+  state.holidays = new Set();
+  state.workdays = new Set();
+  document.querySelectorAll(".modal").forEach((m) => (m.hidden = true));
+
+  $("signin").hidden = Boolean(user);
+  $("app").hidden = !user;
+  $("actions").hidden = !user;
+  if (user) {
+    $("btn-signout").title = user.email ?? "";
+    stopSync = startRealtimeSync();
+  }
+  render();
+}
+
+async function signIn() {
+  try {
+    await signInWithPopup(auth, new GoogleAuthProvider());
+  } catch (err) {
+    if (err.code === "auth/popup-closed-by-user") return;
+    console.error(err);
+    toast("เข้าสู่ระบบไม่สำเร็จ", "error");
+  }
 }
 
 syncMonthControls();
 bindEvents();
-render();
-startRealtimeSync();
+$("btn-signin").addEventListener("click", signIn);
+$("btn-signout").addEventListener("click", () => signOut(auth));
+onAuthStateChanged(auth, onAuthChange);
