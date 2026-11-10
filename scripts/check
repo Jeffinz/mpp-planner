@@ -1,0 +1,10 @@
+#!/bin/sh
+# ABOUTME: Canonical project check: lint plus unit tests. Run before every commit and merge.
+# ABOUTME: Usage: sh scripts/check  (or npm run check). Exits non-zero on the first failure.
+set -e
+cd "$(dirname "$0")/.."
+echo "== lint =="
+npx eslint .
+echo "== unit tests =="
+node --test "tests/unit/**/*.test.js"
+echo "== all checks passed =="

@@ -1,0 +1,17 @@
+{
+  "name": "mpp-planner",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "test": "node --test \"tests/unit/**/*.test.js\"",
+    "check": "sh scripts/check",
+    "backup": "node scripts/backup.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "eslint": "10.14.0",
+    "firebase": "13.2.0",
+    "globals": "17.14.0"
+  }
+}
