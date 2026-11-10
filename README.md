@@ -26,18 +26,24 @@ work-planner/
 ## การตั้งค่า
 
 1. แก้ `js/firebase-config.js` ให้เป็นค่าของโปรเจ็ค Firebase ของคุณ
-2. ใน Firebase console เปิดใช้งาน Cloud Firestore และสร้าง collection ชื่อ `tasks` และ `holidays` (สร้างอัตโนมัติเมื่อบันทึกข้อมูลครั้งแรก)
+2. ใน Firebase console เปิดใช้งาน Cloud Firestore และสร้าง collection ชื่อ `tasks`, `holidays` และ `workdays` (สร้างอัตโนมัติเมื่อบันทึกข้อมูลครั้งแรก)
 
 ## การรันในเครื่อง
 
 โมดูล JavaScript ต้องรันผ่าน HTTP server เปิดไฟล์โดยตรง (`file://`) จะไม่ทำงาน
 
 ```bash
-cd work-planner
-python -m http.server 8000
+npm install
+npx http-server -p 4173 -s -c-1
 ```
 
-แล้วเปิด `http://localhost:8000`
+แล้วเปิด `http://localhost:4173` (`-c-1` ปิด cache ไม่ให้เบราว์เซอร์ใช้ JS เวอร์ชันเก่า)
+
+## การพัฒนา
+
+- `npm run check` รัน lint และ unit test ต้องผ่านก่อน commit
+- `npm run backup` ดึงข้อมูลทุก collection เก็บเป็น JSON ใน `backups/` (ไม่เข้า git) ควรรันก่อนแก้ Security Rules หรือโครงสร้างข้อมูล
+- กฎของปฏิทินอยู่ใน `js/domain/` และไม่แตะ DOM หรือ Firestore จึงทดสอบได้ด้วย `node --test`
 
 ## ข้อควรทราบด้านความปลอดภัย
 
@@ -49,5 +55,5 @@ python -m http.server 8000
 - แสดงข้อความในงานด้วย `textContent` ป้องกันการแทรก HTML จากข้อความที่กรอก
 - ลบข้อมูลทั้งหมดรอให้เสร็จก่อนแสดงผลสำเร็จ และแจ้งข้อผิดพลาดหากเกิดปัญหา
 - เพิ่มการตรวจสอบว่าเวลาจบต้องหลังเวลาเริ่ม
-- ปีในตัวเลือกมีช่วง 2025–2030 (เดิมมีเพียง 2569 และ 2570)
+- ปีในตัวเลือกเริ่มจากปีที่แล้วถึงอีกห้าปีข้างหน้า และขยายตามเดือนที่เลื่อนไป (เดิมมีเพียง 2569 และ 2570)
 - ไม่มีฟีเจอร์แนบรูปภาพ แท็บความพร้อม และ mission type ที่มีอยู่ใน app.js เดิม
