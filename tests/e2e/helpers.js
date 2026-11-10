@@ -39,8 +39,10 @@ export async function resetEmulators() {
 // Retries because sign-in through the emulator popup sometimes never completes: the popup
 // closes, no error toast shows, and #app stays hidden. It happens at random positions in
 // a run, more often after tests that write to Firestore; sign-in alone passed 5/5.
-// Cause unconfirmed. Best guess: the SDK's popup-closed check beats the result message and
-// app.js signIn() silently ignores auth/popup-closed-by-user, but no capture showed that error.
+// Not popup-closed-by-user: a temporary warn in signIn() never fired across failing runs, so
+// signInWithPopup simply never settles. The emulator popup does load apis.google.com (gapi),
+// unpkg.com and Google Fonts from the real internet; slow loads there are the likely cause,
+// but no failing run's network trace has been captured to prove it.
 export async function signInAsOwner(page, attempts = 3) {
   await page.goto("/?emulators");
   for (let attempt = 1; attempt <= attempts; attempt++) {
