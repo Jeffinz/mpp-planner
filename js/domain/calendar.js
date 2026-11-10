@@ -71,3 +71,18 @@ export function addBlockReason(calendar, iso, slot, excludeId) {
 export function mergeTask(existing, fields) {
   return { ...existing, ...fields };
 }
+
+// Returns why this day cannot become a rest day, or null if it can.
+// Rest days hold no tasks, matching addBlockReason which refuses tasks on rest days.
+export function restBlockReason(calendar, iso) {
+  if (tasksOn(calendar.tasks, iso).length > 0)
+    return "วันนี้มีงานอยู่ ต้องลบหรือย้ายงานก่อนจึงจะตั้งเป็นวันหยุดได้";
+  return null;
+}
+
+// Years for the year picker: last year to five years ahead, widened to include shownYear.
+export function yearOptions(currentYear, shownYear) {
+  const first = Math.min(currentYear - 1, shownYear);
+  const last = Math.max(currentYear + 5, shownYear);
+  return Array.from({ length: last - first + 1 }, (_, i) => first + i);
+}

@@ -11,6 +11,8 @@ import {
   tasksOn,
   addBlockReason,
   mergeTask,
+  restBlockReason,
+  yearOptions,
 } from "../../js/domain/calendar.js";
 
 const task = (id, date, slot, timeStart = "08:30") => ({
@@ -139,4 +141,25 @@ test("mergeTask keeps legacy fields the form does not edit", () => {
 test("mergeTask with no existing task returns just the form fields", () => {
   const fields = task("n", TUE, "MORNING");
   assert.deepEqual(mergeTask(undefined, fields), fields);
+});
+
+test("restBlockReason allows marking an empty day as rest", () => {
+  assert.equal(restBlockReason(calendar(), TUE), null);
+});
+
+test("restBlockReason blocks marking a day with tasks as rest", () => {
+  const cal = calendar({ tasks: [task("m", TUE, "MORNING")] });
+  assert.match(restBlockReason(cal, TUE), /มีงาน/);
+});
+
+test("yearOptions spans last year to five years ahead", () => {
+  assert.deepEqual(
+    yearOptions(2026, 2026),
+    [2025, 2026, 2027, 2028, 2029, 2030, 2031],
+  );
+});
+
+test("yearOptions stretches to include the shown year", () => {
+  assert.equal(yearOptions(2026, 2035).at(-1), 2035);
+  assert.equal(yearOptions(2026, 2020)[0], 2020);
 });

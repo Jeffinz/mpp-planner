@@ -7,8 +7,10 @@ import {
   deleteDoc,
   onSnapshot,
   getDocs,
+  writeBatch,
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { firebaseConfig } from "./firebase-config.js";
+import { chunk } from "./domain/chunk.js";
 import * as calendar from "./domain/calendar.js";
 import {
   SLOTS,
@@ -264,12 +266,13 @@ function listRow(iso, task) {
 function populateYears() {
   const select = $("select-year");
   select.replaceChildren();
-  for (let y = 2025; y <= 2030; y++) {
+  for (const y of calendar.yearOptions(today.getFullYear(), state.year)) {
     select.append(el("option", { value: y }, String(y + 543)));
   }
 }
 
 function syncMonthControls() {
+  populateYears();
   $("select-month").value = state.month;
   $("select-year").value = state.year;
 }
@@ -332,7 +335,7 @@ async function saveTask(event) {
     return;
   }
 
-  const id = $("task-id").value || String(Date.now());
+  const id = $("task-id").value || doc(collection(db, "tasks")).id;
   const date = $("task-date").value;
   const slot = $("task-slot").value;
   const existing = state.tasks.find((t) => t.id === id);
@@ -379,6 +382,11 @@ async function toggleRest(iso) {
   if (state.holidays.has(iso)) {
     return removeHoliday(iso);
   }
+  // A working day here becomes a rest day (weekday holiday, or weekend losing its workday mark).
+  if (!isRest(iso)) {
+    const reason = calendar.restBlockReason(state, iso);
+    if (reason) return toast(reason, "error");
+  }
   if (isWeekend(iso)) {
     if (state.workdays.has(iso)) {
       return persist(
@@ -413,6 +421,10 @@ async function addHolidayFromPicker() {
   if (!iso) {
     toast("กรุณาเลือกวันที่ก่อนบันทึก", "error");
     return;
+  }
+  if (!isRest(iso)) {
+    const reason = calendar.restBlockReason(state, iso);
+    if (reason) return toast(reason, "error");
   }
   if (isWeekend(iso)) {
     if (!state.workdays.has(iso)) {
@@ -474,8 +486,13 @@ async function clearAllTasks() {
   if (!confirm("ต้องการลบงานทั้งหมดบน Cloud ใช่หรือไม่?")) return;
   await persist(
     async () => {
+      // Each batch is all-or-nothing; Firestore caps a batch at 500 writes.
       const snapshot = await getDocs(collection(db, "tasks"));
-      await Promise.all(snapshot.docs.map((d) => deleteDoc(d.ref)));
+      for (const group of chunk(snapshot.docs, 500)) {
+        const batch = writeBatch(db);
+        group.forEach((d) => batch.delete(d.ref));
+        await batch.commit();
+      }
     },
     "ลบงานทั้งหมดแล้ว",
     () => showModal("settings-modal", false),
@@ -563,7 +580,6 @@ function startRealtimeSync() {
   );
 }
 
-populateYears();
 syncMonthControls();
 bindEvents();
 render();
