@@ -15,6 +15,7 @@ import {
   yearOptions,
   parseThaiDate,
   formatThaiShort,
+  formatThaiInput,
 } from "../../js/domain/calendar.js";
 
 const task = (id, date, slot, timeStart = "08:30") => ({
@@ -195,4 +196,10 @@ test("parseThaiDate rejects impossible, empty, and CE-looking input", () => {
 test("formatThaiShort gives day, short month, and two-digit BE year", () => {
   assert.equal(formatThaiShort("2026-11-10"), "10 พ.ย. 69");
   assert.equal(formatThaiShort("2027-01-01"), "1 ม.ค. 70");
+});
+
+test("formatThaiInput gives the dd/mm/BE text parseThaiDate reads back", () => {
+  assert.equal(formatThaiInput("2026-11-10"), "10/11/2569");
+  assert.equal(formatThaiInput("2027-01-05"), "05/01/2570");
+  assert.equal(parseThaiDate(formatThaiInput("2024-02-29")), "2024-02-29");
 });

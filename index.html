@@ -78,7 +78,11 @@
             <form id="task-form" class="sheet-body">
                 <input type="hidden" id="task-id" />
                 <label>วันที่ปฏิบัติงาน
-                    <input type="date" id="task-date" lang="th-TH" required />
+                    <span class="thai-date">
+                        <input type="text" id="task-date" inputmode="numeric" placeholder="วว/ดด/ปปปป (พ.ศ.)" autocomplete="off" required />
+                        <button type="button" class="icon" data-pick="task-date" aria-label="เลือกจากปฏิทิน">📅</button>
+                        <input type="date" class="picker-proxy" tabindex="-1" aria-hidden="true" />
+                    </span>
                 </label>
                 <label>ช่วงเวลา
                     <select id="task-slot">
@@ -130,7 +134,11 @@
                 <button id="holiday-close" class="icon" type="button" aria-label="ปิด">×</button>
             </header>
             <div class="stack">
-                <input type="date" id="holiday-picker" lang="th-TH" aria-label="เลือกวันที่" />
+                <span class="thai-date">
+                    <input type="text" id="holiday-picker" inputmode="numeric" placeholder="วว/ดด/ปปปป (พ.ศ.)" autocomplete="off" aria-label="เลือกวันที่ (พ.ศ.)" />
+                    <button type="button" class="icon" data-pick="holiday-picker" aria-label="เลือกจากปฏิทิน">📅</button>
+                    <input type="date" class="picker-proxy" tabindex="-1" aria-hidden="true" />
+                </span>
                 <button id="holiday-add" class="primary wide" type="button">ตั้งเป็นวันหยุด</button>
                 <div id="holiday-list" class="list-box"></div>
             </div>

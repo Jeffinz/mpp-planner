@@ -294,6 +294,45 @@ function shiftMonth(delta) {
   render();
 }
 
+// ---------- Thai date fields ----------
+// The text field shows dd/mm/BE; callers only ever see CE ISO dates.
+
+function writeThaiDate(id, iso) {
+  const input = $(id);
+  input.value = iso ? calendar.formatThaiInput(iso) : "";
+  input.setCustomValidity("");
+}
+
+// Returns the CE ISO date in the field, or null after showing the user why not.
+function readThaiDate(id) {
+  const input = $(id);
+  const iso = calendar.parseThaiDate(input.value);
+  if (!iso) {
+    input.setCustomValidity(
+      "กรอกวันที่เป็น วว/ดด/ปปปป ปี พ.ศ. เช่น 10/11/2569",
+    );
+    input.reportValidity();
+    return null;
+  }
+  input.setCustomValidity("");
+  return iso;
+}
+
+function bindThaiDateFields() {
+  for (const button of document.querySelectorAll("[data-pick]")) {
+    const input = $(button.dataset.pick);
+    const proxy = button.parentElement.querySelector(".picker-proxy");
+    input.addEventListener("input", () => input.setCustomValidity(""));
+    button.addEventListener("click", () => {
+      proxy.value = calendar.parseThaiDate(input.value) ?? "";
+      proxy.showPicker();
+    });
+    proxy.addEventListener("change", () => {
+      if (proxy.value) writeThaiDate(input.id, proxy.value);
+    });
+  }
+}
+
 // ---------- task modal ----------
 
 function applySlotTimes() {
@@ -313,7 +352,7 @@ function openTaskModal(taskId = null, date = null, slot = "MORNING") {
     if (!task) return;
     $("modal-title").textContent = "แก้ไขข้อมูลงาน";
     $("task-id").value = task.id;
-    $("task-date").value = task.date;
+    writeThaiDate("task-date", task.date);
     $("task-slot").value = task.slot;
     $("task-time-start").value = task.timeStart;
     $("task-time-end").value = task.timeEnd;
@@ -321,7 +360,7 @@ function openTaskModal(taskId = null, date = null, slot = "MORNING") {
     $("btn-delete").hidden = false;
   } else {
     $("modal-title").textContent = "เพิ่มงานใหม่";
-    $("task-date").value = date ?? ymd(state.year, state.month, 1);
+    writeThaiDate("task-date", date ?? ymd(state.year, state.month, 1));
     $("task-slot").value = slot;
     applySlotTimes();
   }
@@ -345,7 +384,8 @@ async function saveTask(event) {
   }
 
   const id = $("task-id").value || doc(collection(db, "tasks")).id;
-  const date = $("task-date").value;
+  const date = readThaiDate("task-date");
+  if (!date) return;
   const slot = $("task-slot").value;
   const existing = state.tasks.find((t) => t.id === id);
 
@@ -420,17 +460,14 @@ async function removeHoliday(iso) {
 }
 
 function openHolidayModal() {
-  $("holiday-picker").value = ymd(state.year, state.month, 1);
+  writeThaiDate("holiday-picker", ymd(state.year, state.month, 1));
   renderHolidayList();
   showModal("holiday-modal", true);
 }
 
 async function addHolidayFromPicker() {
-  const iso = $("holiday-picker").value;
-  if (!iso) {
-    toast("กรุณาเลือกวันที่ก่อนบันทึก", "error");
-    return;
-  }
+  const iso = readThaiDate("holiday-picker");
+  if (!iso) return;
   if (!isRest(iso)) {
     const reason = calendar.restBlockReason(state, iso);
     if (reason) return toast(reason, "error");
@@ -511,6 +548,7 @@ async function clearAllTasks() {
 // ---------- wiring ----------
 
 function bindEvents() {
+  bindThaiDateFields();
   $("btn-prev").addEventListener("click", () => shiftMonth(-1));
   $("btn-next").addEventListener("click", () => shiftMonth(1));
   $("select-month").addEventListener("change", (e) => {

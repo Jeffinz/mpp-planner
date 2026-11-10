@@ -82,6 +82,20 @@ main { max-width: 1200px; margin: 0 auto; padding: 1.25rem; }
   font-size: 1.2rem;
   line-height: 1;
 }
+/* Thai BE date field: text input plus a button that opens the browser's picker. */
+.thai-date { display: flex; gap: 0.4rem; align-items: center; position: relative; }
+.thai-date input[type="text"] { flex: 1; min-width: 0; }
+.thai-date .icon { flex: none; }
+/* Kept in the layout (not display:none) so showPicker() can anchor to it. */
+.thai-date .picker-proxy {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
 .ghost {
   background: transparent;
   border: 1px solid var(--line);

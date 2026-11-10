@@ -55,6 +55,12 @@ export const formatThaiShort = (iso) => {
   return `${d} ${MONTHS_SHORT[m - 1]} ${String(y + 543).slice(-2)}`;
 };
 
+// Text for a Thai date field, the inverse of parseThaiDate: "2026-11-10" -> "10/11/2569".
+export const formatThaiInput = (iso) => {
+  const [y, m, d] = iso.split("-").map(Number);
+  return `${pad(d)}/${pad(m)}/${y + 543}`;
+};
+
 // Reads what a Thai user types, "dd/mm/yyyy" in Buddhist Era (or "dd/mm/yy" as 25yy),
 // and returns the stored CE ISO date, or null if the input is not a real date.
 // Years below 2400 are refused: they are CE years typed by mistake.
