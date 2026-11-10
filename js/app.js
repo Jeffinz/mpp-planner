@@ -9,29 +9,18 @@ import {
   getDocs,
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { firebaseConfig } from "./firebase-config.js";
+import * as calendar from "./domain/calendar.js";
+import {
+  SLOTS,
+  pad,
+  ymd,
+  thaiTimeRange,
+  thaiDate,
+  isWeekend,
+  mergeTask,
+} from "./domain/calendar.js";
 
 const db = getFirestore(initializeApp(firebaseConfig));
-
-const MONTHS = [
-  "มกราคม",
-  "กุมภาพันธ์",
-  "มีนาคม",
-  "เมษายน",
-  "พฤษภาคม",
-  "มิถุนายน",
-  "กรกฎาคม",
-  "สิงหาคม",
-  "กันยายน",
-  "ตุลาคม",
-  "พฤศจิกายน",
-  "ธันวาคม",
-];
-
-const SLOTS = {
-  MORNING: { label: "เช้า", start: "08:30", end: "12:00", cls: "morning" },
-  AFTERNOON: { label: "บ่าย", start: "13:00", end: "16:30", cls: "afternoon" },
-  FULL_DAY: { label: "ทั้งวัน", start: "08:30", end: "16:30", cls: "full" },
-};
 
 const today = new Date();
 const state = {
@@ -45,17 +34,12 @@ const state = {
 // ---------- helpers ----------
 
 const $ = (id) => document.getElementById(id);
-const pad = (n) => String(n).padStart(2, "0");
-const ymd = (y, m, d) => `${y}-${pad(m + 1)}-${pad(d)}`;
 const monthPrefix = () => `${state.year}-${pad(state.month + 1)}`;
-// Thai time notation: 08:30 -> "08.30 น."
-const thaiTime = (hhmm) => `${hhmm.replace(":", ".")} น.`;
-const thaiTimeRange = (task) =>
-  `${thaiTime(task.timeStart)} – ${thaiTime(task.timeEnd)}`;
-const thaiDate = (iso) => {
-  const [y, m, d] = iso.split("-").map(Number);
-  return `${d} ${MONTHS[m - 1]} ${y + 543}`;
-};
+// state holds {tasks, holidays, workdays}, so it serves as the calendar for the domain rules.
+const isRest = (iso) => calendar.isRest(iso, state);
+const tasksOn = (iso) => calendar.tasksOn(state.tasks, iso);
+const addBlockReason = (iso, slot, excludeId) =>
+  calendar.addBlockReason(state, iso, slot, excludeId);
 
 // Builds DOM nodes with textContent, so user-entered text is never parsed as HTML.
 function el(tag, props = {}, ...children) {
@@ -72,38 +56,6 @@ function el(tag, props = {}, ...children) {
       .filter((c) => c !== null && c !== undefined && c !== false),
   );
   return node;
-}
-
-function isWeekend(iso) {
-  const [y, m, d] = iso.split("-").map(Number);
-  const weekday = new Date(y, m - 1, d).getDay();
-  return weekday === 0 || weekday === 6;
-}
-
-// A day is a rest day if it is a holiday, or a weekend the user has not marked as a working day.
-function isRest(iso) {
-  if (state.holidays.has(iso)) return true;
-  return isWeekend(iso) && !state.workdays.has(iso);
-}
-
-// Returns the reason a task with this slot cannot be placed on this date, or null if it can.
-function addBlockReason(iso, slot, excludeId) {
-  if (isRest(iso))
-    return "วันนี้เป็นวันหยุด ต้องยกเลิกวันหยุดก่อนจึงจะเพิ่มงานได้";
-  const others = tasksOn(iso).filter((t) => t.id !== excludeId);
-  if (others.some((t) => t.slot === "FULL_DAY")) {
-    return "วันนี้มีงานทั้งวันแล้ว ต้องลบงานทั้งวันก่อนจึงจะเพิ่มงานได้";
-  }
-  if (slot === "FULL_DAY" && others.length > 0) {
-    return "วันนี้มีงานช่วงเช้าหรือบ่ายอยู่แล้ว ต้องลบงานเหล่านั้นก่อนจึงจะเพิ่มงานทั้งวันได้";
-  }
-  return null;
-}
-
-function tasksOn(iso) {
-  return state.tasks
-    .filter((t) => t.date === iso)
-    .sort((a, b) => a.timeStart.localeCompare(b.timeStart));
 }
 
 function showModal(id, open) {
@@ -394,14 +346,14 @@ async function saveTask(event) {
     }
   }
 
-  const data = {
+  const data = mergeTask(existing, {
     id,
     date,
     slot,
     timeStart,
     timeEnd,
     project,
-  };
+  });
   await persist(
     () => setDoc(doc(db, "tasks", id), data),
     "บันทึกข้อมูลสำเร็จ",
