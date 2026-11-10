@@ -1,0 +1,13 @@
+rules_version = '2';
+// Single-user app: only the owner may touch data. Everyone else, signed in or not, is denied.
+// The owner uid is in Firebase console > Authentication > Users. Tests read it from this file.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner() {
+      return request.auth != null && request.auth.uid == "OWNER_UID_NOT_SET";
+    }
+    match /{collection}/{id} {
+      allow read, write: if isOwner() && collection in ["tasks", "holidays", "workdays"];
+    }
+  }
+}

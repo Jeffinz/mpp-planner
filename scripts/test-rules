@@ -1,0 +1,15 @@
+#!/bin/sh
+# ABOUTME: Runs Firestore security rules tests inside the Firestore emulator (needs Java 11+).
+# ABOUTME: Uses JAVA_HOME if set, else the first JDK unpacked under ~/.local/jdk/.
+set -e
+cd "$(dirname "$0")/.."
+if [ -z "$JAVA_HOME" ]; then
+  for dir in "$HOME"/.local/jdk/*/; do JAVA_HOME="${dir%/}"; break; done
+fi
+if [ ! -x "$JAVA_HOME/bin/java" ] && [ ! -x "$JAVA_HOME/bin/java.exe" ]; then
+  echo "test-rules: no Java found. Set JAVA_HOME or unpack a JDK into ~/.local/jdk/." >&2
+  exit 1
+fi
+export JAVA_HOME PATH="$JAVA_HOME/bin:$PATH"
+npx firebase emulators:exec --only firestore --project demo-mpp-planner \
+  'node --test "tests/rules/**/*.test.js"'

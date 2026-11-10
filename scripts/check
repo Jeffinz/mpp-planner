@@ -7,4 +7,6 @@ echo "== lint =="
 npx eslint .
 echo "== unit tests =="
 node --test "tests/unit/**/*.test.js"
+echo "== rules tests (Firestore emulator) =="
+sh scripts/test-rules
 echo "== all checks passed =="
