@@ -264,15 +264,27 @@ main { max-width: 1200px; margin: 0 auto; padding: var(--space-lg); }
   .list { display: none; }
 }
 
-/* Modals */
-.modal {
-  position: fixed;
-  inset: 0;
-  background: var(--backdrop);
+/* Dialogs */
+dialog {
+  /* Reset browser defaults */
+  border: none;
+  padding: var(--space-md);
+  background: transparent;
+  /* Cover the full viewport so clicks on the backdrop area fire on the <dialog> element. */
+  margin: 0;
+  max-width: 100vw;
+  max-height: 100dvh;
+  width: 100%;
+  height: 100%;
+  /* display is intentionally left out — browser keeps `display:none` until `open` is set. */
+}
+/* Only when open: show as a centered overlay. */
+dialog[open] {
   display: grid;
   place-items: center;
-  padding: var(--space-md);
-  z-index: 50;
+}
+dialog::backdrop {
+  background: var(--backdrop);
 }
 .sheet {
   background: var(--paper);

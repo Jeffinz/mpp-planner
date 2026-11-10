@@ -82,7 +82,30 @@ function el(tag, props = {}, ...children) {
 
 function showModal(id, open) {
   if (!open) closeDatePicker({ restoreFocus: false });
-  $(id).hidden = !open;
+  const modal = $(id);
+  if (open) {
+    if (!modal.open) modal.showModal();
+  } else {
+    if (modal.open) modal.close();
+  }
+}
+
+// In-page confirm dialog — replaces browser confirm() so the UI stays consistent.
+function confirmDialog(message) {
+  return new Promise((resolve) => {
+    $("confirm-msg").textContent = message;
+    const modal = $("confirm-modal");
+    modal.showModal();
+
+    function finish(result) {
+      resolve(result);
+      if (modal.open) modal.close();
+    }
+    // Prevent the browser from auto-closing on Escape before we resolve the promise.
+    modal.addEventListener("cancel", (e) => { e.preventDefault(); finish(false); }, { once: true });
+    $("confirm-ok").addEventListener("click", () => finish(true), { once: true });
+    $("confirm-cancel").addEventListener("click", () => finish(false), { once: true });
+  });
 }
 
 let toastTimer;
@@ -111,7 +134,7 @@ async function persist(action, successMessage, onDone) {
 function render() {
   renderGrid();
   renderList();
-  if (!$("holiday-modal").hidden) renderHolidayList();
+  if ($("holiday-modal").open) renderHolidayList();
 }
 
 function renderGrid() {
@@ -509,7 +532,7 @@ async function saveTask(event) {
 
 async function deleteTask() {
   const id = $("task-id").value;
-  if (!id || !confirm("คุณต้องการลบงานนี้ใช่หรือไม่?")) return;
+  if (!id || !await confirmDialog("คุณต้องการลบงานนี้ใช่หรือไม่?")) return;
   await persist(
     () => deleteDoc(doc(db, "tasks", id)),
     "ลบงานเรียบร้อยแล้ว",
@@ -549,7 +572,7 @@ async function toggleRest(iso) {
 }
 
 async function removeHoliday(iso) {
-  if (!confirm(`ยกเลิกวันหยุด ${thaiDate(iso)} ใช่หรือไม่?`)) return;
+  if (!await confirmDialog(`ยกเลิกวันหยุด ${thaiDate(iso)} ใช่หรือไม่?`)) return;
   await persist(() => deleteDoc(doc(db, "holidays", iso)), "ยกเลิกวันหยุดแล้ว");
 }
 
@@ -623,7 +646,7 @@ function renderHolidayList() {
 // ---------- settings ----------
 
 async function clearAllTasks() {
-  if (!confirm("ต้องการลบงานทั้งหมดบน Cloud ใช่หรือไม่?")) return;
+  if (!await confirmDialog("ต้องการลบงานทั้งหมดบน Cloud ใช่หรือไม่?")) return;
   await persist(
     async () => {
       // Each batch is all-or-nothing; Firestore caps a batch at 500 writes.
@@ -679,15 +702,14 @@ function bindEvents() {
   );
   $("btn-clear-all").addEventListener("click", clearAllTasks);
 
-  document.querySelectorAll(".modal").forEach((modal) => {
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) modal.hidden = true;
-    });
-  });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape")
-      document.querySelectorAll(".modal").forEach((m) => (m.hidden = true));
-  });
+  // Backdrop click and Escape are handled natively by <dialog>.
+  // For backdrop click: clicks on the dialog element itself (outside the .sheet) close it.
+  // For Escape: the cancel event fires; we close the date picker first, then let the dialog close.
+  for (const id of ["task-modal", "settings-modal", "holiday-modal"]) {
+    const d = $(id);
+    d.addEventListener("click", (e) => { if (e.target === d) d.close(); });
+    d.addEventListener("cancel", () => closeDatePicker({ restoreFocus: false }));
+  }
 }
 
 // Returns a function that stops all three listeners.
@@ -734,7 +756,7 @@ function onAuthChange(user) {
   state.tasks = [];
   state.holidays = new Set();
   state.workdays = new Set();
-  document.querySelectorAll(".modal").forEach((m) => (m.hidden = true));
+  document.querySelectorAll("dialog[open]").forEach((m) => m.close());
 
   $("signin").hidden = Boolean(user);
   $("app").hidden = !user;

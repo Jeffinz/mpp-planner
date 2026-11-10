@@ -69,8 +69,8 @@
     <div class="toast" id="toast" role="status"><span id="toast-msg"></span></div>
 
     <!-- Task modal -->
-    <div class="modal" id="task-modal" hidden>
-        <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <dialog id="task-modal" aria-labelledby="modal-title">
+        <div class="sheet">
             <header class="sheet-head">
                 <h2 id="modal-title">เพิ่มงานใหม่</h2>
                 <button id="btn-close-task" class="icon" type="button" aria-label="ปิด">×</button>
@@ -109,11 +109,11 @@
                 <button class="primary" type="submit" form="task-form">บันทึก</button>
             </footer>
         </div>
-    </div>
+    </dialog>
 
     <!-- Settings modal -->
-    <div class="modal" id="settings-modal" hidden>
-        <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <dialog id="settings-modal" aria-labelledby="settings-title">
+        <div class="sheet">
             <header class="sheet-head">
                 <h2 id="settings-title">จัดการข้อมูล</h2>
                 <button id="settings-close" class="icon" type="button" aria-label="ปิด">×</button>
@@ -123,11 +123,11 @@
                 <p>วันหยุดพิเศษจะไม่ถูกลบ</p>
             </div>
         </div>
-    </div>
+    </dialog>
 
     <!-- Holiday modal -->
-    <div class="modal" id="holiday-modal" hidden>
-        <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="holiday-title">
+    <dialog id="holiday-modal" aria-labelledby="holiday-title">
+        <div class="sheet">
             <header class="sheet-head">
                 <h2 id="holiday-title">จัดการวันหยุดพิเศษ</h2>
                 <button id="holiday-close" class="icon" type="button" aria-label="ปิด">×</button>
@@ -141,7 +141,21 @@
                 <div id="holiday-list" class="list-box"></div>
             </div>
         </div>
-    </div>
+    </dialog>
+
+    <!-- Confirm dialog — replaces browser confirm() for delete and clear-all actions -->
+    <dialog id="confirm-modal" aria-labelledby="confirm-msg">
+        <div class="sheet">
+            <div class="stack">
+                <p id="confirm-msg"></p>
+            </div>
+            <footer class="sheet-foot">
+                <span class="grow"></span>
+                <button id="confirm-cancel" class="ghost" type="button">ยกเลิก</button>
+                <button id="confirm-ok" class="danger" type="button">ยืนยัน</button>
+            </footer>
+        </div>
+    </dialog>
 
     <script type="module" src="js/app.js"></script>
 </body>

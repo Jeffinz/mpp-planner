@@ -19,14 +19,36 @@ test("owner adds a task and sees it on the calendar", async ({ page }) => {
   await expect(page.locator(".calendar .badge", { hasText: "ตรวจงานสะพาน" })).toBeVisible();
 });
 
-test("owner deletes a task after confirming", async ({ page }) => {
+test("owner deletes a task via custom confirm dialog", async ({ page }) => {
   await page.getByRole("button", { name: "เพิ่มงานใหม่" }).click();
   await page.locator("#task-date").fill("02/11/2569");
   await page.locator("#task-project").fill("งานที่จะลบ");
   await page.getByRole("button", { name: "บันทึก" }).click();
   const badge = page.locator(".calendar .badge", { hasText: "งานที่จะลบ" });
   await badge.click();
-  page.once("dialog", (d) => d.accept());
   await page.getByRole("button", { name: "ลบงานนี้" }).click();
+  // Custom confirm dialog — click the in-page confirm button (not browser's confirm())
+  await expect(page.locator("#confirm-modal")).toBeVisible();
+  await page.getByRole("button", { name: "ยืนยัน" }).click();
   await expect(badge).toHaveCount(0);
+});
+
+test("Escape closes the task modal without saving", async ({ page }) => {
+  await page.getByRole("button", { name: "เพิ่มงานใหม่" }).click();
+  await expect(page.locator("#task-modal")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#task-modal")).toBeHidden();
+});
+
+test("pressing Cancel on confirm dialog aborts the deletion", async ({ page }) => {
+  await page.getByRole("button", { name: "เพิ่มงานใหม่" }).click();
+  await page.locator("#task-date").fill("02/11/2569");
+  await page.locator("#task-project").fill("งานเก็บไว้");
+  await page.getByRole("button", { name: "บันทึก" }).click();
+  const badge = page.locator(".calendar .badge", { hasText: "งานเก็บไว้" });
+  await badge.click();
+  await page.getByRole("button", { name: "ลบงานนี้" }).click();
+  await page.locator("#confirm-cancel").click(); // the task modal behind has its own ยกเลิก
+  await expect(page.locator("#confirm-modal")).toBeHidden();
+  await expect(badge).toBeVisible(); // task still there
 });

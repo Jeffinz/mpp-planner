@@ -35,11 +35,26 @@ export async function resetEmulators() {
 }
 
 // Opens the app against the emulators and signs in as the owner via the emulator's Google popup.
-export async function signInAsOwner(page) {
+//
+// Retries because sign-in through the emulator popup sometimes never completes: the popup
+// closes, no error toast shows, and #app stays hidden. It happens at random positions in
+// a run, more often after tests that write to Firestore; sign-in alone passed 5/5.
+// Cause unconfirmed. Best guess: the SDK's popup-closed check beats the result message and
+// app.js signIn() silently ignores auth/popup-closed-by-user, but no capture showed that error.
+export async function signInAsOwner(page, attempts = 3) {
   await page.goto("/?emulators");
-  const popupPromise = page.waitForEvent("popup");
-  await page.getByRole("button", { name: /เข้าสู่ระบบ/ }).click();
-  const popup = await popupPromise;
-  await popup.getByText(OWNER_EMAIL).click();
-  await expect(page.locator("#app")).toBeVisible({ timeout: 20000 });
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    if (attempt > 1) await page.reload();
+    if (await page.locator("#app").isVisible()) return;
+    const popupPromise = page.waitForEvent("popup");
+    await page.getByRole("button", { name: /เข้าสู่ระบบ/ }).click();
+    const popup = await popupPromise;
+    await popup.getByText(OWNER_EMAIL).click();
+    try {
+      await expect(page.locator("#app")).toBeVisible({ timeout: 8000 });
+      return;
+    } catch (err) {
+      if (attempt === attempts) throw err;
+    }
+  }
 }
