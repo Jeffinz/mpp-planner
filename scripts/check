@@ -9,4 +9,6 @@ echo "== unit tests =="
 node --test "tests/unit/**/*.test.js"
 echo "== rules tests (Firestore emulator) =="
 sh scripts/test-rules
+echo "== e2e tests (Playwright + emulators) =="
+sh scripts/test-e2e
 echo "== all checks passed =="

@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
   getFirestore,
+  connectFirestoreEmulator,
   collection,
   doc,
   setDoc,
@@ -11,6 +12,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import {
   getAuth,
+  connectAuthEmulator,
   GoogleAuthProvider,
   signInWithPopup,
   signOut,
@@ -29,9 +31,18 @@ import {
   mergeTask,
 } from "./domain/calendar.js";
 
-const firebaseApp = initializeApp(firebaseConfig);
+// "?emulators" in the URL points the app at the local Firebase emulators (see
+// firebase.json) under a demo project, so e2e tests never touch real data.
+const useEmulators = new URLSearchParams(location.search).has("emulators");
+const firebaseApp = initializeApp(
+  useEmulators ? { ...firebaseConfig, projectId: "demo-mpp-planner" } : firebaseConfig,
+);
 const db = getFirestore(firebaseApp);
 const auth = getAuth(firebaseApp);
+if (useEmulators) {
+  connectFirestoreEmulator(db, "127.0.0.1", 4180);
+  connectAuthEmulator(auth, "http://127.0.0.1:4183", { disableWarnings: true });
+}
 
 const today = new Date();
 const state = {
